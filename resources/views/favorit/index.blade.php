@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favorit Saya - Perpustakaan SMK Maarif</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 12px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: 90px auto 60px;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 25px;
+        }
+
+        .buku-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .buku-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .buku-cover {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .buku-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .buku-cover-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .buku-body { padding: 18px; }
+
+        .buku-body h5 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .buku-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+
+        .stok-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin: 8px 0 12px;
+        }
+
+        .stok-ada { background: #d4edda; color: #1a6e35; }
+        .stok-habis { background: #f8d7da; color: #721c24; }
+
+        .empty-state { text-align: center; padding: 80px 0; }
+        .empty-state i { font-size: 60px; color: #ddd; margin-bottom: 15px; }
+        .empty-state p { color: #aaa; font-size: 15px; }
+        .empty-state a {
+            display: inline-block;
+            margin-top: 15px;
+            background: linear-gradient(135deg,#1a6e35,#27ae60);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container { margin-top: 80px; padding: 0 12px; }
+            .page-title { font-size: 18px; }
+        }
+        /* DARK MODE */
+body.dark-mode {
+    background: #121212;
+    color: #e0e0e0;
+}
+
+body.dark-mode .navbar,
+body.dark-mode .buku-card {
+    background: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-mode .page-title,
+body.dark-mode .buku-body h5 {
+    color: #ffffff;
+}
+
+body.dark-mode .buku-meta {
+    color: #bdbdbd;
+}
+
+body.dark-mode .empty-state i {
+    color: #444;
+}
+
+body.dark-mode .empty-state p {
+    color: #888;
+}
+
+body.dark-mode form[action*="favorit"] button {
+    background: rgba(40,40,40,0.9) !important;
+}
+    </style>
+
+</head>
+<body>
+@php
+    if (request()->has('from')) {
+        session(['favorit_dari' => request('from')]);
+    }
+    $kembaliUrl = session('favorit_dari') === 'profil' ? route('profil.index') : route('koleksi.index');
+@endphp
+
+
+
+<nav class="navbar">
+    <div class="container-fluid px-4">
+        <div class="d-flex align-items-center justify-content-between w-100">
+            <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+                <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
+                <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
+            </a>
+            <a href="{{ $kembaliUrl }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+    <i class="bi bi-arrow-left"></i> Kembali
+</a>
+        </div>
+    </div>
+</nav>
+
+<div class="main-container">
+    @if(session('success'))
+        <div class="alert alert-success mb-3">{{ session('success') }}</div>
+    @endif
+
+    <h1 class="page-title"><i class="bi bi-heart-fill" style="color:#e74c3c"></i> Buku Favorit Saya</h1>
+
+    @if($favorit->count() > 0)
+    <div class="row g-4">
+        @foreach($favorit as $index => $fav)
+        @php $item = $fav->buku; @endphp
+        @if($item)
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="buku-card">
+                <div class="buku-cover">
+                    @if($item->sampul)
+                        <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
+                    @else
+                        <div class="buku-cover-placeholder"><i class="bi bi-book"></i></div>
+                    @endif
+
+                    <form method="POST" action="{{ route('buku.favorit', $item->id) }}" style="position:absolute;top:8px;right:8px;margin:0">
+                        @csrf
+                        <button type="submit" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15)">
+                            <i class="bi bi-heart-fill" style="color:#e74c3c;font-size:15px"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="buku-body">
+                    <h5>{{ $item->judul }}</h5>
+                    <p class="buku-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
+                    <span class="stok-badge {{ $item->stok > 0 ? 'stok-ada' : 'stok-habis' }}">
+                        {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Tidak Tersedia' }}
+                    </span>
+                    <a href="{{ route('buku.detail', $item->id) }}"
+                       style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
+                        <i class="bi bi-eye"></i> Lihat Detail
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+        @endforeach
+    </div>
+    @else
+    <div class="empty-state">
+        <i class="bi bi-heart"></i>
+        <p>Kamu belum punya buku favorit</p>
+        <a href="{{ route('koleksi.index') }}"><i class="bi bi-collection"></i> Jelajahi Koleksi</a>
+    </div>
+    @endif
+</div>
+<script>
+if(localStorage.getItem('darkMode') === 'enabled'){
+    document.body.classList.add('dark-mode');
+}
+</script>
+</body>
+
+</body>
+</html>
