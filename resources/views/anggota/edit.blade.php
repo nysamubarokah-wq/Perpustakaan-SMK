@@ -25,6 +25,12 @@
                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $anggota->email) }}">
                     @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+                @php $userTerkait = \App\Models\User::where('email', $anggota->email)->first(); @endphp
+<div class="col-md-6 mb-3">
+    <label class="form-label">NIS</label>
+    <input type="text" name="nis" class="form-control @error('nis') is-invalid @enderror" value="{{ old('nis', $userTerkait?->nis) }}" placeholder="Nomor Induk Siswa">
+    @error('nis') <div class="invalid-feedback">{{ $message }}</div> @enderror
+</div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">No. Telepon</label>
                     <input type="text" name="no_telepon" class="form-control @error('no_telepon') is-invalid @enderror" value="{{ old('no_telepon', $anggota->no_telepon) }}">

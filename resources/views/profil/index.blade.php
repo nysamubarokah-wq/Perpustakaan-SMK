@@ -544,6 +544,12 @@ body.dark-mode #tokoBackground div[style*="font-size:11px;color:#888"] {
 body.dark-mode a[href*="favorit"] > div {
     background: #1e1e1e !important;
 }
+body.dark-mode a[href*="ebook"] > div {
+    background: #1e1e1e !important;
+}
+body.dark-mode a[href*="ebook"] div[style*="color:#222"] {
+    color: white !important;
+}
 body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     color: white !important;
 }
@@ -640,15 +646,23 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
             </label>
             <input type="file" id="uploadFoto" style="display:none" accept="image/*" onchange="uploadFotoFunc(this)">
         </div>
-        <div class="profil-header-info">
-            <h2>{{ $user->name }}</h2>
-            <p><i class="bi bi-person-badge"></i> NIS: {{ $user->nis }}</p>
-            <p style="margin-top:5px">
-                <span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:13px">
-                    🪙 {{ $user->coin ?? 0 }} Coin
-                </span>
-            </p>
-        </div>
+       <div class="profil-header-info">
+    <h2 style="display:flex;align-items:center;gap:8px">
+        {{ $user->name }}
+
+        @if($user->is_vip && $user->vip_expired_at && now()->lt($user->vip_expired_at))
+            <span style="color:#f59e0b;font-size:20px;">⭐</span>
+        @endif
+    </h2>
+
+    <p><i class="bi bi-person-badge"></i> NIS: {{ $user->nis }}</p>
+
+    <p style="margin-top:5px">
+        <span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:20px;font-size:13px">
+            🪙 {{ $user->coin ?? 0 }} Coin
+        </span>
+    </p>
+</div>
         <div class="ms-auto d-flex flex-column gap-2">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -760,7 +774,26 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     </div>
 </a>
 
-   
+   <!-- EBOOK CARD -->
+<a href="{{ route('ebook.index') }}" style="text-decoration:none;display:block;margin-bottom:25px">
+    <div style="background:white;border-radius:20px;box-shadow:0 5px 25px rgba(0,0,0,0.08);padding:20px 25px;display:flex;align-items:center;gap:15px;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a855f7);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="bi bi-book-half" style="color:white;font-size:20px"></i>
+        </div>
+        <div style="flex:1">
+            <div style="font-weight:700;color:#222;font-size:15px">
+                E-book Digital
+                @if($user->is_vip && $user->vip_expired_at && now()->lt($user->vip_expired_at))
+                    <span style="background:#f59e0b;color:white;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:700">⭐ VIP</span>
+                @endif
+            </div>
+            <div style="font-size:12px;color:#888">{{ $totalEbook ?? 0 }} e-book tersedia</div>
+        </div>
+        <i class="bi bi-chevron-right" style="color:#ccc"></i>
+    </div>
+</a>
+
+    <!-- RIWAYAT PEMINJAMAN -->
 
 
 
@@ -853,56 +886,41 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<form id="formFoto" method="POST" action="{{ route('profil.foto') }}" enctype="multipart/form-data" style="display:none">
-    @csrf
-    <input type="file" name="foto" id="inputFoto">
-</form>
-
 <script>
-function uploadFoto(input) {
-    if (input.files && input.files[0]) {
-        document.getElementById('inputFoto').files = input.files;
-        document.getElementById('formFoto').submit();
-    }
-}
 function toggleToko() {
     const toko = document.getElementById('tokoBackground');
     toko.style.display = toko.style.display === 'none' ? 'block' : 'none';
 }
 
 function uploadFotoFunc(input) {
-    if (input.files && input.files[0]) {
-        document.getElementById('inputFoto').files = input.files;
-        document.getElementById('formFoto').submit();
-    }
+    if (!input.files || !input.files[0]) return;
+
+    const formData = new FormData();
+    formData.append('foto', input.files[0]);
+    formData.append('_token', '{{ csrf_token() }}');
+
+    fetch('{{ route("profil.foto") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => {
+        if (res.ok || res.redirected) {
+            window.location.reload();
+        }
+    })
+    .catch(() => alert('Gagal upload foto, coba lagi.'));
 }
-</script>
-<form id="formFoto" method="POST" action="{{ route('profil.foto') }}" enctype="multipart/form-data" style="display:none">
-    @csrf
-    <input type="file" name="foto" id="inputFoto">
-</form>
-<script>
-    @if(session('success'))
-    <div id="successAlert" class="alert alert-success alert-dismissible fade show mb-3" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-</script>
-<script>
+
 if(localStorage.getItem('darkMode') === 'enabled'){
     document.body.classList.add('dark-mode');
 }
-</script>
-<script>
-// Simpan posisi scroll sebelum submit form Kembalikan
+
 document.querySelectorAll('form[action*="kembalikan"]').forEach(function(form) {
     form.addEventListener('submit', function() {
         sessionStorage.setItem('profilScrollPos', window.scrollY);
     });
 });
 
-// Balikin posisi scroll setelah halaman selesai dimuat, baru tampilkan halamannya
 window.addEventListener('load', function() {
     const scrollPos = sessionStorage.getItem('profilScrollPos');
     if (scrollPos !== null) {
@@ -913,5 +931,4 @@ window.addEventListener('load', function() {
 });
 </script>
 </body>
-
 </html>

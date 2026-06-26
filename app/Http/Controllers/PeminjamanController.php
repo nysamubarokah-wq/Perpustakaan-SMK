@@ -161,4 +161,28 @@ public function setujuiKembali($id)
 
     return redirect()->back()->with('success', 'Pengembalian buku berhasil disetujui dan denda telah dicatat!');
 }
+public function konfirmasiSemua()
+{
+    $permintaan = Peminjaman::where(
+        'status',
+        'menunggu_konfirmasi'
+    )->get();
+
+    foreach ($permintaan as $item) {
+
+        if ($item->buku && $item->buku->stok > 0) {
+            $item->buku->decrement('stok');
+        }
+
+        $item->update([
+            'status' => 'dipinjam'
+        ]);
+    }
+
+    return back()->with(
+        'success',
+        $permintaan->count() . ' peminjaman berhasil dikonfirmasi.'
+    );
+}
+
 }

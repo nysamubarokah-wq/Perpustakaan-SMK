@@ -40,7 +40,8 @@
         </div>
         <div class="mt-4">
     <x-input-label for="no_hp" :value="__('No HP')" />
-    <x-text-input id="no_hp" class="block mt-1 w-full" type="text" name="no_hp" :value="old('no_hp')" required />
+    <x-text-input id="no_hp" class="block mt-1 w-full" type="tel"
+inputmode="numeric" name="no_hp" :value="old('no_hp')" required />
     <x-input-error :messages="$errors->get('no_hp')" class="mt-2" />
 </div>
 

@@ -10,11 +10,25 @@
         </div>
     @endif
 
-    <div class="card p-4 border-0 shadow-sm" style="border-radius: 15px;">
-        <div class="d-flex align-items-center gap-2 mb-3">
-            <i class="bi bi-arrow-counterclockwise fs-4 text-success"></i>
-            <h5 class="fw-bold m-0" style="font-size: 18px; color: #222;">Daftar Persetujuan Pengembalian</h5>
-        </div>
+   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <i class="bi bi-arrow-counterclockwise fs-4 text-success"></i>
+        <h5 class="fw-bold m-0" style="font-size:16px;color:#222">Daftar Persetujuan Pengembalian</h5>
+        @if($persetujuan->count() > 0)
+            <span class="badge bg-warning text-dark rounded-pill px-3">
+                {{ $persetujuan->count() }} menunggu
+            </span>
+        @endif
+    </div>
+    @if($persetujuan->count() > 0)
+    <form action="{{ route('admin.pengembalian.setujuiSemua') }}" method="POST" onsubmit="return confirm('Setujui semua pengembalian?')">
+        @csrf
+        <button type="submit" class="btn btn-success btn-sm" style="border-radius:8px;font-weight:600;font-size:13px">
+            <i class="bi bi-check2-all"></i> Setujui Semua
+        </button>
+    </form>
+    @endif
+</div>
         
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">

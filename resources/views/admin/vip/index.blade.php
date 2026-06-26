@@ -1,0 +1,133 @@
+@extends('layouts.admin')
+
+@section('header_title', 'Kelola VIP')
+
+@section('content')
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
+{{-- Upgrade manual --}}
+<div style="background:white;border-radius:16px;padding:25px;box-shadow:0 3px 15px rgba(0,0,0,0.08);margin-bottom:25px">
+    <div style="font-weight:700;color:#222;margin-bottom:15px">⭐ Upgrade VIP Manual (by Admin)</div>
+    <form action="#" method="POST" id="formUpgradeAdmin" class="d-flex gap-2 flex-wrap">
+        @csrf
+        <select name="user_id" id="selectUser" style="flex:1;min-width:200px;padding:10px 15px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;outline:none;background:white">
+            <option value="">-- Pilih Siswa --</option>
+            @foreach(\App\Models\User::where('role','!=','admin')->orderBy('name')->get() as $u)
+                <option value="{{ $u->id }}">{{ $u->name }} (🪙 {{ $u->coin ?? 0 }} koin) {{ $u->is_vip && $u->vip_expired_at && now()->lt($u->vip_expired_at) ? '⭐ VIP' : '' }}</option>
+            @endforeach
+        </select>
+        <button type="submit" id="btnUpgrade"
+                style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:white;border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer">
+            ⭐ Upgrade 7 Hari
+        </button>
+    </form>
+</div>
+
+{{-- Daftar VIP aktif --}}
+<div style="background:white;border-radius:16px;box-shadow:0 3px 15px rgba(0,0,0,0.08);overflow:hidden">
+    <div style="padding:20px 25px;border-bottom:1px solid #f0f0f0;font-weight:700;color:#222">
+        Daftar Member VIP Aktif
+    </div>
+
+    @if($vipUsers->count() > 0)
+    <div class="card-admin-body">
+        <table class="table table-hover mb-0" style="border-collapse:collapse">
+            <thead style="background:#f8f9fa;border-bottom:2px solid #e5e7eb">
+                <tr>
+                    <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">NAMA</th>
+                    <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">EXPIRED</th>
+                    <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">STATUS</th>
+                    <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">AKSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($vipUsers as $u)
+                <tr>
+                    <td style="padding:12px 20px;vertical-align:middle">
+                        <div style="font-weight:700;color:#222;font-size:14px">{{ $u->name }}</div>
+                        <div style="font-size:12px;color:#888">{{ $u->email }}</div>
+                    </td>
+                    <td style="padding:12px 20px;vertical-align:middle;font-size:14px">
+                        {{ $u->vip_expired_at ? $u->vip_expired_at->format('d M Y') : '-' }}
+                    </td>
+                    <td style="padding:12px 20px;vertical-align:middle">
+    @if($u->vip_expired_at && now()->lt($u->vip_expired_at))
+        {{-- Perbaikan: Tambahkan white-space:nowrap dan display:inline-block --}}
+        <span style="background:#d1fae5;color:#065f46;font-size:11px;padding:3px 10px;border-radius:8px;font-weight:600;white-space:nowrap;display:inline-block">
+            ✓ Aktif ({{ ceil(now()->diffInDays($u->vip_expired_at, false)) }} hari lagi)
+        </span>
+    @else
+        {{-- Perbaikan: Tambahkan white-space:nowrap --}}
+        <span style="background:#fee2e2;color:#991b1b;font-size:11px;padding:3px 10px;border-radius:8px;font-weight:600;white-space:nowrap;display:inline-block">
+            Expired
+        </span>
+    @endif
+</td>
+                    <td style="padding:12px 20px;vertical-align:middle">
+                        <div style="display:flex;gap:8px">
+                            <form action="{{ route('admin.vip.upgrade', $u->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                        style="background:#fef3c7;color:#92400e;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                    +7 Hari
+                                </button>
+                            </form>
+                            <form action="{{ route('admin.vip.cabut', $u->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                        onclick="return confirm('Cabut VIP {{ $u->name }}?')"
+                                        style="background:#fee2e2;color:#dc2626;border:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                    Cabut
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    <div style="padding:15px 20px">{{ $vipUsers->links() }}</div>
+
+    @else
+    <div style="text-align:center;padding:50px;color:#aaa">
+        <i class="bi bi-star" style="font-size:40px;display:block;margin-bottom:10px"></i>
+        <p>Belum ada member VIP</p>
+    </div>
+    @endif
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+document.getElementById('formUpgradeAdmin').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const userId = document.getElementById('selectUser').value;
+    if (!userId) { alert('Pilih siswa dulu!'); return; }
+    if (!confirm('Upgrade VIP 7 hari untuk siswa ini?')) return;
+    this.action = `/admin/vip/${userId}/upgrade`;
+    this.submit();
+});
+</script>
+<style>
+@media (max-width: 768px) {
+    #formUpgradeAdmin { flex-direction: column; }
+    #formUpgradeAdmin select { min-width: 100%; }
+    #formUpgradeAdmin button { width: 100%; }
+
+    /* Tabel VIP di mobile — sembunyikan kolom email, tampilkan inline */
+    .table td[style*="padding:12px 20px"] { padding: 8px 12px !important; font-size: 12px !important; }
+    .table th[style*="padding:15px 20px"] { padding: 10px 12px !important; font-size: 11px !important; }
+
+    /* Nama + email jadi satu kolom */
+    .vip-email { display: none; }
+}
+</style>
+@endpush

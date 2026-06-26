@@ -13,14 +13,15 @@
 
         /* SIDEBAR */
         .sidebar {
-            position: fixed;
-            left: 0; top: 0; bottom: 0;
-            width: 240px;
-            background: linear-gradient(180deg, #1a6e35, #27ae60);
-            padding: 25px 0;
-            z-index: 200;
-            transition: transform 0.3s ease;
-        }
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: linear-gradient(180deg, #1a6e35, #27ae60);
+    padding: 25px 0;
+    z-index: 200;
+    transition: transform 0.3s ease;
+    overflow-y: auto; /* ← tambah ini */
+}
 
         .sidebar-brand {
             display: flex;
@@ -195,6 +196,26 @@
         <li><a href="{{ route('admin.pengembalian.index') }}" class="{{ Route::is('admin.pengembalian.*') ? 'active' : '' }}"><i class="bi bi-arrow-counterclockwise"></i> Persetujuan Kembali</a></li>
         <li><a href="{{ route('background.index') }}" class="{{ Route::is('background.*') ? 'active' : '' }}"><i class="bi bi-image"></i> Kelola Background</a></li>
         <li><a href="{{ route('admin.ulasan.index') }}" class="{{ Route::is('admin.ulasan.*') ? 'active' : '' }}"><i class="bi bi-star-fill"></i> Kelola Ulasan</a></li>
+        <li>
+    <a href="{{ route('admin.siswa.index') }}" class="{{ Route::is('admin.siswa.*') ? 'active' : '' }}">
+        <i class="bi bi-people-fill"></i> Data Siswa
+    </a>
+</li>
+<li>
+    <a href="{{ route('admin.pinjam.index') }}" class="{{ Route::is('admin.pinjam.*') ? 'active' : '' }}">
+        <i class="bi bi-bookmark-check"></i> Konfirmasi Pinjam
+    </a>
+</li>
+<li>
+    <a href="{{ route('admin.ebook.index') }}" class="{{ Route::is('admin.ebook.*') ? 'active' : '' }}">
+        <i class="bi bi-book-half"></i> Kelola E-book
+    </a>
+</li>
+<li>
+    <a href="{{ route('admin.vip.index') }}" class="{{ Route::is('admin.vip.*') ? 'active' : '' }}">
+        <i class="bi bi-star-fill"></i> Kelola VIP
+    </a>
+</li>
         <hr class="sidebar-divider">
         <li>
             <form method="POST" action="{{ route('logout') }}">
@@ -236,5 +257,32 @@ function toggleSidebar() {
 }
 </script>
 @stack('scripts')
+
+<script>
+// Simpan scroll position sidebar sebelum pindah halaman
+document.querySelectorAll('.sidebar-menu li a').forEach(link => {
+    link.addEventListener('click', function() {
+        sessionStorage.setItem('sidebarScroll', document.getElementById('adminSidebar').scrollTop);
+        sessionStorage.setItem('mainScroll', window.scrollY);
+    });
+});
+
+// Restore scroll position setelah halaman dimuat
+window.addEventListener('load', function() {
+    // Restore sidebar scroll
+    const sidebarScroll = sessionStorage.getItem('sidebarScroll');
+    if (sidebarScroll !== null) {
+        document.getElementById('adminSidebar').scrollTop = parseInt(sidebarScroll);
+        sessionStorage.removeItem('sidebarScroll');
+    }
+
+    // Restore main content scroll
+    const mainScroll = sessionStorage.getItem('mainScroll');
+    if (mainScroll !== null) {
+        window.scrollTo(0, parseInt(mainScroll));
+        sessionStorage.removeItem('mainScroll');
+    }
+});
+</script>
 </body>
 </html>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Anggota;
+use App\Models\DataSiswa;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,18 +21,38 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
-   public function store(Request $request): RedirectResponse
+    // ← hapus baris "use App\Models\DataSiswa;" yang ada di sini
+
+    public function store(Request $request): RedirectResponse
     {
-        // 1. Validasi tetap sama
-      $request->validate([
+       $request->validate([
     'name'     => ['required', 'string', 'max:255'],
     'nis'      => ['required', 'string', 'max:20', 'unique:users'],
     'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
-    'no_hp'    => ['required', 'string', 'max:20'], // Tambahkan ini
-    'alamat'   => ['required', 'string'],           // Tambahkan ini
+    'no_hp'    => [
+        'required',
+        'regex:/^(?:\+62|0)[0-9]{9,13}$/',
+    ],
+    'alamat'   => ['required', 'string'],
     'password' => ['required', 'confirmed', Rules\Password::defaults()],
+], [
+    'no_hp.regex' => 'Nomor HP harus diawali 08 atau +62 dan hanya boleh berisi angka.',
 ]);
-        // 2. Buat User
+
+        $dataSiswa = DataSiswa::where('nis', $request->nis)->first();
+
+        if (!$dataSiswa) {
+            return back()->withErrors(['nis' => 'NIS tidak terdaftar. Hubungi admin perpustakaan.'])->withInput();
+        }
+
+        if (strtolower(trim($dataSiswa->nama)) !== strtolower(trim($request->name))) {
+            return back()->withErrors(['name' => 'Nama tidak sesuai dengan data NIS tersebut.'])->withInput();
+        }
+
+        if (User::where('nis', $request->nis)->exists()) {
+            return back()->withErrors(['nis' => 'NIS ini sudah digunakan untuk akun lain.'])->withInput();
+        }
+
         $user = User::create([
             'name'     => $request->name,
             'nis'      => $request->nis,
@@ -39,9 +60,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // 3. Buat Anggota (Pastikan key di bawah sesuai dengan nama kolom di database!)
-       Anggota::create([
-            // 'nis' => $request->nis,  <-- HAPUS INI
+        Anggota::create([
             'nama'           => $request->name,
             'email'          => $request->email,
             'no_telepon'     => $request->no_hp,

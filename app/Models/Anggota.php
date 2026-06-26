@@ -15,5 +15,6 @@ class Anggota extends Model
         'alamat',
         'tanggal_daftar',
         'role',
+        'nis', // Tambahkan kolom NIS
     ];
 }

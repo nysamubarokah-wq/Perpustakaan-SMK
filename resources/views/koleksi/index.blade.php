@@ -459,6 +459,151 @@ body.dark-mode .modal-box {
 body.dark-mode form[action*="favorit"] button {
     background: rgba(40,40,40,0.9) !important;
 }
+
+/* Perbaikan dark mode teks */
+body.dark-mode span[style*="color:#222"],
+body.dark-mode h5[style*="color:#222"],
+body.dark-mode h6[style*="color:#222"],
+body.dark-mode p[style*="color:#555"],
+body.dark-mode p[style*="color:#666"],
+body.dark-mode div[style*="color:#444"] {
+    color: #ffffff !important;
+}
+
+body.dark-mode a {
+    color: #e0e0e0;
+}
+
+/* Dropdown Profil */
+body.dark-mode #profilDropdown {
+    background: #1e1e1e !important;
+    color: white !important;
+}
+
+body.dark-mode #profilDropdown h6,
+body.dark-mode #profilDropdown p {
+    color: white !important;
+}
+
+body.dark-mode #profilDropdown > div[style*="background:#f9f9f9"] {
+    background: #2a2a2a !important;
+}
+
+body.dark-mode #profilDropdown button[type="submit"] {
+    background: #333 !important;
+    color: white !important;
+}
+
+/* Modal VIP */
+body.dark-mode #modalVip > div {
+    background: #1e1e1e !important;
+    color: white !important;
+}
+
+body.dark-mode #modalVip h5,
+body.dark-mode #modalVip p,
+body.dark-mode #modalVip div {
+    color: white !important;
+}
+
+body.dark-mode #modalVip div[style*="background:#f8f9fa"] {
+    background: #2a2a2a !important;
+}
+
+body.dark-mode #modalVip button[onclick*="modalVip"] {
+    color: #ddd !important;
+}
+
+/* CARD VIP AKTIF */
+body.dark-mode #modalVip div[style*="#fff8e1"]{
+    background: linear-gradient(135deg,#2d2412,#3d3118) !important;
+}
+
+body.dark-mode #modalVip div[style*="#fff3cd"]{
+    background: linear-gradient(135deg,#2d2412,#3d3118) !important;
+}
+
+body.dark-mode #modalVip div[style*="color:#856404"]{
+    color: #fbbf24 !important;
+}
+
+body.dark-mode #modalVip div[style*="color:#888"]{
+    color: #d1d5db !important;
+}
+
+.badge-populer,
+.badge-baru{
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+    margin:8px 0 12px;
+}
+
+.badge-populer{
+    background:#fff3cd;
+    color:#d97706;
+}
+
+.badge-baru{
+    background:#d4edda;
+    color:#1a6e35;
+}
+
+.badge-wrapper{
+    display:flex;
+    gap:4px;
+    align-items:center;
+    flex-wrap:nowrap;
+    margin:8px 0 12px;
+}
+
+@media (max-width:768px){
+    .badge-wrapper{
+        gap:3px;
+    }
+
+    .stok-badge,
+    .badge-populer,
+    .badge-baru{
+        font-size:10px;
+        padding:3px 8px;
+    }
+}
+
+/* ===========================
+   DARK MODE - MODAL PERATURAN
+=========================== */
+
+body.dark-mode #modalPeraturan > div{
+    background:#1e1e1e !important;
+}
+
+body.dark-mode #modalPeraturan div[style*="overflow-y:auto"]{
+    background:#1e1e1e !important;
+}
+
+body.dark-mode #modalPeraturan div[style*="background:#fafafa"]{
+    background:#252525 !important;
+    border-top:1px solid #444 !important;
+}
+
+body.dark-mode #modalPeraturan p{
+    color:#d1d5db !important;
+}
+
+body.dark-mode #modalPeraturan div[style*="color:#444"]{
+    color:#f3f4f6 !important;
+}
+
+body.dark-mode #modalPeraturan div[style*="color:#666"]{
+    color:#d1d5db !important;
+}
+
+body.dark-mode #modalPeraturan div[style*="color:#888"]{
+    color:#cbd5e1 !important;
+}
     </style>
 </head>
 <body>
@@ -483,12 +628,16 @@ body.dark-mode form[action*="favorit"] button {
 </a>
                         <div class="layanan-dropdown" id="layananDropdown">
                             <p style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Penjaga Perpustakaan</p>
-                          @php
-    if(auth()->user()->role === 'admin') {
-        $adminAktif = auth()->user();
-    } else {
-        $adminAktif = \App\Models\User::where('role', 'admin')->latest('updated_at')->first();
+                @php
+    $adminAktif = \App\Models\User::where('role', 'admin')
+        ->where('is_on_duty', true)
+        ->first();
+
+    // fallback kalau belum ada yang di-set bertugas
+    if (!$adminAktif) {
+        $adminAktif = \App\Models\User::where('role', 'admin')->first();
     }
+
     $anggotaAdmin = \App\Models\Anggota::where('email', $adminAktif?->email)->first();
 @endphp
 <div class="penjaga-card">
@@ -574,6 +723,16 @@ body.dark-mode form[action*="favorit"] button {
                             <p style="font-size:12px;color:#555;margin-bottom:6px"><i class="bi bi-person-badge" style="color:#1a6e35"></i> NIS: {{ auth()->user()->nis }}</p>
                             <p style="font-size:12px;color:#555;margin:0"><i class="bi bi-envelope" style="color:#1a6e35"></i> {{ auth()->user()->email }}</p>
                         </div>
+
+                        @php
+    $vipAktif = auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at);
+    $sisaHari = $vipAktif ? (int) now()->diffInDays(auth()->user()->vip_expired_at) + 1 : 0;
+@endphp
+<button onclick="document.getElementById('profilDropdown').classList.remove('show');document.getElementById('modalVip').style.display='flex'"
+    style="width:100%;padding:10px;background:{{ $vipAktif ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#374151,#1f2937)' }};color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">
+    ⭐ {{ $vipAktif ? 'VIP Aktif · '.$sisaHari.' hari lagi' : 'Upgrade VIP' }}
+</button>
+
                        <a href="{{ route('profil.index') }}" style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
                        <i class="bi bi-person"></i> Lihat Profil
                        </a>
@@ -614,6 +773,8 @@ body.dark-mode form[action*="favorit"] button {
     </div>
 </div>
 
+
+
 <!-- KOLEKSI BUKU -->
 <div class="buku-section">
     <div class="container">
@@ -632,6 +793,21 @@ body.dark-mode form[action*="favorit"] button {
             <div class="col-6 col-md-4 col-lg-3">
                 <div class="buku-card">
                    <div class="buku-cover cover-{{ ($index % 6) + 1 }}">
+                    @if(($item->peminjaman_count ?? 0) >= 10)
+<div style="
+position:absolute;
+top:10px;
+left:10px;
+background:#ff5722;
+color:white;
+padding:4px 10px;
+border-radius:20px;
+font-size:11px;
+font-weight:bold;
+z-index:5;">
+🔥 Trending
+</div>
+@endif
     @if($item->sampul)
         <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
     @else
@@ -655,9 +831,19 @@ body.dark-mode form[action*="favorit"] button {
                         <h5>{{ $item->judul }}</h5>
                         <p class="buku-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
                         <p class="buku-meta"><i class="bi bi-building"></i> {{ $item->penerbit }}</p>
-                        <span class="stok-badge {{ $item->stok > 0 ? 'stok-ada' : 'stok-habis' }}">
-                            {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Tidak Tersedia' }}
-                        </span>
+                      <div class="badge-wrapper">
+
+    <span class="stok-badge {{ $item->stok > 0 ? 'stok-ada' : 'stok-habis' }}">
+        {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Tidak Tersedia' }}
+    </span>
+
+  @if(($item->peminjaman_count ?? 0) >= 3)
+    <span class="badge-populer">🔥 {{ $item->peminjaman_count }}x</span>
+@elseif($item->created_at && $item->created_at->diffInDays(now()) <= 30)
+    <span class="badge-baru">🟢 Terbaru</span>
+@endif
+
+</div>
                     
    @if($item->stok > 0)
     <a href="{{ route('buku.detail', $item->id) }}" 
@@ -777,6 +963,78 @@ function toggleProfil(e) {
 </style>
 @endif
 
+{{-- NOTIFIKASI HAMPIR JATUH TEMPO --}}
+@php
+    $bukuH1 = 0;
+    $bukuH2 = 0;
+    if ($anggotaLogin) {
+        $besok = now()->addDay()->toDateString();
+        $lusaDari = now()->addDays(2)->toDateString();
+        
+        $bukuH1 = \App\Models\Peminjaman::where('anggota_id', $anggotaLogin->id)
+            ->where('status', 'dipinjam')
+            ->whereDate('tanggal_kembali', $besok)
+            ->count();
+
+        $bukuH2 = \App\Models\Peminjaman::where('anggota_id', $anggotaLogin->id)
+            ->where('status', 'dipinjam')
+            ->whereDate('tanggal_kembali', $lusaDari)
+            ->count();
+    }
+@endphp
+
+@if($bukuH1 > 0)
+<div id="notifH1" style="
+    position:fixed;bottom:{{ $bukuTerlambat > 0 ? '110px' : '20px' }};right:20px;
+    background:#e67e22;color:white;
+    padding:15px 20px;border-radius:15px;
+    box-shadow:0 10px 30px rgba(230,126,34,0.4);
+    z-index:9998;max-width:300px;
+    animation:slideIn 0.5s ease;
+">
+    <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="font-size:24px">🔔</div>
+        <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:3px">Segera Kembalikan Buku!</div>
+            <div style="font-size:12px;opacity:0.9">
+                Kamu punya <strong>{{ $bukuH1 }} buku</strong> yang harus dikembalikan <strong>besok</strong>!
+            </div>
+            <a href="{{ route('profil.index') }}" style="display:inline-block;margin-top:8px;background:white;color:#e67e22;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">
+                Lihat Sekarang →
+            </a>
+        </div>
+        <button onclick="document.getElementById('notifH1').style.display='none'"
+                style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0">✕</button>
+    </div>
+</div>
+@endif
+
+@if($bukuH2 > 0)
+<div id="notifH2" style="
+    position:fixed;bottom:{{ $bukuTerlambat > 0 && $bukuH1 > 0 ? '200px' : ($bukuTerlambat > 0 || $bukuH1 > 0 ? '110px' : '20px') }};right:20px;
+    background:#f39c12;color:white;
+    padding:15px 20px;border-radius:15px;
+    box-shadow:0 10px 30px rgba(243,156,18,0.4);
+    z-index:9997;max-width:300px;
+    animation:slideIn 0.6s ease;
+">
+    <div style="display:flex;align-items:flex-start;gap:10px">
+        <div style="font-size:24px">📅</div>
+        <div>
+            <div style="font-weight:700;font-size:14px;margin-bottom:3px">Buku Akan Jatuh Tempo</div>
+            <div style="font-size:12px;opacity:0.9">
+                Kamu punya <strong>{{ $bukuH2 }} buku</strong> yang akan jatuh tempo dalam <strong>2 hari</strong>.
+            </div>
+            <a href="{{ route('profil.index') }}" style="display:inline-block;margin-top:8px;background:white;color:#f39c12;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">
+                Lihat Sekarang →
+            </a>
+        </div>
+        <button onclick="document.getElementById('notifH2').style.display='none'"
+                style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0">✕</button>
+    </div>
+</div>
+@endif
+
 <script>
 const darkToggle = document.getElementById('darkModeToggle');
 
@@ -840,5 +1098,133 @@ window.addEventListener('load', function() {
     }
 });
 </script>
+{{-- MODAL PERATURAN --}}
+@auth
+@if(!auth()->user()->agreed_rules)
+<div id="modalPeraturan" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px">
+    <div style="background:white;border-radius:20px;max-width:480px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+        
+        <div style="background:linear-gradient(135deg,#1a6e35,#27ae60);padding:25px;text-align:center">
+            <div style="font-size:35px;margin-bottom:8px">📋</div>
+            <div style="color:white;font-size:18px;font-weight:700">Peraturan Perpustakaan</div>
+            <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:4px">SMK Maarif Walisongo Kajoran</div>
+        </div>
+
+        <div style="padding:20px 25px;overflow-y:auto;flex:1">
+            <p style="font-size:13px;color:#666;margin-bottom:15px">Dengan menggunakan layanan perpustakaan digital ini, kamu wajib mematuhi peraturan berikut:</p>
+            <div style="display:flex;flex-direction:column;gap:12px">
+                @foreach([
+                    'Kartu anggota perpustakaan wajib dibawa setiap kali berkunjung.',
+                    'Buku yang dipinjam wajib dikembalikan tepat waktu sesuai batas peminjaman.',
+                    'Keterlambatan pengembalian buku dikenakan denda Rp 1.000 per hari.',
+                    'Buku yang rusak atau hilang wajib diganti sesuai harga buku.',
+                    'Dilarang membawa makanan dan minuman ke dalam area perpustakaan.',
+                    'Jaga ketenangan dan ketertiban selama berada di perpustakaan.',
+                    'Gunakan fasilitas perpustakaan dengan bertanggung jawab.',
+                    'E-book hanya boleh dibaca melalui platform ini, tidak untuk disebarluaskan.',
+                ] as $i => $p)
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                    <div style="min-width:28px;height:28px;background:#1a6e35;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">
+                        {{ $i + 1 }}
+                    </div>
+                    <div style="font-size:13px;color:#444;line-height:1.6;padding-top:4px">{{ $p }}</div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        <div style="padding:20px 25px;border-top:1px solid #f0f0f0;background:#fafafa">
+            <p style="font-size:12px;color:#888;text-align:center;margin-bottom:15px">
+                Dengan menekan tombol di bawah, kamu menyatakan telah membaca dan menyetujui seluruh peraturan di atas.
+            </p>
+            <button onclick="setujuPeraturan()"
+                    style="width:100%;padding:14px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer">
+                ✅ Saya Setuju & Mengerti
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function setujuPeraturan() {
+    fetch('{{ route('setuju.peraturan') }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(() => {
+        document.getElementById('modalPeraturan').style.display = 'none';
+    })
+    .catch(() => {
+        document.getElementById('modalPeraturan').style.display = 'none';
+    });
+}
+</script>
+@endif
+@endauth
+
+{{-- MODAL VIP --}}
+<div id="modalVip" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;align-items:center;justify-content:center">
+    <div style="background:white;border-radius:24px;padding:30px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative">
+        <button onclick="document.getElementById('modalVip').style.display='none'"
+            style="position:absolute;top:15px;right:15px;background:none;border:none;font-size:20px;color:#aaa;cursor:pointer">✕</button>
+
+        <div style="text-align:center;margin-bottom:20px">
+            <div style="font-size:40px;margin-bottom:8px">⭐</div>
+            <h5 style="font-weight:800;color:#222;margin:0">Member VIP</h5>
+            <p style="font-size:13px;color:#888;margin-top:4px">Akses semua e-book & fitur eksklusif</p>
+        </div>
+
+        @if($vipAktif)
+        <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border-radius:14px;padding:15px;text-align:center;margin-bottom:20px">
+            <div style="font-size:13px;color:#856404;font-weight:600">✅ VIP Aktif</div>
+            <div style="font-size:12px;color:#888;margin-top:4px">Berakhir: {{ auth()->user()->vip_expired_at->format('d M Y') }}</div>
+            <div style="font-size:20px;font-weight:800;color:#f59e0b;margin-top:6px">{{ $sisaHari }} Hari Lagi</div>
+        </div>
+        @endif
+
+        <div style="background:#f8f9fa;border-radius:12px;padding:15px;margin-bottom:20px">
+            <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:10px">Keuntungan VIP:</div>
+            <div style="font-size:12px;color:#555;line-height:2">
+                <div>📚 Akses semua e-book VIP</div>
+                <div>📖 Pinjam hingga 6 buku sekaligus</div>
+                <div>⏰ Durasi pinjam hingga 14 hari</div>
+                <div>⭐ Badge VIP eksklusif</div>
+            </div>
+        </div>
+@if(auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at))
+
+    <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:12px">
+        Status VIP:
+    </div>
+
+    <button type="button"
+        disabled
+        style="width:100%;padding:13px;border-radius:12px;border:none;background:#e5e7eb;color:#6b7280;font-weight:700;font-size:14px;cursor:not-allowed">
+        ✅ VIP Masih Aktif
+    </button>
+
+@else
+
+    <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:12px">
+        Upgrade VIP 7 hari — 100 Koin:
+    </div>
+
+    <form action="{{ route('vip.beli') }}" method="POST">
+        @csrf
+        <button type="submit"
+            {{ (auth()->user()->coin ?? 0) < 100 ? 'disabled' : '' }}
+            onclick="return confirm('Upgrade VIP 7 hari dengan 100 koin?')"
+            style="width:100%;padding:13px;border-radius:12px;border:none;background:{{ (auth()->user()->coin ?? 0) >= 100 ? 'linear-gradient(135deg,#1a6e35,#27ae60)' : '#e5e7eb' }};color:{{ (auth()->user()->coin ?? 0) >= 100 ? 'white' : '#9ca3af' }};font-weight:700;font-size:14px;cursor:{{ (auth()->user()->coin ?? 0) >= 100 ? 'pointer' : 'not-allowed' }}">
+            🪙 {{ (auth()->user()->coin ?? 0) >= 100 ? 'Upgrade dengan 100 Koin' : 'Koin Tidak Cukup ('.(auth()->user()->coin ?? 0).'/100)' }}
+        </button>
+    </form>
+
+@endif
+</div>
+
 </body>
 </html>

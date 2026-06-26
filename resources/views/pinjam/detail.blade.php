@@ -725,7 +725,19 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
                 <img src="https://ui-avatars.com/api/?name={{ urlencode($ulasan->user->name) }}&background=1a6e35&color=fff" style="width:28px;height:28px;border-radius:50%;flex-shrink:0">
             @endif
             <div style="line-height:1.2">
-                <div style="font-size:13px;font-weight:700;color:#222">{{ $ulasan->user->name }}</div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:#222">
+    {{ $ulasan->user->name }}
+
+    @if($ulasan->user->is_vip && $ulasan->user->vip_expired_at && now()->lt($ulasan->user->vip_expired_at))
+        <span style="
+            color:#f59e0b;
+            font-size:14px;
+            line-height:1;
+        ">
+            ⭐
+        </span>
+    @endif
+</div>
                 <div style="font-size:11px;color:#f0932b;line-height:1">
                     @for($i = 1; $i <= 5; $i++)
                         <i class="bi bi-star{{ $i <= $ulasan->rating ? '-fill' : '' }}"></i>
@@ -787,12 +799,23 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
         <h4><i class="bi bi-bookmark-plus" style="color:#1a6e35"></i> Form Peminjaman</h4>
         <p class="subtitle">Isi data peminjaman buku</p>
 
-        <div class="modal-peminjam">
-            <i class="bi bi-person-circle" style="color:#1a6e35"></i>
-            Peminjam: <strong>{{ auth()->user()->name }}</strong><br>
-            <i class="bi bi-book" style="color:#1a6e35"></i>
-            Buku: <strong>{{ $buku->judul }}</strong>
-        </div>
+       <div class="modal-peminjam">
+    <i class="bi bi-person-circle" style="color:#1a6e35"></i>
+    Peminjam: <strong>{{ auth()->user()->name }}</strong><br>
+    <i class="bi bi-book" style="color:#1a6e35"></i>
+    Buku: <strong>{{ $buku->judul }}</strong><br>
+    @php
+        $isVip = auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at);
+    @endphp
+    <i class="bi bi-info-circle" style="color:#1a6e35"></i>
+    Batas pinjam:
+    @if($isVip)
+        <strong>⭐ VIP — maks. 6 buku, 14 hari</strong>
+    @else
+        <strong>maks. 3 buku, 7 hari</strong>
+        <span style="font-size:11px;color:#888"> (VIP: 6 buku, 14 hari)</span>
+    @endif
+</div>
 
         <form method="POST" action="{{ route('buku.pinjam', $buku->id) }}">
             @csrf

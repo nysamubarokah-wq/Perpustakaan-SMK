@@ -36,11 +36,19 @@ class AnggotaController extends Controller
             'alamat'        => 'required',
             'tanggal_daftar'=> 'required|date',
         ]);
+Anggota::create($request->all());
 
-        Anggota::create($request->all());
+// Simpan NIS ke users jika ada, atau sudah tersimpan di anggota via $request->all()
+if ($request->nis) {
+    $user = \App\Models\User::where('email', $request->email)->first();
+    if ($user) {
+        $user->update(['nis' => $request->nis]);
+    }
+}
 
         return redirect()->route('anggota.index')->with('success', 'Anggota berhasil ditambahkan!');
     }
+    
 
     public function edit(Anggota $anggota)
     {
@@ -57,7 +65,14 @@ class AnggotaController extends Controller
             'tanggal_daftar'=> 'required|date',
         ]);
 
-        $anggota->update($request->all());
+      $anggota->update($request->all());
+
+if ($request->has('nis')) {
+    $user = \App\Models\User::where('email', $anggota->email)->first();
+    if ($user) {
+        $user->update(['nis' => $request->nis]);
+    }
+}
 
         return redirect()->route('anggota.index')->with('success', 'Anggota berhasil diupdate!');
     }
@@ -87,5 +102,20 @@ public function updateRole(Request $request, $id, $role)
     }
 
     return redirect()->back()->with('success', 'Role berhasil diubah dan disinkronisasi!');
+}
+
+public function setDuty($userId)
+{
+    \App\Models\User::where('role', 'admin')->update(['is_on_duty' => false]);
+    $user = \App\Models\User::findOrFail($userId);
+    $user->update(['is_on_duty' => true]);
+    return back()->with('success', $user->name . ' sekarang sedang bertugas!');
+}
+
+public function cabutDuty($userId)
+{
+    $user = \App\Models\User::findOrFail($userId);
+    $user->update(['is_on_duty' => false]);
+    return back()->with('success', 'Status bertugas ' . $user->name . ' berhasil dicabut!');
 }
 }

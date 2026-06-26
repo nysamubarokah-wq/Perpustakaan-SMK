@@ -12,20 +12,20 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = [
-        'name', 'nis', 'email', 'password', 'role', 'foto', 'coin', 'background', 'owned_backgrounds', 'no_hp'
-    ];
-
+   protected $fillable = [
+    'name', 'nis', 'email', 'password', 'role', 'foto', 'coin', 'background', 'owned_backgrounds', 'no_hp', 'is_on_duty', 'is_vip', 'vip_expired_at', 'agreed_rules','vip_expired_at', 
+];
     protected $hidden = [
         'password', 'remember_token',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'owned_backgrounds' => 'array',
-        ];
-    }
+protected function casts(): array
+{
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'owned_backgrounds' => 'array',
+        'is_vip' => 'boolean',
+        'vip_expired_at' => 'datetime',
+    ];
+}
 }

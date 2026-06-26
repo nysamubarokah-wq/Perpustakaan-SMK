@@ -27,4 +27,15 @@ class UserController extends Controller
 
         return back()->with('success', 'Role '.$user->name.' berhasil diubah menjadi '.$user->role.'!');
     }
+
+    public function toggleDuty($id)
+{
+    // Matikan semua admin yang lagi bertugas dulu
+    \App\Models\User::where('role', 'admin')->update(['is_on_duty' => false]);
+
+    // Set admin yang dipilih jadi bertugas
+    \App\Models\User::findOrFail($id)->update(['is_on_duty' => true]);
+
+    return back()->with('success', 'Penjaga bertugas berhasil diubah.');
+}
 }

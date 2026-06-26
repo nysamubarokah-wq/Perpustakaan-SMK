@@ -65,6 +65,14 @@
         .table-card-header { padding: 15px; }
         .table-card { overflow-x: auto; }
     }
+
+    .status-badge { 
+    padding: 4px 12px; 
+    border-radius: 20px; 
+    font-size: 11px; 
+    font-weight: 600; 
+    white-space: nowrap; /* Tambahkan ini agar teks tidak terpotong */
+}
 </style>
 
 <!-- SUBHEADER -->
@@ -191,13 +199,12 @@
             <div style="overflow-x:auto">
                 <table class="table table-hover mb-0">
                     <thead style="background:#f8f9fa">
-                        <tr>
-                            <th>Anggota</th>
-                            <th>Buku</th>
-                            <th>Kembali</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
+    <tr>
+        <th>Anggota</th>
+        <th>Buku</th>
+        <th>Kembali</th>
+        <th style="min-width: 110px;">Status</th> </tr>
+</thead>
                     <tbody>
                         @forelse($peminjamanTerbaru as $item)
                         <tr>
@@ -206,7 +213,7 @@
                             <td>{{ $item->tanggal_kembali }}</td>
                             <td>
                                 @if($item->status == 'menunggu_konfirmasi')
-                                    <span class="status-badge status-konfirmasi">Minta Kembali</span>
+                                    <span class="status-badge status-konfirmasi">Menunggu</span>
                                 @elseif($item->status == 'dipinjam' && $item->tanggal_kembali < now()->toDateString())
                                     <span class="status-badge status-terlambat">Terlambat</span>
                                 @elseif($item->status == 'dipinjam')
