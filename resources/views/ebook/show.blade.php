@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; overflow-x: hidden; }
 
         .navbar {
             background: white;
@@ -82,7 +82,7 @@
             line-height: 1.7;
         }
 
-        .right-section { flex: 1; }
+        .right-section { flex: 1; min-width: 0; }
 
         .judul {
             font-size: 26px;
@@ -90,6 +90,7 @@
             color: #111;
             margin-bottom: 8px;
             line-height: 1.3;
+            word-break: break-word;
         }
 
         .penulis {
@@ -137,11 +138,22 @@
         }
 
         @media (max-width: 768px) {
-            .main-container { margin: 80px auto 60px; padding: 0 12px; }
-            .detail-card { flex-direction: column; padding: 20px; gap: 20px; }
+            .main-container { margin: 80px auto 40px; padding: 0 12px; }
+            .detail-card { flex-direction: column; padding: 20px; gap: 20px; border-radius: 16px; }
             .left-section { width: 100%; min-width: unset; align-items: center; }
             .sampul-img, .sampul-placeholder { width: 160px; height: 220px; }
             .judul { font-size: 20px; }
+            .penulis { font-size: 14px; margin-bottom: 15px; }
+            .sinopsis-box p { font-size: 12px; }
+            .btn-baca, .btn-disabled { padding: 12px; font-size: 14px; border-radius: 10px; }
+            .divider { margin: 15px 0; }
+        }
+
+        @media (max-width: 400px) {
+            .main-container { padding: 0 8px; }
+            .detail-card { padding: 15px; border-radius: 14px; }
+            .sampul-img, .sampul-placeholder { width: 140px; height: 190px; }
+            .judul { font-size: 18px; }
         }
 
         /* DARK MODE */
@@ -276,5 +288,6 @@ if(localStorage.getItem('darkMode') === 'enabled'){
     document.body.classList.add('dark-mode');
 }
 </script>
+
 </body>
 </html>

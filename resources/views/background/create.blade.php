@@ -3,13 +3,9 @@
 @section('header_title', 'Tambah Background')
 
 @section('content')
+<x-admin-page-header title="Tambah Background" icon="bi bi-plus-circle" :backUrl="route('background.index')" />
+
 <div class="card-admin">
-    <div class="card-admin-header">
-        <h5><i class="bi bi-plus-circle" style="color:#1a6e35"></i> Tambah Background</h5>
-        <a href="{{ route('background.index') }}" class="btn btn-sm btn-secondary">
-            <i class="bi bi-arrow-left"></i> Kembali
-        </a>
-    </div>
     <div class="card-admin-body">
         <form action="{{ route('background.store') }}" method="POST" enctype="multipart/form-data">
             @csrf

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Buku;
 use App\Models\Anggota;
+use App\Models\Buku;
 use App\Models\Peminjaman;
 
 class DashboardController extends Controller

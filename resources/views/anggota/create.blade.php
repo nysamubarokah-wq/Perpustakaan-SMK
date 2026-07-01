@@ -3,13 +3,9 @@
 @section('header_title', 'Tambah Anggota')
 
 @section('content')
+<x-admin-page-header title="Tambah Anggota" icon="bi bi-person-plus" :backUrl="route('anggota.index')" />
+
 <div class="card-admin">
-    <div class="card-admin-header" style="display:flex;align-items:center;justify-content:space-between">
-        <h5 style="margin:0"><i class="bi bi-person-plus" style="color:#1a6e35"></i> Tambah Anggota</h5>
-        <a href="{{ route('anggota.index') }}" class="btn btn-sm btn-secondary">
-            <i class="bi bi-arrow-left"></i> Kembali
-        </a>
-    </div>
     <div class="card-admin-body" style="padding:25px">
         <form action="{{ route('anggota.store') }}" method="POST">
             @csrf

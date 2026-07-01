@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; overflow-x: hidden; }
 
         .navbar {
             background: white;
@@ -41,6 +41,8 @@
             box-shadow: 0 3px 15px rgba(0,0,0,0.08);
             transition: all 0.3s;
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .buku-card:hover {
@@ -77,28 +79,69 @@
         .cover-5 { background: linear-gradient(135deg, #d35400, #e67e22); }
         .cover-6 { background: linear-gradient(135deg, #16a085, #1abc9c); }
 
-        .buku-body { padding: 18px; }
+        .buku-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 6px;
+        }
 
         .buku-body h5 {
             font-size: 14px;
             font-weight: 700;
             color: #222;
-            margin-bottom: 5px;
+            margin-bottom: 0;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            min-height: 2.4em;
         }
 
-        .buku-meta { font-size: 12px; color: #888; margin-bottom: 8px; }
+        .buku-meta { font-size: 12px; color: #888; margin-bottom: 0; }
+
+        .btn-baca {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: auto;
+        }
 
         .empty-state { text-align: center; padding: 80px 0; }
         .empty-state i { font-size: 60px; color: #ddd; margin-bottom: 15px; display: block; }
         .empty-state p { color: #aaa; font-size: 15px; }
 
+        @media (max-width: 992px) {
+            .main-container { max-width: 100%; }
+            .buku-cover { height: 180px; }
+        }
+
         @media (max-width: 768px) {
             .main-container { margin-top: 80px; padding: 0 12px; }
-            .page-title { font-size: 18px; }
+            .page-title { font-size: 18px; margin-bottom: 18px; }
+            .buku-card:hover { transform: none; }
+            .buku-cover { height: 160px; }
+            .buku-cover-placeholder { font-size: 44px; }
+            .buku-body { padding: 12px; }
+            .buku-body h5 { font-size: 13px; min-height: 2.2em; }
+            .buku-meta { font-size: 11px; }
+            .btn-baca { padding: 8px; font-size: 12px; }
+        }
+
+        @media (max-width: 400px) {
+            .main-container { padding: 0 8px; }
+            .buku-cover { height: 140px; }
+            .buku-body { padding: 10px; }
+            .buku-body h5 { font-size: 12px; min-height: 2em; }
+            .btn-baca { padding: 7px; font-size: 11px; border-radius: 8px; }
         }
 
         /* DARK MODE */
@@ -165,7 +208,7 @@
                     <div class="buku-body">
                         <h5>{{ $ebook->judul }}</h5>
                         <p class="buku-meta"><i class="bi bi-person"></i> {{ $ebook->penulis }}</p>
-                        <div style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center">
+                        <div class="btn-baca">
                             <i class="bi bi-book-open"></i> Baca Sekarang
                         </div>
                     </div>
@@ -192,5 +235,7 @@ if(localStorage.getItem('darkMode') === 'enabled'){
     document.body.classList.add('dark-mode');
 }
 </script>
+
+
 </body>
 </html>

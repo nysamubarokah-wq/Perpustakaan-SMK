@@ -4,6 +4,20 @@
 
 @section('content')
 
+<style>
+    @media (max-width: 768px) {
+        .siswa-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .siswa-tbl-wrap table { min-width: 550px; }
+        .siswa-tbl-wrap td, .siswa-tbl-wrap th { padding: 6px 8px !important; font-size: 11px !important; }
+        .siswa-tbl-wrap .btn-sm, .siswa-tbl-wrap button { padding: 4px 8px !important; font-size: 10px !important; }
+        .siswa-search-bar { flex-direction: column !important; }
+        .siswa-search-bar input { width: 100% !important; }
+        .siswa-toolbar { flex-direction: column !important; align-items: flex-start !important; }
+        .siswa-toolbar > div { width: 100%; }
+        .siswa-toolbar button { flex: 1; }
+    }
+</style>
+
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle"></i> {{ session('success') }}
@@ -55,7 +69,8 @@
                             class="form-control"
                             placeholder="Contoh: X RPL 1" style="border-radius:10px;font-size:13px">
                     </div>
-                    <button type="submit" style="width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
+                    <button type="submit"
+                            style="width:100%;padding:12px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
                         <i class="bi bi-plus-circle"></i> Tambahkan
                     </button>
                 </form>
@@ -79,7 +94,8 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <button type="submit" style="width:100%;padding:10px;background:#2c3e50;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
+                    <button type="submit"
+                            style="width:100%;padding:12px;background:#2c3e50;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
                         <i class="bi bi-upload"></i> Import Sekarang
                     </button>
                 </form>
@@ -100,7 +116,7 @@
                 <div class="card-body p-0">
 
                     {{-- Header --}}
-                    <div style="padding:20px 25px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+                    <div style="padding:20px 25px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px" class="siswa-search-bar">
     <h6 style="font-weight:700;color:#222;margin:0">
         <i class="bi bi-people" style="color:#1a6e35"></i> Daftar Siswa
         <span style="font-size:12px;color:#888;font-weight:400">({{ $siswa->total() }} siswa)</span>
@@ -110,7 +126,8 @@
             placeholder="Cari NIS / nama / kelas..."
             style="padding:7px 14px;border:1.5px solid #eee;border-radius:10px;font-size:12px;outline:none;width:200px"
             onkeydown="if(event.key==='Enter'){cariSiswa()}">
-        <button type="button" onclick="cariSiswa()" style="padding:7px 14px;background:#1a6e35;color:white;border:none;border-radius:10px;font-size:12px;cursor:pointer">
+        <button type="button" onclick="cariSiswa()"
+                style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
             <i class="bi bi-search"></i>
         </button>
     </div>
@@ -118,20 +135,23 @@
 
                     {{-- Toolbar hapus banyak --}}
                    {{-- Toolbar hapus banyak --}}
-<div id="toolbarHapus" style="display:none;padding:10px 20px;background:#fff3cd;border-bottom:1px solid #eee;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+<div id="toolbarHapus" class="siswa-toolbar" style="display:none;padding:10px 20px;background:#fff3cd;border-bottom:1px solid #eee;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
     <span id="jumlahDipilih" style="font-size:13px;font-weight:600;color:#856404">
         0 data dipilih
     </span>
     <div style="display:flex;gap:8px">
-        <button type="button" onclick="pilihSemua()" style="padding:6px 14px;background:#856404;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        <button type="button" onclick="pilihSemua()"
+                style="padding:6px 14px;background:#856404;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
             <i class="bi bi-check-all"></i> Pilih Semua
         </button>
-        <button type="button" onclick="submitHapusBanyak()" style="padding:6px 14px;background:#e74c3c;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        <button type="button" onclick="submitHapusBanyak()"
+                style="padding:6px 14px;background:#e74c3c;color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
             <i class="bi bi-trash"></i> Hapus yang Dipilih
         </button>
     </div>
 </div>
                     <div class="card-admin-body">
+                        <div class="siswa-tbl-wrap">
                         <table class="table table-hover mb-0" style="font-size:13px">
                             <thead style="background:#f8f9fa">
                                 <tr>
@@ -150,7 +170,7 @@
                             <tbody>
                                 @forelse($siswa as $index => $s)
                                 @php
-                                    $sudahDaftar = \App\Models\User::where('nis', $s->nis)->exists();
+                                    $sudahDaftar = \App\Models\Anggota::where('nis', $s->nis)->exists();
                                 @endphp
                                 <tr>
                                     <td style="padding:12px 15px;vertical-align:middle">
@@ -184,8 +204,9 @@
                                             onsubmit="return confirm('Hapus data siswa {{ $s->nama }}?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" style="padding:5px 12px;background:#e74c3c;color:white;border:none;border-radius:8px;font-size:12px;cursor:pointer">
-                                                <i class="bi bi-trash"></i>
+                                            <button type="submit"
+                                                    style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                                <i class="bi bi-trash"></i> Hapus
                                             </button>
                                         </form>
                                         @else
@@ -203,6 +224,7 @@
                                 @endforelse
                             </tbody>
                         </table>
+                        </div>
                     </div>
 
                     @if($siswa->hasPages())

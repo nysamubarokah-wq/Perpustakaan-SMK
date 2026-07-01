@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use App\Models\Anggota;
+use App\Models\EksemplarBuku;
 use App\Models\Peminjaman;
 use Illuminate\Support\Facades\DB;
 

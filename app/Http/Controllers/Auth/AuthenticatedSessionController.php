@@ -35,6 +35,9 @@ class AuthenticatedSessionController extends Controller
     $request->authenticate();
     $request->session()->regenerate();
 
+    // Generate new token for rules modal (only on actual login)
+    auth()->user()->update(['rules_session_token' => \Illuminate\Support\Str::random(32)]);
+
    if (auth()->user()->role === 'admin') {
     return redirect()->route('admin.dashboard');
     }

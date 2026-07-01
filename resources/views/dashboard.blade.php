@@ -20,6 +20,7 @@
             width: 100%;
             top: 0;
             z-index: 1000;
+            overflow: visible;
         }
 
         .navbar-brand {
@@ -184,6 +185,7 @@
         /* HERO */
         .hero {
             height: 100vh;
+            min-height: 500px;
             background: url('/images/sekolah.jpg') center/cover no-repeat;
             position: relative;
             display: flex;
@@ -201,7 +203,8 @@
         .hero-content {
             position: relative;
             max-width: 500px;
-            margin-left: 80px;
+            padding-left: 80px;
+            padding-right: 40px;
         }
 
         .hero-box {
@@ -339,47 +342,117 @@
         /* Relative position untuk dropdown */
         .nav-item { position: relative; }
 
+        /* Tablet */
         @media (max-width: 768px) {
-    .navbar .container-fluid > div {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
+            .navbar .container-fluid > div {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
 
-    .navbar-search { display: none; }
+            .navbar-search { display: none; }
 
-    .nav-link {
-        padding: 8px 10px !important;
-        font-size: 13px;
-    }
+            .nav-link {
+                padding: 8px 10px !important;
+                font-size: 13px;
+            }
 
-    .nav-text { display: none; }
+            .nav-text { display: none; }
 
-    .layanan-dropdown,
-    .profil-popup {
-        position: fixed;
-        top: auto;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        width: 90vw;
-        max-width: 320px;
-        max-height: calc(100vh - 100px);
-        overflow-y: auto;
-    }
+            .layanan-dropdown,
+            .profil-popup {
+                position: fixed;
+                top: auto;
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+                width: 90vw;
+                max-width: 320px;
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
+            }
 
-    .hero-content {
-        margin-left: 20px;
-        margin-right: 20px;
-        max-width: 100%;
-    }
+            .hero {
+                align-items: center;
+                padding-bottom: 0;
+                height: 100vh;
+                min-height: 100svh;
+            }
 
-    .hero-box {
-        padding: 22px 20px;
-    }
+            .hero-content {
+                padding-left: 24px;
+                padding-right: 24px;
+                max-width: 100%;
+                width: 100%;
+            }
 
-    .hero-box h1 { font-size: 19px; }
-    .hero-box p { font-size: 13px; }
-}
+            .hero-box {
+                padding: 22px 20px;
+            }
+
+            .hero-box h1 { font-size: 19px; }
+            .hero-box p { font-size: 13px; }
+
+            .stats-section { padding: 40px 0; }
+            .genre-section { padding: 40px 0; }
+
+            .stat-card { margin-bottom: 16px; }
+            .genre-card { margin-bottom: 12px; }
+        }
+
+        /* Phone */
+        @media (max-width: 480px) {
+            .navbar-brand span { font-size: 11px; }
+            .navbar-brand img { width: 36px; height: 36px; }
+
+            .nav-link {
+                padding: 6px 8px !important;
+                font-size: 12px;
+            }
+
+            .layanan-dropdown,
+            .profil-popup {
+                width: 95vw;
+                padding: 18px;
+                border-radius: 12px;
+            }
+
+            .hero {
+                align-items: center;
+                padding-bottom: 0;
+                height: 100vh;
+                min-height: 100svh;
+            }
+
+            .hero-content {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            .hero-box {
+                padding: 18px 16px;
+                border-radius: 10px;
+            }
+
+            .hero-box h1 { font-size: 17px; }
+            .hero-box p { font-size: 12px; margin-bottom: 14px; }
+
+            .btn-kunjungi {
+                padding: 8px 18px;
+                font-size: 13px;
+            }
+
+            .stat-card { padding: 18px; }
+            .stat-card h3 { font-size: 26px; }
+            .stat-card .icon { width: 48px; height: 48px; }
+            .stat-card .icon i { font-size: 20px; }
+
+            .section-title { font-size: 20px; }
+            .section-subtitle { font-size: 13px; margin-bottom: 24px; }
+
+            .profil-popup .profil-foto { width: 60px; height: 60px; }
+            .profil-popup h5 { font-size: 16px; }
+            .profil-popup { padding: 18px; }
+        }
 
 /* DARK MODE */
 body.dark-mode {
@@ -479,10 +552,12 @@ body.dark-mode .section-subtitle {
                         <div class="layanan-dropdown" id="layananDropdown">
                             <p style="font-size:12px;color:#999;margin-bottom:15px">Penjaga Perpustakaan</p>
                            @php
-    if(auth()->user()->role === 'admin') {
-        $adminAktif = auth()->user();
-    } else {
-        $adminAktif = \App\Models\User::where('role', 'admin')->latest('updated_at')->first();
+    $adminAktif = \App\Models\User::where('role', 'admin')
+        ->where('is_on_duty', true)
+        ->first();
+
+    if (!$adminAktif) {
+        $adminAktif = \App\Models\User::where('role', 'admin')->first();
     }
 @endphp
 <div class="penjaga-card">
@@ -496,10 +571,19 @@ body.dark-mode .section-subtitle {
       @php
     $anggotaAdmin = \App\Models\Anggota::where('email', $adminAktif?->email)->first();
 @endphp
+@php
+    $noHpAdmin = $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '';
+    $waLink = $noHpAdmin ? 'https://wa.me/62' . ltrim(preg_replace('/[^0-9]/', '', $noHpAdmin), '0') : '#';
+@endphp
 <p><i class="bi bi-telephone"></i> {{ $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '-' }}</p>
         <p><i class="bi bi-clock"></i> {{ now()->locale('id')->isoFormat('dddd') }}, {{ now()->format('H:i') }} WIB</p>
     </div>
 </div>
+@if($noHpAdmin)
+<a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.2s" onmouseover="this.style.background='#1ebe57'" onmouseout="this.style.background='#25D366'">
+    <i class="bi bi-whatsapp" style="font-size:16px"></i> Chat Admin
+</a>
+@endif
                         </div>
                     </li>
                     <li class="nav-item">
@@ -632,5 +716,7 @@ darkToggle.addEventListener('click', () => {
     }
 });
 </script>
+
+
 </body>
 </html>

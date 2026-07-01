@@ -498,6 +498,64 @@ body.dark-mode #rekomendasiSection div[style*="color:#222"] {
 body.dark-mode #rekomendasiSection div[style*="color:#888"] {
     color: #bbb !important;
 }
+
+/* Ulasan section - dark mode */
+body.dark-mode div[style*="border-top:1px solid #eee"] {
+    border-top-color: #444 !important;
+}
+
+body.dark-mode div[style*="color:#222"] {
+    color: #fff !important;
+}
+
+body.dark-mode p[style*="color:#555"] {
+    color: #ccc !important;
+}
+
+body.dark-mode div[style*="background:#f0f9ff"] {
+    background: #1a2744 !important;
+    border-left-color: #60a5fa !important;
+}
+
+body.dark-mode div[style*="background:#f0f9ff"] span[style*="color:#1e40af"] {
+    color: #93c5fd !important;
+}
+
+body.dark-mode div[style*="background:#f0f9ff"] p[style*="color:#475569"] {
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode div[style*="background:#f0f9ff"] i[style*="color:#3b82f6"] {
+    color: #60a5fa !important;
+}
+
+/* Notifikasi dropdown - dark mode */
+body.dark-mode #notifikasiDropdown {
+    background: #1e1e1e !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important;
+}
+
+body.dark-mode #notifikasiDropdown > div:first-child {
+    border-bottom-color: #444 !important;
+    color: white !important;
+}
+
+body.dark-mode #notifikasiDropdown > div:not(:first-child) {
+    background: #2a2a2a !important;
+    border-bottom-color: #444 !important;
+}
+
+body.dark-mode #notifikasiDropdown div[style*="font-weight:700"][style*="color:#1a6e35"] {
+    color: #4ade80 !important;
+}
+
+body.dark-mode #notifikasiDropdown div[style*="color:#555"] {
+    color: #ccc !important;
+}
+
+body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
+    color: #888 !important;
+}
     </style>
 </head>
 <body>
@@ -506,14 +564,42 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-            <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <a href="#" onclick="kembaliKeKoleksi()" class="d-flex align-items-center gap-2 text-decoration-none">
                 <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
-          <a href="{{ route('koleksi.index') }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
-    <i class="bi bi-arrow-left"></i> Kembali
-</a>
-</a>
+            <div class="d-flex align-items-center gap-3">
+                @auth
+                    <div style="position:relative">
+                        <button onclick="toggleNotifikasi()" style="background:none;border:none;cursor:pointer;padding:6px;position:relative">
+                            <i class="bi bi-bell" style="font-size:20px;color:#1a6e35"></i>
+                            @if($notifikasiCount > 0)
+                                <span style="position:absolute;top:0;right:0;background:#e74c3c;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ $notifikasiCount }}</span>
+                            @endif
+                        </button>
+                        <div id="notifikasiDropdown" style="display:none;position:absolute;right:0;top:100%;width:320px;background:white;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:1000;max-height:400px;overflow-y:auto">
+                            <div style="padding:14px 16px;border-bottom:1px solid #eee;font-weight:700;font-size:14px;color:#222">
+                                <i class="bi bi-bell-fill" style="color:#1a6e35"></i> Notifikasi
+                            </div>
+                            @forelse($notifikasiList as $notif)
+                                <div style="padding:12px 16px;border-bottom:1px solid #f3f4f6;background:#f0fdf4">
+                                    <div style="font-size:12px;font-weight:700;color:#1a6e35;margin-bottom:4px">{{ $notif->judul }}</div>
+                                    <div style="font-size:12px;color:#555;line-height:1.4">{{ $notif->pesan }}</div>
+                                    <div style="font-size:11px;color:#999;margin-top:4px">{{ $notif->created_at->diffForHumans() }}</div>
+                                </div>
+                            @empty
+                                <div style="padding:30px 16px;text-align:center;color:#999;font-size:13px">
+                                    <i class="bi bi-bell-slash" style="font-size:24px;display:block;margin-bottom:8px"></i>
+                                    Tidak ada notifikasi baru
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                @endauth
+                <a href="#" onclick="kembaliKeKoleksi()" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </a>
+            </div>
         </div>
     </div>
 </nav>
@@ -653,9 +739,9 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
     </h5>
     <div style="display:flex;gap:15px;overflow-x:auto;padding-bottom:5px">
         @foreach($rekomendasi as $rec)
-        <a href="{{ route('buku.detail', $rec->id) }}" style="text-decoration:none;flex:0 0 150px">
-            <div style="background:#f8f9fa;border-radius:12px;overflow:hidden;transition:transform 0.3s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <div style="height:180px;overflow:hidden">
+        <a href="{{ route('buku.detail', $rec->id) }}" style="text-decoration:none;flex:0 0 160px;width:160px">
+            <div style="background:#f8f9fa;border-radius:12px;overflow:hidden;transition:transform 0.3s;height:100%" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div style="height:200px;overflow:hidden">
                     @if($rec->sampul)
                         <img src="{{ asset($rec->sampul) }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $rec->judul }}">
                     @else
@@ -750,6 +836,15 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
     @if($ulasan->komentar)
         <p style="font-size:13px;color:#555;margin:6px 0 0 36px;line-height:1.5">{{ $ulasan->komentar }}</p>
     @endif
+    @if($ulasan->balasan_admin)
+        <div style="margin:8px 0 0 36px;padding:10px 12px;background:#f0f9ff;border-left:3px solid #3b82f6;border-radius:8px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                <i class="bi bi-shield-check" style="color:#3b82f6;font-size:14px"></i>
+                <span style="font-size:12px;font-weight:700;color:#1e40af">Balasan Admin</span>
+            </div>
+            <p style="font-size:13px;color:#475569;margin:0;line-height:1.5">{{ $ulasan->balasan_admin }}</p>
+        </div>
+    @endif
 </div>
     @empty
         <div style="text-align:center;padding:30px 0;color:#aaa">
@@ -819,6 +914,7 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
 
         <form method="POST" action="{{ route('buku.pinjam', $buku->id) }}">
             @csrf
+            <input type="hidden" name="redirect_url" id="redirectUrlInput">
             <div class="form-group">
                 <label>Tanggal Pinjam</label>
                 <input type="date" name="tanggal_pinjam" required
@@ -834,6 +930,9 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
                 <i class="bi bi-check-circle"></i> Konfirmasi Pinjam
             </button>
         </form>
+        <script>
+            document.getElementById('redirectUrlInput').value = sessionStorage.getItem('koleksiFilterUrl') || '{{ route('koleksi.index') }}';
+        </script>
         <button onclick="hideModal()" class="btn-batal">Batal</button>
     </div>
 </div>
@@ -851,9 +950,32 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
 </script>
 
 <script>
+// Notifikasi dropdown
+function toggleNotifikasi() {
+    const dropdown = document.getElementById('notifikasiDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('notifikasiDropdown');
+    const button = e.target.closest('[onclick="toggleNotifikasi()"]');
+    if (!button && dropdown && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+</script>
+
+<script>
 if(localStorage.getItem('darkMode') === 'enabled'){
     document.body.classList.add('dark-mode');
 }
+
+function kembaliKeKoleksi() {
+    const savedUrl = sessionStorage.getItem('koleksiFilterUrl') || '{{ route('koleksi.index') }}';
+    window.location.href = savedUrl;
+}
 </script>
+
 </body>
 </html>

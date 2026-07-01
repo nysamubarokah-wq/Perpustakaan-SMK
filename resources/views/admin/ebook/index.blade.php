@@ -4,6 +4,14 @@
 
 @section('content')
 
+<style>
+    @media (max-width: 768px) {
+        .ebook-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .ebook-tbl-wrap table { min-width: 650px; }
+        .ebook-tbl-wrap td, .ebook-tbl-wrap th { padding: 8px 10px !important; font-size: 12px; }
+    }
+</style>
+
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
@@ -11,17 +19,19 @@
     </div>
 @endif
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <span style="color:#888;font-size:14px">{{ $ebooks->total() }} e-book tersedia</span>
-    <a href="{{ route('admin.ebook.create') }}" 
-       style="background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;padding:10px 20px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:600">
-        <i class="bi bi-plus-lg"></i> Tambah E-book
-    </a>
-</div>
+<x-admin-card-header title="Daftar E-book" icon="bi bi-book-half">
+    <x-slot:action>
+        <a href="{{ route('admin.ebook.create') }}" 
+           style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none">
+            <i class="bi bi-plus-lg"></i> Tambah E-book
+        </a>
+    </x-slot:action>
+</x-admin-card-header>
 
 @if($ebooks->count() > 0)
 <div style="background:white;border-radius:16px;box-shadow:0 3px 15px rgba(0,0,0,0.08);overflow:hidden">
     <div class="card-admin-body">
+        <div class="ebook-tbl-wrap">
         <table class="table table-hover mb-0">
             <thead style="background:#f8f9fa">
                 <tr>
@@ -29,7 +39,7 @@
                     <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">JUDUL & PENULIS</th>
                     <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">SINOPSIS</th>
                     <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">TIPE</th>
-                    <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600">AKSI</th>
+                    <th style="padding:15px 20px;font-size:12px;color:#888;font-weight:600;min-width:130px">AKSI</th>
                 </tr>
             </thead>
             <tbody>
@@ -67,7 +77,7 @@
     <div style="display:flex;gap:8px">
 
         <a href="{{ route('admin.ebook.edit', $ebook->id) }}"
-           style="background:#dbeafe;color:#2563eb;text-decoration:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px">
+           style="padding:6px 14px;background:#dbeafe;color:#2563eb;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
             <i class="bi bi-pencil-square"></i> Edit
         </a>
 
@@ -76,7 +86,7 @@
             @method('DELETE')
             <button type="submit"
                     onclick="return confirm('Hapus e-book \'{{ $ebook->judul }}\'?')"
-                    style="background:#fee2e2;color:#dc2626;border:none;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                    style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
                 <i class="bi bi-trash"></i> Hapus
             </button>
         </form>
@@ -87,6 +97,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 
@@ -97,7 +108,7 @@
     <i class="bi bi-book" style="font-size:50px;display:block;margin-bottom:15px"></i>
     <p style="font-size:15px">Belum ada e-book.</p>
     <a href="{{ route('admin.ebook.create') }}" 
-       style="background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;padding:10px 24px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:600;display:inline-block;margin-top:10px">
+       style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;margin-top:10px">
         + Tambah E-book Pertama
     </a>
 </div>

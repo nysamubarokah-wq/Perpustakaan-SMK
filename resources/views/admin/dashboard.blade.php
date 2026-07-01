@@ -36,7 +36,7 @@
         box-shadow: 0 3px 15px rgba(0,0,0,0.06);
         margin-bottom: 25px;
     }
-    .chart-card h5 { font-weight: 700; color: #222; margin-bottom: 20px; }
+    .chart-card h5 { font-weight: 700; color: #222; margin-bottom: 20px; font-size: 16px; }
     .table-card {
         background: white;
         border-radius: 15px;
@@ -49,42 +49,88 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-    .table-card-header h5 { font-weight: 700; color: #222; margin: 0; }
+    .table-card-header h5 { font-weight: 700; color: #222; margin: 0; font-size: 16px; }
     .table-card td, .table-card th { padding: 12px 25px !important; font-size: 13px; }
-    .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
     .status-dipinjam { background: #fff3cd; color: #856404; }
     .status-dikembalikan { background: #d4edda; color: #1a6e35; }
     .status-terlambat { background: #f8d7da; color: #721c24; }
     .status-konfirmasi { background: #cff4fc; color: #055160; }
+    .chart-container { position: relative; width: 100%; }
+
+    /* Dark mode overrides for dashboard */
+    body.dark-mode .stat-card { background: var(--bg-card); }
+    body.dark-mode .stat-card h3 { color: var(--text-primary); }
+    body.dark-mode .stat-card p { color: var(--text-secondary); }
+    body.dark-mode .chart-card { background: var(--bg-card); }
+    body.dark-mode .chart-card h5 { color: var(--text-primary); }
+    body.dark-mode .table-card { background: var(--bg-card); }
+    body.dark-mode .table-card-header { border-color: var(--border-color); }
+    body.dark-mode .table-card-header h5 { color: var(--text-primary); }
+    body.dark-mode .table-card thead { background: var(--bg-header) !important; }
+    body.dark-mode .table-card thead th { color: var(--text-primary); }
+    body.dark-mode .table-card td { color: var(--text-primary); }
 
     @media (max-width: 768px) {
-        .stat-card h3 { font-size: 22px; }
-        .chart-card { padding: 15px; }
-        .table-card td, .table-card th { padding: 10px 15px !important; }
-        .table-card-header { padding: 15px; }
-        .table-card { overflow-x: auto; }
+        .stat-card {
+            padding: 14px 16px;
+            gap: 12px;
+            border-radius: 12px;
+        }
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+        .stat-card h3 { font-size: 20px; font-weight: 700; }
+        .stat-card p { font-size: 11px; }
+        .chart-card {
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+        }
+        .chart-card h5 { font-size: 14px; margin-bottom: 12px; }
+        .table-card { border-radius: 12px; overflow-x: auto; }
+        .table-card-header { padding: 14px 16px; }
+        .table-card-header h5 { font-size: 14px; }
+        .table-card td, .table-card th { padding: 10px 14px !important; font-size: 12px; }
+        .dashboard-subheader { flex-direction: column; align-items: stretch !important; }
+        .dashboard-subheader p { font-size: 13px !important; }
+        .btn-export-pdf { width: 100%; text-align: center; justify-content: center; display: flex; }
+        .table-card td {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 
-    .status-badge { 
-    padding: 4px 12px; 
-    border-radius: 20px; 
-    font-size: 11px; 
-    font-weight: 600; 
-    white-space: nowrap; /* Tambahkan ini agar teks tidak terpotong */
-}
+    @media (max-width: 380px) {
+        .stat-card { padding: 12px; gap: 10px; }
+        .stat-icon { width: 38px; height: 38px; font-size: 16px; }
+        .stat-card h3 { font-size: 18px; }
+        .stat-card p { font-size: 10px; }
+        .chart-card { padding: 12px; }
+        .table-card td, .table-card th { padding: 8px 10px !important; font-size: 11px; }
+    }
 </style>
 
 <!-- SUBHEADER -->
-<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2 dashboard-subheader">
     <p style="color:#888;font-size:14px;margin:0">Selamat datang, {{ auth()->user()->name }}! 👋</p>
-    <a href="{{ route('admin.laporan.pdf') }}" class="btn" style="background:linear-gradient(135deg,#c0392b,#e74c3c);color:white;border-radius:10px;padding:10px 20px;font-weight:600;text-decoration:none;font-size:13px">
+    <a href="{{ route('admin.laporan.pdf') }}"
+       class="btn-export-pdf"
+       style="padding:8px 18px;background:linear-gradient(135deg,#c0392b,#e74c3c);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
         <i class="bi bi-file-pdf"></i> Export PDF
     </a>
 </div>
 
 <!-- STAT CARDS -->
-<div class="row g-3 mb-4">
+<div class="row g-2 g-md-3 mb-3 mb-md-4">
     <div class="col-6 col-md-4">
         <div class="stat-card">
             <div class="stat-icon" style="background:linear-gradient(135deg,#1a6e35,#27ae60)">
@@ -143,23 +189,27 @@
 </div>
 
 <!-- GRAFIK -->
-<div class="row g-3 mb-4">
+<div class="row g-2 g-md-3 mb-3 mb-md-4">
     <div class="col-md-8">
         <div class="chart-card">
             <h5><i class="bi bi-bar-chart" style="color:#1a6e35"></i> Peminjaman Per Bulan</h5>
-            <canvas id="chartPeminjaman" height="100"></canvas>
+            <div class="chart-container" style="max-height:260px">
+                <canvas id="chartPeminjaman"></canvas>
+            </div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="chart-card">
             <h5><i class="bi bi-pie-chart" style="color:#1a6e35"></i> Status Peminjaman</h5>
-            <canvas id="chartStatus" height="200"></canvas>
+            <div class="chart-container" style="max-height:220px">
+                <canvas id="chartStatus"></canvas>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- TABEL BAWAH -->
-<div class="row g-3">
+<div class="row g-2 g-md-3">
     <div class="col-md-5">
         <div class="table-card">
             <div class="table-card-header">
@@ -252,13 +302,17 @@ new Chart(document.getElementById('chartPeminjaman'), {
             label: 'Peminjaman',
             data: dataPeminjaman,
             backgroundColor: 'rgba(26,110,53,0.8)',
-            borderRadius: 8,
+            borderRadius: 6,
         }]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } } },
+            x: { ticks: { font: { size: 10 }, maxRotation: 45 } }
+        }
     }
 });
 
@@ -274,7 +328,13 @@ new Chart(document.getElementById('chartStatus'), {
     },
     options: {
         responsive: true,
-        plugins: { legend: { position: 'bottom' } }
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { font: { size: 11 }, padding: 12 }
+            }
+        }
     }
 });
 </script>

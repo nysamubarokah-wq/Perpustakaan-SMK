@@ -22,7 +22,11 @@ class Ebook extends Model
     ];
 
     // Cek apakah user bisa akses ebook ini
-  
+  public function ebookAccess()
+{
+    return $this->hasMany(\App\Models\EbookAccess::class);
+}
+
   public function bisaDiakses($user): bool
 {
     if (!$user) return false;

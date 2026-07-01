@@ -4,11 +4,20 @@
 @section('page-title', 'Kelola User')
 
 @section('content')
+<style>
+    @media (max-width: 768px) {
+        .admin-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .admin-tbl-wrap table { min-width: 600px; }
+        .admin-tbl-wrap td, .admin-tbl-wrap th { padding: 8px 10px !important; font-size: 12px; }
+        .admin-tbl-wrap .btn-sm { padding: 4px 6px !important; font-size: 10px !important; }
+    }
+</style>
 <div class="card-admin">
     <div class="card-admin-header">
         <h5><i class="bi bi-people" style="color:#1a6e35"></i> Daftar User</h5>
     </div>
     <div class="card-admin-body">
+        <div class="admin-tbl-wrap">
         <table class="table table-hover">
             <thead style="background:#f8f9fa">
                 <tr>
@@ -52,10 +61,7 @@
                                 @method('PUT')
                                 <button type="submit" 
                                     onclick="return confirm('Ubah role {{ $user->name }} menjadi {{ $user->role === 'admin' ? 'siswa' : 'admin' }}?')"
-                                    class="btn btn-sm"
-                                    style="background:{{ $user->role === 'admin' ? '#fff3cd' : '#d4edda' }};
-                                           color:{{ $user->role === 'admin' ? '#856404' : '#1a6e35' }};
-                                           border:none;border-radius:8px;font-size:12px;font-weight:600;padding:6px 12px">
+                                    style="padding:6px 14px;background:{{ $user->role === 'admin' ? '#fff3cd' : '#d4edda' }};color:{{ $user->role === 'admin' ? '#856404' : '#1a6e35' }};border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
                                     @if($user->role === 'admin')
                                         <i class="bi bi-arrow-down-circle"></i> Jadikan Siswa
                                     @else
@@ -75,6 +81,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 @endsection

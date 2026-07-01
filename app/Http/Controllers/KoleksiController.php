@@ -9,38 +9,39 @@ use App\Models\Peminjaman;
 
 class KoleksiController extends Controller
 {
- public function index(Request $request)
+public function index(Request $request)
 {
-    
-   $search   = $request->get('search');
-$genre    = is_array($request->get('genre')) ? $request->get('genre')[0] : $request->get('genre');
-$penerbit = is_array($request->get('penerbit')) ? $request->get('penerbit')[0] : $request->get('penerbit');
-$sort     = is_array($request->get('sort')) ? $request->get('sort')[0] : $request->get('sort');
+    $search   = $request->get('search', '');
+    $genre    = $request->get('genre', '');
+    $penerbit = $request->get('penerbit', '');
+    $sort     = $request->get('sort', '');
 
-    $buku = Buku::query()
-    ->withCount('peminjaman')
-        ->when($search, function ($q) use ($search) {
-            $q->where('judul', 'like', "%$search%")
-              ->orWhere('pengarang', 'like', "%$search%")
-              ->orWhere('genre', 'like', "%$search%");
-        })
-        ->when($genre, function ($q) use ($genre) {
-            $q->where('genre', $genre);
-        })
-        ->when($penerbit, function ($q) use ($penerbit) {
-            $q->where('penerbit', $penerbit);
-        })
-        ->when($sort === 'terbaru', function ($q) { // ← tambah ini
-            $q->latest();
-        })
-        ->when($sort === 'populer', function ($q) { // ← tambah ini
-            $q->withCount('peminjaman')->orderByDesc('peminjaman_count');
-        })
-        ->when(!$sort, function ($q) {
-    $q->orderByDesc('peminjaman_count')
-      ->orderByDesc('created_at');
-})
-        ->get();
+    $query = Buku::query()
+    ->withCount('peminjaman');
+
+if ($genre) {
+    $query->where('genre', $genre);
+}
+if ($penerbit) {
+    $query->where('penerbit', $penerbit);
+}
+if ($search) {
+    $query->where(function ($q) use ($search) {
+        $q->where('judul', 'like', "%$search%")
+          ->orWhere('pengarang', 'like', "%$search%");
+    });
+}
+
+if ($sort === 'terbaru') {
+    $query->latest();
+} elseif ($sort === 'populer') {
+    $query->orderByDesc('peminjaman_count');
+} else {
+    $query->orderByDesc('peminjaman_count')
+          ->orderByDesc('created_at');
+}
+
+$buku = $query->get();
 
     $favoritIds = auth()->check()
         ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
@@ -64,8 +65,6 @@ $sort     = is_array($request->get('sort')) ? $request->get('sort')[0] : $reques
     $bukuAcak = Buku::inRandomOrder()
         ->take(8)
         ->get();
-
-        
 
     return view('koleksi.index', compact(
         'buku', 'search', 'genre', 'penerbit', 'sort', 'favoritIds',

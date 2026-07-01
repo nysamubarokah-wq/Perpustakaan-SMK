@@ -11,7 +11,7 @@ class LaporanController extends Controller
 {
     public function exportPdf()
     {
-        $peminjaman = Peminjaman::with(['anggota', 'buku'])->orderBy('created_at', 'desc')->get();
+        $peminjaman = Peminjaman::with(['anggota', 'buku', 'eksemplar'])->orderBy('created_at', 'desc')->get();
         $totalBuku = Buku::count();
         $totalAnggota = Anggota::count();
         $totalPeminjaman = Peminjaman::count();

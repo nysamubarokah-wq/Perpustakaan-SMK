@@ -4,13 +4,9 @@
 @section('page-title', 'Edit Buku')
 
 @section('content')
+<x-admin-page-header title="Edit Buku" icon="bi bi-pencil-square" :backUrl="route('buku.index')" />
+
 <div class="card-admin">
-    <div class="card-admin-header">
-        <h5><i class="bi bi-pencil-square" style="color:#1a6e35"></i> Edit Buku</h5>
-        <a href="{{ route('buku.index') }}" class="btn btn-sm btn-secondary">
-            <i class="bi bi-arrow-left"></i> Kembali
-        </a>
-    </div>
     <div class="card-admin-body">
         <form action="{{ route('buku.update', $buku->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -37,16 +33,24 @@
                     @error('tahun_terbit') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Stok</label>
-                    <input type="number" name="stok" class="form-control @error('stok') is-invalid @enderror" value="{{ old('stok', $buku->stok) }}">
-                    @error('stok') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <label class="form-label">Eksemplar</label>
+                    <div style="padding:8px 12px;background:#f8f9fa;border-radius:8px;font-size:14px">
+                        <strong>{{ $buku->eksemplar()->count() }}</strong> total &middot;
+                        <span style="color:#1a6e35">{{ $buku->eksemplarTersedia()->count() }} tersedia</span>
+                    </div>
+                    <a href="{{ route('buku.show', $buku->id) }}" style="font-size:11px;color:#2563eb">Kelola Eksemplar &rarr;</a>
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Kode Buku</label>
+                    <input type="text" name="kode_buku" class="form-control @error('kode_buku') is-invalid @enderror" value="{{ old('kode_buku', $buku->kode_buku) }}">
+                    @error('kode_buku') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4 mb-3">
                     <label class="form-label">ISBN</label>
                     <input type="text" name="isbn" class="form-control @error('isbn') is-invalid @enderror" value="{{ old('isbn', $buku->isbn) }}">
                     @error('isbn') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
                     <label class="form-label">Genre</label>
                     <select name="genre" class="form-control @error('genre') is-invalid @enderror">
                         <option value="">-- Pilih Genre --</option>
@@ -73,18 +77,19 @@
                     <small class="text-muted">Kosongkan jika tidak ingin mengubah sampul</small>
                     @error('sampul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Lokasi Rak</label>
+                    <select name="lokasi" class="form-control @error('lokasi') is-invalid @enderror">
+                        <option value="">-- Pilih Lokasi --</option>
+                        @foreach(['A1','A2','A3','B1','B2','B3','C1','C2','C3','D1','D2','D3'] as $lok)
+                            <option value="{{ $lok }}" {{ old('lokasi', $buku->lokasi) == $lok ? 'selected' : '' }}>Rak {{ $lok }}</option>
+                        @endforeach
+                    </select>
+                    @error('lokasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
             </div>
-            <div class="col-md-6 mb-3">
-    <label class="form-label">Lokasi Rak</label>
-    <select name="lokasi" class="form-control @error('lokasi') is-invalid @enderror">
-        <option value="">-- Pilih Lokasi --</option>
-        @foreach(['A1','A2','A3','B1','B2','B3','C1','C2','C3','D1','D2','D3'] as $lok)
-            <option value="{{ $lok }}" {{ old('lokasi', $buku->lokasi) == $lok ? 'selected' : '' }}>Rak {{ $lok }}</option>
-        @endforeach
-    </select>
-    @error('lokasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
-</div>
-            <button type="submit" class="btn" style="background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border-radius:10px;padding:10px 30px;font-weight:600">
+            <button type="submit"
+                    style="padding:10px 20px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
                 <i class="bi bi-save"></i> Update
             </button>
         </form>

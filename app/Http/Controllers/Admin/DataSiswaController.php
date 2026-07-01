@@ -3,33 +3,34 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Anggota;
 use App\Models\DataSiswa;
 use Illuminate\Http\Request;
 
 class DataSiswaController extends Controller
 {
-  public function index(Request $request)
-{
-    $search = $request->get('search');
+    public function index(Request $request)
+    {
+        $search = $request->get('search');
 
-    $siswa = DataSiswa::query()
-        ->when($search, function($q) use ($search) {
-            $q->where('nis', 'like', "%$search%")
-              ->orWhere('nama', 'like', "%$search%")
-              ->orWhere('kelas', 'like', "%$search%");
-        })
-        ->orderBy('kelas')
-        ->orderBy('nama')
-        ->paginate(15);
+        $siswa = DataSiswa::query()
+            ->when($search, function ($q) use ($search) {
+                $q->where('nis', 'like', "%$search%")
+                    ->orWhere('nama', 'like', "%$search%")
+                    ->orWhere('kelas', 'like', "%$search%");
+            })
+            ->orderBy('kelas')
+            ->orderBy('nama')
+            ->paginate(15);
 
-    return view('admin.data-siswa.index', compact('siswa'));
-}
+        return view('admin.data-siswa.index', compact('siswa', 'search'));
+    }
 
     public function store(Request $request)
     {
         $request->validate([
-            'nis'   => ['required', 'string', 'unique:data_siswa'],
-            'nama'  => ['required', 'string'],
+            'nis' => ['required', 'string', 'unique:data_siswa'],
+            'nama' => ['required', 'string'],
             'kelas' => ['nullable', 'string'],
         ]);
 
@@ -41,6 +42,7 @@ class DataSiswaController extends Controller
     public function destroy(DataSiswa $dataSiswa)
     {
         $dataSiswa->delete();
+
         return back()->with('success', 'Data siswa dihapus.');
     }
 
@@ -63,38 +65,40 @@ class DataSiswaController extends Controller
         }
 
         fclose($file);
+
         return back()->with('success', "$berhasil data siswa berhasil diimport.");
     }
+
     public function hapusBanyak(Request $request)
-{
-    $ids = $request->input('ids', []);
+    {
+        $ids = $request->input('ids', []);
 
-    if (empty($ids)) {
-        return back()->with('error', 'Tidak ada data yang dipilih.');
-    }
-
-    // Hanya hapus yang belum pernah daftar akun
-    $nisYangSudahDaftar = \App\Models\User::pluck('nis')->toArray();
-
-    $dataSiswa = \App\Models\DataSiswa::whereIn('id', $ids)->get();
-
-    $tidakBisaDihapus = 0;
-    $berhasilDihapus = 0;
-
-    foreach ($dataSiswa as $s) {
-        if (in_array($s->nis, $nisYangSudahDaftar)) {
-            $tidakBisaDihapus++;
-        } else {
-            $s->delete();
-            $berhasilDihapus++;
+        if (empty($ids)) {
+            return back()->with('error', 'Tidak ada data yang dipilih.');
         }
-    }
 
-    $pesan = "$berhasilDihapus data berhasil dihapus.";
-    if ($tidakBisaDihapus > 0) {
-        $pesan .= " $tidakBisaDihapus data dilewati karena sudah punya akun.";
-    }
+        // Hanya hapus yang belum pernah daftar akun
+        $nisYangSudahDaftar = Anggota::pluck('nis')->toArray();
 
-    return back()->with('success', $pesan);
-}
+        $dataSiswa = DataSiswa::whereIn('id', $ids)->get();
+
+        $tidakBisaDihapus = 0;
+        $berhasilDihapus = 0;
+
+        foreach ($dataSiswa as $s) {
+            if (in_array($s->nis, $nisYangSudahDaftar)) {
+                $tidakBisaDihapus++;
+            } else {
+                $s->delete();
+                $berhasilDihapus++;
+            }
+        }
+
+        $pesan = "$berhasilDihapus data berhasil dihapus.";
+        if ($tidakBisaDihapus > 0) {
+            $pesan .= " $tidakBisaDihapus data dilewati karena sudah punya akun.";
+        }
+
+        return back()->with('success', $pesan);
+    }
 }

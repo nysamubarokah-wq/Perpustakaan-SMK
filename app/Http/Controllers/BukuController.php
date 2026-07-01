@@ -3,90 +3,124 @@
 namespace App\Http\Controllers;
 
 use App\Models\Buku;
+use App\Models\EksemplarBuku;
 use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use ZipArchive;
 
 class BukuController extends Controller
 {
-   public function index(Request $request)
-{
-    $search = $request->get('search');
-    
-    $buku = Buku::query()
-        ->when($search, function($q) use ($search) {
-            $q->where('judul', 'like', "%$search%")
-              ->orWhere('pengarang', 'like', "%$search%")
-              ->orWhere('isbn', 'like', "%$search%")
-              ->orWhere('genre', 'like', "%$search%");
-        })
-        ->get();
+    public function index(Request $request)
+    {
+        $search = $request->get('search');
 
-    return view('buku.index', compact('buku', 'search'));
-}
+        $buku = Buku::query()
+            ->withCount(['eksemplar', 'eksemplarTersedia'])
+            ->when($search, function ($q) use ($search) {
+                $q->where('judul', 'like', "%$search%")
+                    ->orWhere('pengarang', 'like', "%$search%")
+                    ->orWhere('isbn', 'like', "%$search%")
+                    ->orWhere('genre', 'like', "%$search%")
+                    ->orWhere('kode_buku', 'like', "%$search%");
+            })
+            ->get();
+
+        return view('buku.index', compact('buku', 'search'));
+    }
 
     public function create()
     {
         return view('buku.create');
     }
 
+    public function show(Buku $buku)
+    {
+        $buku->load('eksemplar');
+        return view('buku.show', compact('buku'));
+    }
+
     public function store(Request $request)
-{
-    $request->validate([
-        'judul'        => 'required',
-        'pengarang'    => 'required',
-        'penerbit'     => 'required',
-        'tahun_terbit' => 'required|digits:4',
-        'isbn'         => 'required|unique:buku',
-        'stok'         => 'required|integer|min:0',
-        'sampul'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+    {
+        $request->validate([
+            'judul'          => 'required',
+            'pengarang'      => 'required',
+            'penerbit'       => 'required',
+            'tahun_terbit'   => 'required|digits:4',
+            'isbn'           => 'required|unique:buku',
+            'jumlah_eksemplar' => 'required|integer|min:1',
+            'sampul'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'kode_buku'      => 'nullable|unique:buku,kode_buku',
+        ]);
 
-    $data = $request->all();
+        $data = $request->all();
 
-    if ($request->hasFile('sampul')) {
-        $file = $request->file('sampul');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path('images/buku'), $filename);
-        $data['sampul'] = 'images/buku/' . $filename;
-    }
-
-    Buku::create($data);
-
-    return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan!');
-}
-
-public function edit(Buku $buku)
-{
-    return view('buku.edit', compact('buku'));
-}
-
-public function update(Request $request, Buku $buku)
-{
-    $request->validate([
-        'judul'        => 'required',
-        'pengarang'    => 'required',
-        'penerbit'     => 'required',
-        'tahun_terbit' => 'required|digits:4',
-        'isbn'         => 'required|unique:buku,isbn,' . $buku->id,
-        'stok'         => 'required|integer|min:0',
-        'sampul'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
-
-    $data = $request->all();
-
-    if ($request->hasFile('sampul')) {
-        if ($buku->sampul && file_exists(public_path($buku->sampul))) {
-            unlink(public_path($buku->sampul));
+        if (empty($data['kode_buku'])) {
+            $data['kode_buku'] = Buku::generateKodeBuku();
         }
-        $file = $request->file('sampul');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $file->move(public_path('images/buku'), $filename);
-        $data['sampul'] = 'images/buku/' . $filename;
+
+        // stok diset sesuai jumlah eksemplar (backward compat)
+        $data['stok'] = $request->jumlah_eksemplar;
+
+        if ($request->hasFile('sampul')) {
+            $file = $request->file('sampul');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/buku'), $filename);
+            $data['sampul'] = 'images/buku/' . $filename;
+        }
+
+        $buku = Buku::create($data);
+
+        // Buat eksemplar otomatis
+        $jumlahEksemplar = (int) $request->jumlah_eksemplar;
+        for ($i = 0; $i < $jumlahEksemplar; $i++) {
+            EksemplarBuku::create([
+                'buku_id'   => $buku->id,
+                'kode_buku' => EksemplarBuku::generateKodeEksemplar(),
+                'status'    => 'tersedia',
+                'kondisi'   => 'baik',
+            ]);
+        }
+
+        return redirect()->route('buku.index')->with('success', "Buku berhasil ditambahkan dengan {$jumlahEksemplar} eksemplar! QR Code dibuat otomatis.");
     }
 
-    $buku->update($data);
+    public function edit(Buku $buku)
+    {
+        $buku->load('eksemplar');
+        return view('buku.edit', compact('buku'));
+    }
 
-    return redirect()->route('buku.index')->with('success', 'Buku berhasil diupdate!');
-}
+    public function update(Request $request, Buku $buku)
+    {
+        $request->validate([
+            'judul'        => 'required',
+            'pengarang'    => 'required',
+            'penerbit'     => 'required',
+            'tahun_terbit' => 'required|digits:4',
+            'isbn'         => 'required|unique:buku,isbn,' . $buku->id,
+            'sampul'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'kode_buku'    => 'nullable|unique:buku,kode_buku,' . $buku->id,
+        ]);
+
+        $data = $request->only(['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'isbn', 'genre', 'deskripsi', 'lokasi', 'kode_buku']);
+
+        if ($request->hasFile('sampul')) {
+            if ($buku->sampul && file_exists(public_path($buku->sampul))) {
+                unlink(public_path($buku->sampul));
+            }
+            $file = $request->file('sampul');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/buku'), $filename);
+            $data['sampul'] = 'images/buku/' . $filename;
+        }
+
+        // Update stok = jumlah eksemplar tersedia (backward compat)
+        $data['stok'] = $buku->eksemplarTersedia()->count();
+
+        $buku->update($data);
+
+        return redirect()->route('buku.index')->with('success', 'Buku berhasil diupdate!');
+    }
 
     public function destroy(Buku $buku)
     {
@@ -95,87 +129,339 @@ public function update(Request $request, Buku $buku)
     }
 
     public function hapusBanyak(Request $request)
-{
-    $ids = $request->input('ids', []);
+    {
+        $ids = $request->input('ids', []);
 
-    if (empty($ids)) {
-        return back()->with('error', 'Tidak ada buku yang dipilih.');
-    }
-
-    $jumlah = Buku::whereIn('id', $ids)->count();
-    Buku::whereIn('id', $ids)->delete();
-
-    return back()->with('success', "$jumlah buku berhasil dihapus.");
-}
-    public function import(Request $request)
-{
-    $request->validate(['file' => 'required|mimes:csv,txt']);
-
-    $file = fopen($request->file('file')->getRealPath(), 'r');
-    fgetcsv($file); // skip header
-    $berhasil = 0;
-    $dilewati = 0;
-    $gagalGambar = 0;
-
-    // Pastikan folder ada
-    if (!file_exists(public_path('images/buku'))) {
-        mkdir(public_path('images/buku'), 0755, true);
-    }
-
-    while ($row = fgetcsv($file)) {
-        if (count($row) < 6) continue;
-
-        $isbn = trim($row[4]);
-
-        if (Buku::where('isbn', $isbn)->exists()) {
-            $dilewati++;
-            continue;
+        if (empty($ids)) {
+            return back()->with('error', 'Tidak ada buku yang dipilih.');
         }
 
-        // Download gambar dari URL kalau ada
-        $sampulPath = null;
-        $urlGambar = trim($row[9] ?? '');
+        $jumlah = Buku::whereIn('id', $ids)->count();
+        Buku::whereIn('id', $ids)->delete();
 
-        if ($urlGambar && filter_var($urlGambar, FILTER_VALIDATE_URL)) {
-            try {
-                $konten = @file_get_contents($urlGambar);
-                if ($konten) {
-                    // Deteksi ekstensi dari URL atau default ke jpg
-                    $ext = pathinfo(parse_url($urlGambar, PHP_URL_PATH), PATHINFO_EXTENSION);
-                    $ext = in_array(strtolower($ext), ['jpg','jpeg','png','webp']) ? strtolower($ext) : 'jpg';
-                    
-                    $filename = 'buku_' . $isbn . '_' . time() . '.' . $ext;
-                    file_put_contents(public_path('images/buku/' . $filename), $konten);
-                    $sampulPath = 'images/buku/' . $filename;
-                } else {
+        return back()->with('success', "$jumlah buku berhasil dihapus.");
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate(['file' => 'required|mimes:csv,txt']);
+
+        $file = fopen($request->file('file')->getRealPath(), 'r');
+        fgetcsv($file);
+        $berhasil = 0;
+        $dilewati = 0;
+        $gagalGambar = 0;
+
+        if (!file_exists(public_path('images/buku'))) {
+            mkdir(public_path('images/buku'), 0755, true);
+        }
+
+        while ($row = fgetcsv($file)) {
+            if (count($row) < 6) continue;
+
+            $isbn = trim($row[4]);
+
+            if (Buku::where('isbn', $isbn)->exists()) {
+                $dilewati++;
+                continue;
+            }
+
+            $sampulPath = null;
+            $urlGambar = trim($row[9] ?? '');
+
+            if ($urlGambar && filter_var($urlGambar, FILTER_VALIDATE_URL)) {
+                try {
+                    $konten = @file_get_contents($urlGambar);
+                    if ($konten) {
+                        $ext = pathinfo(parse_url($urlGambar, PHP_URL_PATH), PATHINFO_EXTENSION);
+                        $ext = in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp']) ? strtolower($ext) : 'jpg';
+
+                        $filename = 'buku_' . $isbn . '_' . time() . '.' . $ext;
+                        file_put_contents(public_path('images/buku/' . $filename), $konten);
+                        $sampulPath = 'images/buku/' . $filename;
+                    } else {
+                        $gagalGambar++;
+                    }
+                } catch (\Exception $e) {
                     $gagalGambar++;
                 }
-            } catch (\Exception $e) {
-                $gagalGambar++;
+            }
+
+            $jumlahEksemplar = max(1, (int) trim($row[5]));
+
+            $buku = Buku::create([
+                'judul'        => trim($row[0]),
+                'pengarang'    => trim($row[1]),
+                'penerbit'     => trim($row[2]),
+                'tahun_terbit' => trim($row[3]),
+                'isbn'         => $isbn,
+                'stok'         => $jumlahEksemplar,
+                'genre'        => trim($row[6] ?? ''),
+                'lokasi'       => trim($row[7] ?? ''),
+                'deskripsi'    => trim($row[8] ?? ''),
+                'sampul'       => $sampulPath,
+            ]);
+
+            // Buat eksemplar otomatis
+            for ($i = 0; $i < $jumlahEksemplar; $i++) {
+                EksemplarBuku::create([
+                    'buku_id'   => $buku->id,
+                    'kode_buku' => EksemplarBuku::generateKodeEksemplar(),
+                    'status'    => 'tersedia',
+                    'kondisi'   => 'baik',
+                ]);
+            }
+
+            $berhasil++;
+        }
+
+        fclose($file);
+
+        $pesan = "$berhasil buku berhasil diimport.";
+        if ($dilewati > 0) $pesan .= " $dilewati dilewati (ISBN duplikat).";
+        if ($gagalGambar > 0) $pesan .= " $gagalGambar gambar gagal didownload.";
+
+        return back()->with('success', $pesan);
+    }
+
+    // ============================================================
+    // EKSEMPLAR MANAGEMENT
+    // ============================================================
+
+    public function tambahEksemplar(Request $request, Buku $buku)
+    {
+        $request->validate([
+            'jumlah' => 'required|integer|min:1|max:100',
+        ]);
+
+        $jumlah = (int) $request->jumlah;
+
+        for ($i = 0; $i < $jumlah; $i++) {
+            EksemplarBuku::create([
+                'buku_id'   => $buku->id,
+                'kode_buku' => EksemplarBuku::generateKodeEksemplar(),
+                'status'    => 'tersedia',
+                'kondisi'   => 'baik',
+            ]);
+        }
+
+        // Update stok buku
+        $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
+
+        return back()->with('success', "{$jumlah} eksemplar berhasil ditambahkan ke buku \"{$buku->judul}\".");
+    }
+
+    public function updateEksemplarStatus(Request $request, EksemplarBuku $eksemplar)
+    {
+        $request->validate([
+            'status'  => 'required|in:tersedia,dipinjam,rusak,hilang,maintenance',
+            'kondisi' => 'nullable|in:baik,sedang,rusak_ringan,rusak_berat',
+        ]);
+
+        $eksemplar->update([
+            'status'  => $request->status,
+            'kondisi' => $request->kondisi ?? $eksemplar->kondisi,
+        ]);
+
+        // Update stok buku
+        $buku = $eksemplar->buku;
+        $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
+
+        return back()->with('success', "Status eksemplar {$eksemplar->kode_buku} berhasil diupdate.");
+    }
+
+    public function hapusEksemplar(EksemplarBuku $eksemplar)
+    {
+        if ($eksemplar->status === 'dipinjam') {
+            return back()->with('error', 'Tidak bisa menghapus eksemplar yang sedang dipinjam.');
+        }
+
+        $buku = $eksemplar->buku;
+        $kode = $eksemplar->kode_buku;
+        $eksemplar->delete();
+
+        // Update stok buku
+        $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
+
+        return back()->with('success', "Eksemplar {$kode} berhasil dihapus.");
+    }
+
+    // ============================================================
+    // QR CODE METHODS (per eksemplar)
+    // ============================================================
+
+    public function eksemplarQrcode(EksemplarBuku $eksemplar)
+    {
+        if (!$eksemplar->qr_exists) {
+            $eksemplar->generateQr();
+        }
+
+        return response()->json([
+            'status'      => 'success',
+            'kode_buku'   => $eksemplar->kode_buku,
+            'judul'       => $eksemplar->buku->judul,
+            'isbn'        => $eksemplar->buku->isbn,
+            'qrcode_url'  => asset($eksemplar->qrcode_path),
+        ]);
+    }
+
+    public function eksemplarQrcodeDownload(EksemplarBuku $eksemplar)
+    {
+        if (!$eksemplar->qr_exists) {
+            $eksemplar->generateQr();
+        }
+
+        $path = public_path($eksemplar->qrcode_path);
+        return response()->download($path, 'QR_' . $eksemplar->kode_buku . '.svg');
+    }
+
+    public function eksemplarQrcodePrint(EksemplarBuku $eksemplar)
+    {
+        if (!$eksemplar->qr_exists) {
+            $eksemplar->generateQr();
+        }
+
+        $svg = file_get_contents(public_path($eksemplar->qrcode_path));
+
+        return view('buku.eksemplar-qr-print', [
+            'eksemplar' => $eksemplar,
+            'buku'      => $eksemplar->buku,
+            'svg'       => $svg,
+        ]);
+    }
+
+    public function generateAllEksemplarQr()
+    {
+        $semuaEksemplar = EksemplarBuku::all();
+        $dibuat = 0;
+        $dilewati = 0;
+
+        foreach ($semuaEksemplar as $eksemplar) {
+            if (!empty($eksemplar->qrcode_path) && file_exists(public_path($eksemplar->qrcode_path))) {
+                $dilewati++;
+                continue;
+            }
+
+            if (empty($eksemplar->kode_buku)) {
+                $eksemplar->kode_buku = EksemplarBuku::generateKodeEksemplar();
+                $eksemplar->saveQuietly();
+            }
+
+            $eksemplar->generateQr();
+            $dibuat++;
+        }
+
+        return back()->with('success', "Generate selesai! {$dibuat} QR Code eksemplar dibuat, {$dilewati} dilewati.");
+    }
+
+    public function downloadAllEksemplarQr()
+    {
+        $eksemplarList = EksemplarBuku::whereNotNull('qrcode_path')->get();
+
+        if ($eksemplarList->isEmpty()) {
+            return back()->with('error', 'Belum ada QR Code eksemplar yang tersedia.');
+        }
+
+        $zipPath = public_path('qrcode/all_eksemplar_qr_' . date('Ymd_His') . '.zip');
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            return back()->with('error', 'Gagal membuat file ZIP.');
+        }
+
+        foreach ($eksemplarList as $eksemplar) {
+            $filePath = public_path($eksemplar->qrcode_path);
+            if (file_exists($filePath)) {
+                $zip->addFile($filePath, 'QR_' . $eksemplar->kode_buku . '.svg');
             }
         }
 
-        Buku::create([
-            'judul'        => trim($row[0]),
-            'pengarang'    => trim($row[1]),
-            'penerbit'     => trim($row[2]),
-            'tahun_terbit' => trim($row[3]),
-            'isbn'         => $isbn,
-            'stok'         => (int) trim($row[5]),
-            'genre'        => trim($row[6] ?? ''),
-            'lokasi'       => trim($row[7] ?? ''),
-            'deskripsi'    => trim($row[8] ?? ''),
-            'sampul'       => $sampulPath,
-        ]);
-        $berhasil++;
+        $zip->close();
+
+        return response()->download($zipPath, 'Semua_QR_Eksemplar_' . date('Ymd') . '.zip')->deleteFileAfterSend(true);
     }
 
-    fclose($file);
+    public function cetakSemuaEksemplarQr(Buku $buku)
+    {
+        $eksemplarList = $buku->eksemplar()->whereNotNull('qrcode_path')->get();
 
-    $pesan = "$berhasil buku berhasil diimport.";
-    if ($dilewati > 0) $pesan .= " $dilewati dilewati (ISBN duplikat).";
-    if ($gagalGambar > 0) $pesan .= " $gagalGambar gambar gagal didownload.";
+        if ($eksemplarList->isEmpty()) {
+            return back()->with('error', 'Belum ada QR Code eksemplar.');
+        }
 
-    return back()->with('success', $pesan);
-}
+        $items = [];
+        foreach ($eksemplarList as $eksemplar) {
+            $filePath = public_path($eksemplar->qrcode_path);
+            if (file_exists($filePath)) {
+                $items[] = [
+                    'eksemplar' => $eksemplar,
+                    'svg'       => file_get_contents($filePath),
+                ];
+            }
+        }
+
+        return view('buku.eksemplar-qr-print-all', compact('items', 'buku'));
+    }
+
+    // ============================================================
+    // LEGACY QR METHODS (backward compat - redirect to eksemplar)
+    // ============================================================
+
+    public function generateAllQr()
+    {
+        return $this->generateAllEksemplarQr();
+    }
+
+    public function qrcode(Buku $buku)
+    {
+        // Return first eksemplar QR for backward compat
+        $eksemplar = $buku->eksemplar()->first();
+        if (!$eksemplar) {
+            return response()->json(['status' => 'error', 'pesan' => 'Belum ada eksemplar.'], 404);
+        }
+        return $this->eksemplarQrcode($eksemplar);
+    }
+
+    public function qrcodeDownload(Buku $buku)
+    {
+        $eksemplar = $buku->eksemplar()->first();
+        if (!$eksemplar) {
+            return back()->with('error', 'Belum ada eksemplar.');
+        }
+        return $this->eksemplarQrcodeDownload($eksemplar);
+    }
+
+    public function qrcodePrint(Buku $buku)
+    {
+        return $this->cetakSemuaEksemplarQr($buku);
+    }
+
+    public function downloadAllQr()
+    {
+        return $this->downloadAllEksemplarQr();
+    }
+
+    public function cetakSemuaQr()
+    {
+        // Cetak semua QR dari semua eksemplar
+        $eksemplarList = EksemplarBuku::whereNotNull('qrcode_path')->get();
+
+        if ($eksemplarList->isEmpty()) {
+            return back()->with('error', 'Belum ada QR Code eksemplar.');
+        }
+
+        $items = [];
+        foreach ($eksemplarList as $eksemplar) {
+            $filePath = public_path($eksemplar->qrcode_path);
+            if (file_exists($filePath)) {
+                $items[] = [
+                    'eksemplar' => $eksemplar,
+                    'buku'      => $eksemplar->buku,
+                    'svg'       => file_get_contents($filePath),
+                ];
+            }
+        }
+
+        return view('buku.eksemplar-qr-print-all', ['items' => $items, 'buku' => null]);
+    }
 }

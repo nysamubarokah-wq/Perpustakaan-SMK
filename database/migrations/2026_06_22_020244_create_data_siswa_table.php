@@ -24,9 +24,4 @@ public function down()
 {
     Schema::dropIfExists('data_siswa');
 }
-
-    /**
-     * Reverse the migrations.
-     */
-
 };

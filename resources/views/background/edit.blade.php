@@ -3,13 +3,9 @@
 @section('header_title', 'Edit Background')
 
 @section('content')
+<x-admin-page-header title="Edit Background" icon="bi bi-pencil" :backUrl="route('background.index')" />
+
 <div class="card-admin">
-    <div class="card-admin-header">
-        <h5><i class="bi bi-pencil" style="color:#1a6e35"></i> Edit Background</h5>
-        <a href="{{ route('background.index') }}" class="btn btn-sm btn-secondary">
-            <i class="bi bi-arrow-left"></i> Kembali
-        </a>
-    </div>
     <div class="card-admin-body">
         <form action="{{ route('background.update', $background->id) }}" method="POST" enctype="multipart/form-data">
             @csrf

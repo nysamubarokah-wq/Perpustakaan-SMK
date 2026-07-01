@@ -29,7 +29,16 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html, body {
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
         body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
+
+        img { max-width: 100%; height: auto; }
+
+        button, a { touch-action: manipulation; }
 
 
 
@@ -49,6 +58,13 @@
 
             z-index: 1000;
 
+        }
+
+        .navbar .container-fluid { max-width: 100%; }
+
+        @media (max-width: 480px) {
+            .navbar { padding: 8px 0; }
+            .navbar .container-fluid { padding-left: 12px !important; padding-right: 12px !important; }
         }
 
 
@@ -418,8 +434,15 @@
         }
         @media (max-width: 768px) {
     .main-container { margin-top: 80px; padding: 0 12px; }
+    .profil-card { border-radius: 15px; }
+    .riwayat-card { border-radius: 15px; }
 
-    .profil-header { padding: 25px 20px; }
+    .profil-header {
+        padding: 25px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
     .profil-header > div[style*="z-index:2"] {
         flex-direction: column;
         align-items: flex-start;
@@ -429,27 +452,95 @@
         margin-left: 0 !important;
         flex-direction: row !important;
         gap: 8px;
+        width: 100%;
     }
+    .profil-header .ms-auto form,
+    .profil-header .ms-auto button { flex: 1; }
+    .profil-header-info h2 { font-size: 18px; }
+    .profil-header-info p { font-size: 13px; }
 
-    .info-grid { grid-template-columns: 1fr; }
+    .profil-body { padding: 20px; }
+    .info-grid { grid-template-columns: 1fr; gap: 10px; }
     .info-item[style*="grid-column"] { grid-column: span 1 !important; }
+    .info-item { padding: 12px 15px; }
+    .info-item .label { font-size: 10px; }
+    .info-item .value { font-size: 14px; word-break: break-word; }
 
+    #tokoBackground { padding: 20px !important; }
     #tokoBackground > div[style*="grid-template-columns"] {
         grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
     }
 
+    .riwayat-header {
+        padding: 15px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .riwayat-header h5 { font-size: 15px; }
     .riwayat-item {
         flex-wrap: wrap;
         padding: 15px 20px;
+        gap: 10px;
     }
     .riwayat-info { min-width: 140px; }
+    .riwayat-info h6 { font-size: 13px; }
+    .riwayat-info p { font-size: 11px; }
+    .riwayat-sampul,
+    .riwayat-sampul-placeholder { width: 45px; height: 58px; }
+
+    .btn-logout { padding: 6px 14px; font-size: 12px; }
+    .status-badge { padding: 4px 10px; font-size: 10px; }
+    .empty-state { padding: 35px 0; }
+    .empty-state i { font-size: 40px; }
 }
 
 @media (max-width: 420px) {
+    .main-container { margin-top: 70px; padding: 0 10px; margin-bottom: 50px; }
+    .profil-card { border-radius: 12px; }
+    .riwayat-card { border-radius: 12px; }
+
+    .profil-header { padding: 20px 15px; }
+    .profil-avatar { width: 70px; height: 70px; }
+    .profil-header-info h2 { font-size: 16px; }
+    .profil-header-info h2 span { font-size: 16px !important; }
+    .profil-header-info p { font-size: 12px; }
+
+    .profil-body { padding: 15px; }
+    .info-grid { gap: 8px; }
+    .info-item { padding: 10px 12px; border-radius: 10px; }
+    .info-item .value { font-size: 13px; }
+
+    #tokoBackground { padding: 15px !important; }
     #tokoBackground > div[style*="grid-template-columns"] {
         grid-template-columns: 1fr !important;
+        gap: 8px !important;
     }
-    .profil-avatar { width: 70px; height: 70px; }
+
+    .riwayat-header { padding: 12px 15px; }
+    .riwayat-item { padding: 12px 15px; gap: 8px; }
+    .riwayat-sampul,
+    .riwayat-sampul-placeholder { width: 40px; height: 52px; }
+    .riwayat-info h6 { font-size: 12px; }
+    .riwayat-info p { font-size: 10px; }
+
+    .btn-logout { padding: 5px 10px; font-size: 11px; }
+    .status-badge { padding: 3px 8px; font-size: 9px; }
+    .empty-state { padding: 25px 0; }
+    .empty-state i { font-size: 35px; }
+    .empty-state p { font-size: 13px; }
+
+    .alert { font-size: 12px; padding: 10px 12px; }
+}
+
+/* Prevent overflow on small screens */
+@media (max-width: 360px) {
+    .profil-header { padding: 15px 12px; }
+    .profil-body { padding: 12px; }
+    .riwayat-item { padding: 10px 12px; }
+    .riwayat-header { padding: 10px 12px; }
+    .info-item { padding: 8px 10px; }
 }
 
 body.dark-mode {
@@ -600,6 +691,15 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endif
+    @if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        @foreach($errors->all() as $error)
+            <div>{{ $error }}</div>
+        @endforeach
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
     @if($totalDendaBelumBayar > 0)
     <div class="alert alert-danger mb-4 border-0 shadow-sm" style="border-radius: 15px;">
         <i class="bi bi-exclamation-triangle-fill"></i> 
@@ -644,7 +744,6 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
             <label for="uploadFoto" style="position:absolute;bottom:0;right:0;background:#1a6e35;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px">
                 <i class="bi bi-camera"></i>
             </label>
-            <input type="file" id="uploadFoto" style="display:none" accept="image/*" onchange="uploadFotoFunc(this)">
         </div>
        <div class="profil-header-info">
     <h2 style="display:flex;align-items:center;gap:8px">
@@ -676,6 +775,12 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
         </div>
     </div>
 </div>
+
+<form id="fotoForm" action="{{ route('profil.foto') }}" method="POST" enctype="multipart/form-data" style="display:none">
+    @csrf
+    <input type="file" id="uploadFoto" name="foto" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp" onchange="uploadFotoFunc(this)">
+</form>
+
 <!-- TOKO BACKGROUND -->
 <div id="tokoBackground" style="display:none;padding:25px 35px;border-bottom:1px solid #eee;background:#f8f9fa">
     <h6 style="font-weight:700;color:#222;margin-bottom:15px">🎨 Toko Background <span style="font-size:12px;color:#888;font-weight:400">— Coin kamu: 🪙 {{ $user->coin ?? 0 }}</span></h6>
@@ -824,12 +929,14 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     <div class="riwayat-info">
         <h6>{{ $item->buku->judul }}</h6>
         <div style="font-size: 10px; color: blue;">
- 
+            @if($item->eksemplar)
+                <span style="font-family:monospace;font-weight:600">{{ $item->eksemplar->kode_buku }}</span>
+            @endif
 </div>
         <p><i class="bi bi-person"></i> {{ $item->buku->pengarang }}</p>
         <p><i class="bi bi-calendar"></i> Pinjam: {{ $item->tanggal_pinjam }} &nbsp;|&nbsp; Kembali: {{ $item->tanggal_kembali }}</p>
         @if($item->status == 'dipinjam' && $item->tanggal_kembali < now()->toDateString())
-   @php $hariTerlambat = intval(now()->diffInDays($item->tanggal_kembali)); @endphp
+   @php $hariTerlambat = (int) abs(now()->diffInDays($item->tanggal_kembali)); @endphp
     <div style="background:#f8d7da;color:#721c24;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;margin-top:5px">
         ⚠️ Terlambat {{ $hariTerlambat }} hari! Segera kembalikan buku ini.
     </div>
@@ -856,7 +963,11 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
                 </button>
             </form>
         @elseif($item->status == 'menunggu_konfirmasi')
-            <span class="status-badge bg-info text-white">Menunggu Konfirmasi</span>
+            @if($item->tipe_konfirmasi === 'kembali')
+                <span class="status-badge" style="background:#e0e7ff;color:#4338ca">Menunggu Konfirmasi Kembali</span>
+            @else
+                <span class="status-badge bg-info text-white">Menunggu Konfirmasi Pinjam</span>
+            @endif
         @else
             <span class="status-badge status-dikembalikan">Dikembalikan</span>
         @endif
@@ -895,20 +1006,16 @@ function toggleToko() {
 function uploadFotoFunc(input) {
     if (!input.files || !input.files[0]) return;
 
-    const formData = new FormData();
-    formData.append('foto', input.files[0]);
-    formData.append('_token', '{{ csrf_token() }}');
+    const file = input.files[0];
+    const maxSize = 10 * 1024 * 1024;
 
-    fetch('{{ route("profil.foto") }}', {
-        method: 'POST',
-        body: formData
-    })
-    .then(res => {
-        if (res.ok || res.redirected) {
-            window.location.reload();
-        }
-    })
-    .catch(() => alert('Gagal upload foto, coba lagi.'));
+    if (file.size > maxSize) {
+        alert('Ukuran foto terlalu besar! Maksimal 10 MB.');
+        input.value = '';
+        return;
+    }
+
+    document.getElementById('fotoForm').submit();
 }
 
 if(localStorage.getItem('darkMode') === 'enabled'){
@@ -930,5 +1037,7 @@ window.addEventListener('load', function() {
     document.documentElement.style.visibility = 'visible';
 });
 </script>
+
+
 </body>
 </html>

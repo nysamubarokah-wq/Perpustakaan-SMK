@@ -4,13 +4,15 @@
 
 @section('content')
 
-<div class="mb-4">
-    <a href="{{ route('admin.ebook.index') }}" style="color:#888;text-decoration:none;font-size:14px">
-        <i class="bi bi-arrow-left"></i> Kembali ke Kelola E-book
-    </a>
-</div>
+<style>
+    @media (max-width: 768px) {
+        .ebook-form-card { padding: 20px 16px !important; max-width: 100% !important; }
+    }
+</style>
 
-<div style="background:white;border-radius:16px;box-shadow:0 3px 15px rgba(0,0,0,.08);padding:30px;max-width:650px">
+<x-admin-page-header title="Edit E-book" icon="bi bi-pencil-square" :backUrl="route('admin.ebook.index')" backText="Kembali ke Kelola E-book" />
+
+<div class="ebook-form-card" style="background:white;border-radius:16px;box-shadow:0 3px 15px rgba(0,0,0,.08);padding:30px;max-width:650px">
 
     @if($errors->any())
         <div class="alert alert-danger">
@@ -169,7 +171,7 @@
 
         <button
             type="submit"
-            style="width:100%;padding:14px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700"
+            style="width:100%;padding:12px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer"
         >
             <i class="bi bi-save"></i>
             Simpan Perubahan

@@ -4,13 +4,13 @@
 
 @section('content')
 <div class="card-admin">
-    <div class="card-admin-header" style="display:flex;align-items:center;justify-content:space-between">
-    <h5 style="margin:0"><i class="bi bi-palette" style="color:#1a6e35"></i> Daftar Background</h5>
-    <a href="{{ route('background.create') }}" class="btn btn-sm" style="background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border-radius:10px;padding:8px 18px;font-weight:600">
-        <i class="bi bi-plus-circle"></i> Tambah Background
-    </a>
-</div>
-    </div>
+    <x-admin-card-header title="Daftar Background" icon="bi bi-palette">
+        <x-slot:action>
+            <a href="{{ route('background.create') }}" style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none">
+                <i class="bi bi-plus-circle"></i> Tambah Background
+            </a>
+        </x-slot:action>
+    </x-admin-card-header>
     <div class="card-admin-body">
         <table class="table table-hover">
             <thead style="background:#f8f9fa">

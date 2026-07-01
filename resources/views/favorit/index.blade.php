@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { overflow-x: hidden; width: 100%; }
         body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
 
         .navbar {
@@ -40,6 +41,8 @@
             box-shadow: 0 3px 15px rgba(0,0,0,0.08);
             transition: all 0.3s;
             height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .buku-card:hover {
@@ -76,7 +79,13 @@
         .cover-5 { background: linear-gradient(135deg, #d35400, #e67e22); }
         .cover-6 { background: linear-gradient(135deg, #16a085, #1abc9c); }
 
-        .buku-body { padding: 18px; }
+        .buku-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 6px;
+        }
 
         .buku-body h5 {
             font-size: 14px;
@@ -87,9 +96,10 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            min-height: 2.4em;
         }
 
-        .buku-meta { font-size: 12px; color: #888; margin-bottom: 4px; }
+        .buku-meta { font-size: 12px; color: #888; margin-bottom: 0; }
 
         .stok-badge {
             display: inline-block;
@@ -97,11 +107,26 @@
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
-            margin: 8px 0 12px;
+            align-self: flex-start;
         }
 
         .stok-ada { background: #d4edda; color: #1a6e35; }
         .stok-habis { background: #f8d7da; color: #721c24; }
+
+        .btn-detail-link {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #1a6e35, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            margin-top: auto;
+        }
 
         .empty-state { text-align: center; padding: 80px 0; }
         .empty-state i { font-size: 60px; color: #ddd; margin-bottom: 15px; display: block; }
@@ -118,9 +143,38 @@
             font-size: 13px;
         }
 
+        @media (max-width: 992px) {
+            .main-container { margin-top: 85px; padding: 0 16px; margin-bottom: 30px; }
+        }
+
         @media (max-width: 768px) {
-            .main-container { margin-top: 80px; padding: 0 12px; }
+            .main-container { margin-top: 80px; padding: 0 12px; margin-bottom: 30px; }
             .page-title { font-size: 18px; }
+            .buku-cover { height: 160px; }
+            .buku-cover-placeholder { font-size: 45px; }
+            .buku-body { padding: 14px; }
+            .buku-body h5 { font-size: 13px; min-height: 2.2em; }
+            .buku-meta { font-size: 11px; }
+            .stok-badge { font-size: 10px; padding: 2px 8px; }
+            .btn-detail-link { padding: 8px; font-size: 12px; }
+            .empty-state { padding: 50px 0; }
+            .empty-state i { font-size: 45px; }
+            .empty-state p { font-size: 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .main-container { margin-top: 75px; padding: 0 10px; margin-bottom: 25px; }
+            .page-title { font-size: 16px; margin-bottom: 18px; }
+            .buku-cover { height: 140px; }
+            .buku-cover-placeholder { font-size: 36px; }
+            .buku-body { padding: 12px; }
+            .buku-body h5 { font-size: 12px; margin-bottom: 3px; min-height: 2em; }
+            .buku-meta { font-size: 10px; margin-bottom: 2px; }
+            .stok-badge { font-size: 9px; padding: 2px 7px; }
+            .btn-detail-link { padding: 7px; font-size: 11px; border-radius: 8px; }
+            .empty-state { padding: 40px 0; }
+            .empty-state i { font-size: 40px; }
+            .empty-state a { padding: 8px 20px; font-size: 12px; }
         }
 
         /* DARK MODE */
@@ -207,7 +261,7 @@
                         {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Tidak Tersedia' }}
                     </span>
                     <a href="{{ route('buku.detail', $item->id) }}"
-                        style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
+                        class="btn-detail-link">
                         <i class="bi bi-eye"></i> Lihat Detail
                     </a>
                 </div>
@@ -232,5 +286,7 @@ if(localStorage.getItem('darkMode') === 'enabled'){
     document.body.classList.add('dark-mode');
 }
 </script>
+
+
 </body>
 </html>
