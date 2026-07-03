@@ -2,65 +2,89 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
+use App\Models\Anggota;
 use Illuminate\Auth\Events\Lockout;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'nama_login' => ['required', 'string'],
+            'nis_login'  => ['required', 'string'],
         ];
     }
 
-    /**
-     * Attempt to authenticate the request's credentials.
-     *
-     * @throws ValidationException
-     */
+    public function messages(): array
+    {
+        return [
+            'nama_login.required' => 'Nama harus diisi.',
+            'nis_login.required'  => 'NIS harus diisi.',
+        ];
+    }
+
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $nis  = trim($this->input('nis_login'));
+        $nama = trim($this->input('nama_login'));
 
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+        $user = User::where('nis', $nis)->first();
+
+        if (!$user) {
+            $anggota = Anggota::where('nis', $nis)->first();
+
+            if (!$anggota) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'nis_login' => 'NIS tidak ditemukan. Hubungi admin perpustakaan.',
+                ]);
+            }
+
+            if (strtolower(trim($anggota->nama)) !== strtolower($nama)) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'nama_login' => 'Nama tidak cocok dengan NIS tersebut.',
+                ]);
+            }
+
+            $user = User::create([
+                'name'     => $anggota->nama,
+                'nis'      => $anggota->nis,
+                'email'    => $anggota->email ?? strtolower(str_replace(' ', '.', $anggota->nama)) . '@school.sch.id',
+                'password' => bcrypt('login-nis-' . $anggota->nis),
+                'role'     => $anggota->role ?? 'siswa',
             ]);
+
+            $anggota->update(['user_id' => $user->id]);
+        } else {
+            if (strtolower(trim($user->name)) !== strtolower($nama)) {
+                RateLimiter::hit($this->throttleKey());
+                throw ValidationException::withMessages([
+                    'nama_login' => 'Nama tidak cocok dengan NIS tersebut.',
+                ]);
+            }
         }
+
+        auth()->login($user, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
     }
 
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws ValidationException
-     */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 10)) {
             return;
         }
 
@@ -69,18 +93,12 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
+            'nis_login' => 'Terlalu banyak percobaan. Coba lagi dalam ' . ceil($seconds / 60) . ' menit.',
         ]);
     }
 
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('nis_login')) . '|' . $this->ip());
     }
 }

@@ -36,22 +36,25 @@
         /* CARD */
         .buku-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1);
             height: 100%;
             display: flex;
             flex-direction: column;
+            max-width: 185px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .buku-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
 
         .buku-cover {
-            height: 200px;
+            height: 220px;
             position: relative;
             overflow: hidden;
         }
@@ -60,6 +63,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+        .buku-card:hover .buku-cover img {
+            transform: scale(1.05);
         }
 
         .buku-cover-placeholder {
@@ -72,68 +80,75 @@
             color: rgba(255,255,255,0.5);
         }
 
-        .cover-1 { background: linear-gradient(135deg, #7c3aed, #a855f7); }
-        .cover-2 { background: linear-gradient(135deg, #1a6e35, #27ae60); }
-        .cover-3 { background: linear-gradient(135deg, #2c3e50, #3498db); }
+        .cover-1 { background: linear-gradient(135deg, #1a6e35, #27ae60); }
+        .cover-2 { background: linear-gradient(135deg, #2c3e50, #3498db); }
+        .cover-3 { background: linear-gradient(135deg, #8e44ad, #e056fd); }
         .cover-4 { background: linear-gradient(135deg, #c0392b, #e74c3c); }
         .cover-5 { background: linear-gradient(135deg, #d35400, #e67e22); }
         .cover-6 { background: linear-gradient(135deg, #16a085, #1abc9c); }
 
         .buku-body {
-            padding: 18px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             flex: 1;
-            gap: 6px;
+            gap: 4px;
         }
 
         .buku-body h5 {
             font-size: 14px;
             font-weight: 700;
-            color: #222;
+            color: #1a1a2e;
             margin-bottom: 0;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             min-height: 2.4em;
+            line-height: 1.3;
         }
 
-        .buku-meta { font-size: 12px; color: #888; margin-bottom: 0; }
+        .buku-meta { font-size: 12px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 5px; }
 
         .btn-baca {
             display: block;
             width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            padding: 11px;
+            background: linear-gradient(135deg, #1a6e35, #27ae60);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
             text-align: center;
             margin-top: auto;
+            transition: all 0.3s;
         }
 
-        .empty-state { text-align: center; padding: 80px 0; }
+        .btn-baca:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            color: white;
+        }
+
+        .empty-state { text-align: center; padding: 60px 0; }
         .empty-state i { font-size: 60px; color: #ddd; margin-bottom: 15px; display: block; }
         .empty-state p { color: #aaa; font-size: 15px; }
 
         @media (max-width: 992px) {
             .main-container { max-width: 100%; }
-            .buku-cover { height: 180px; }
+            .buku-cover { height: 170px; }
         }
 
         @media (max-width: 768px) {
-            .main-container { margin-top: 80px; padding: 0 12px; }
+            .main-container { max-width: 100%; padding: 0 14px; }
             .page-title { font-size: 18px; margin-bottom: 18px; }
-            .buku-card:hover { transform: none; }
-            .buku-cover { height: 160px; }
+            .buku-cover { height: 170px; }
             .buku-cover-placeholder { font-size: 44px; }
             .buku-body { padding: 12px; }
             .buku-body h5 { font-size: 13px; min-height: 2.2em; }
             .buku-meta { font-size: 11px; }
-            .btn-baca { padding: 8px; font-size: 12px; }
+            .btn-baca { padding: 10px; font-size: 12px; }
         }
 
         @media (max-width: 400px) {
@@ -141,7 +156,7 @@
             .buku-cover { height: 140px; }
             .buku-body { padding: 10px; }
             .buku-body h5 { font-size: 12px; min-height: 2em; }
-            .btn-baca { padding: 7px; font-size: 11px; border-radius: 8px; }
+            .btn-baca { padding: 8px; font-size: 11px; }
         }
 
         /* DARK MODE */
@@ -180,9 +195,9 @@
     </h1>
 
     @if($ebooks->count() > 0)
-    <div class="row g-4">
+    <div class="row g-4" style="display:flex;flex-wrap:wrap">
         @foreach($ebooks as $index => $ebook)
-        <div class="col-6 col-md-4 col-lg-3">
+        <div class="col-6 col-md-4 col-lg-3" style="width:185px;max-width:185px;flex:0 0 185px">
             <a href="{{ route('ebook.show', $ebook->id) }}" style="text-decoration:none">
                 <div class="buku-card">
                     <div class="buku-cover cover-{{ ($index % 6) + 1 }}">

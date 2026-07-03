@@ -68,6 +68,12 @@
                     <input type="file" name="sampul" class="form-control @error('sampul') is-invalid @enderror" accept="image/*">
                     @error('sampul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Background Rekomendasi <small class="text-muted">(opsional)</small></label>
+                    <input type="file" name="rekom_bg" class="form-control @error('rekom_bg') is-invalid @enderror" accept="image/*">
+                    <small class="text-muted">Gambar latar belakang untuk banner Rekomendasi Hari Ini. Kosongkan jika tidak ingin menggunakan background kustom.</small>
+                    @error('rekom_bg') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Lokasi Rak</label>
                     <select name="lokasi" class="form-control @error('lokasi') is-invalid @enderror">

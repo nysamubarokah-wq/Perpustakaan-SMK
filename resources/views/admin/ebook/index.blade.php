@@ -77,7 +77,7 @@
     <div style="display:flex;gap:8px">
 
         <a href="{{ route('admin.ebook.edit', $ebook->id) }}"
-           style="padding:6px 14px;background:#dbeafe;color:#2563eb;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+           style="padding:5px 10px;background:#dbeafe;color:#2563eb;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
             <i class="bi bi-pencil-square"></i> Edit
         </a>
 
@@ -86,7 +86,7 @@
             @method('DELETE')
             <button type="submit"
                     onclick="return confirm('Hapus e-book \'{{ $ebook->judul }}\'?')"
-                    style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                    style="padding:5px 10px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
                 <i class="bi bi-trash"></i> Hapus
             </button>
         </form>

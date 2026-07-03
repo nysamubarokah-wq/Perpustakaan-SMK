@@ -533,7 +533,8 @@
         <li><a href="{{ route('admin.scanner') }}" class="{{ Route::is('admin.scanner*') ? 'active' : '' }}"><i class="bi bi-qr-code-scan"></i> Scan Buku</a></li>
         <hr class="sidebar-divider">
         <li><a href="{{ route('buku.index') }}" class="{{ Route::is('buku.*') ? 'active' : '' }}"><i class="bi bi-book"></i> Kelola Buku</a></li>
-        <li><a href="{{ route('anggota.index') }}" class="{{ Route::is('anggota.*') ? 'active' : '' }}"><i class="bi bi-people"></i> Kelola Anggota</a></li>
+        <li><a href="{{ route('anggota.index') }}" class="{{ Route::is('anggota.index') ? 'active' : '' }}"><i class="bi bi-mortarboard"></i> Daftar Siswa</a></li>
+        <li><a href="{{ route('anggota.admin') }}" class="{{ Route::is('anggota.admin') ? 'active' : '' }}"><i class="bi bi-shield-check"></i> Daftar Admin</a></li>
         <li><a href="{{ route('peminjaman.index') }}" class="{{ Route::is('peminjaman.*') ? 'active' : '' }}"><i class="bi bi-journal-check"></i> Peminjaman</a></li>
         <li>
     <a href="{{ route('admin.pengembalian.index') }}" class="{{ Route::is('admin.pengembalian.*') ? 'active' : '' }}">
@@ -554,11 +555,6 @@
 </li>
         <li><a href="{{ route('background.index') }}" class="{{ Route::is('background.*') ? 'active' : '' }}"><i class="bi bi-image"></i> Kelola Background</a></li>
         <li><a href="{{ route('admin.ulasan.index') }}" class="{{ Route::is('admin.ulasan.*') ? 'active' : '' }}"><i class="bi bi-star-fill"></i> Kelola Ulasan</a></li>
-        <li>
-    <a href="{{ route('admin.siswa.index') }}" class="{{ Route::is('admin.siswa.*') ? 'active' : '' }}">
-        <i class="bi bi-people-fill"></i> Data Siswa
-    </a>
-</li>
 <li>
     <a href="{{ route('admin.pinjam.index') }}" class="{{ Route::is('admin.pinjam.*') ? 'active' : '' }}">
         <i class="bi bi-bookmark-check"></i> Konfirmasi Pinjam
@@ -588,10 +584,10 @@
 </li>
         <hr class="sidebar-divider">
         <li>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Yakin ingin logout?');">
                 @csrf
                 <button type="submit" style="background:none;border:none;width:100%;text-align:left;padding:0">
-                    <a style="color:rgba(255,255,255,0.8)"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                    <a style="color:rgba(255,255,255,0.8);cursor:pointer"><i class="bi bi-box-arrow-right"></i> Logout</a>
                 </button>
             </form>
         </li>

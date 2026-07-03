@@ -49,6 +49,7 @@ class BukuController extends Controller
             'isbn'           => 'required|unique:buku',
             'jumlah_eksemplar' => 'required|integer|min:1',
             'sampul'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'rekom_bg'       => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
             'kode_buku'      => 'nullable|unique:buku,kode_buku',
         ]);
 
@@ -66,6 +67,13 @@ class BukuController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('images/buku'), $filename);
             $data['sampul'] = 'images/buku/' . $filename;
+        }
+
+        if ($request->hasFile('rekom_bg')) {
+            $file = $request->file('rekom_bg');
+            $filename = 'bg_' . time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/buku'), $filename);
+            $data['rekom_bg'] = 'images/buku/' . $filename;
         }
 
         $buku = Buku::create($data);
@@ -99,6 +107,7 @@ class BukuController extends Controller
             'tahun_terbit' => 'required|digits:4',
             'isbn'         => 'required|unique:buku,isbn,' . $buku->id,
             'sampul'       => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'rekom_bg'     => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
             'kode_buku'    => 'nullable|unique:buku,kode_buku,' . $buku->id,
         ]);
 
@@ -112,6 +121,16 @@ class BukuController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('images/buku'), $filename);
             $data['sampul'] = 'images/buku/' . $filename;
+        }
+
+        if ($request->hasFile('rekom_bg')) {
+            if ($buku->rekom_bg && file_exists(public_path($buku->rekom_bg))) {
+                unlink(public_path($buku->rekom_bg));
+            }
+            $file = $request->file('rekom_bg');
+            $filename = 'bg_' . time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images/buku'), $filename);
+            $data['rekom_bg'] = 'images/buku/' . $filename;
         }
 
         // Update stok = jumlah eksemplar tersedia (backward compat)

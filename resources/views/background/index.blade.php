@@ -44,14 +44,16 @@
                     </td>
                     <td>🪙 {{ $item->harga }}</td>
                     <td>
-                        <a href="{{ route('background.edit', $item->id) }}" class="btn btn-sm btn-warning me-1">
+                        <a href="{{ route('background.edit', $item->id) }}"
+                            style="padding:5px 10px;background:#dbeafe;color:#2563eb;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block">
                             <i class="bi bi-pencil"></i>
                         </a>
                         @if($item->slug !== 'default')
                         <form action="{{ route('background.destroy', $item->id) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus background ini?')">
+                            <button type="submit" onclick="return confirm('Yakin hapus background ini?')"
+                                style="padding:5px 10px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>

@@ -138,13 +138,15 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('peminjaman.edit', $item->id) }}" class="btn btn-sm btn-warning me-1">
+                            <a href="{{ route('peminjaman.edit', $item->id) }}"
+                                style="padding:6px 14px;background:#dbeafe;color:#2563eb;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block">
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <form action="{{ route('peminjaman.destroy', $item->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">
+                                <button type="submit" onclick="return confirm('Yakin hapus?')"
+                                    style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
@@ -194,13 +196,15 @@
                     <span><i class="bi bi-calendar-check"></i> Kembali: {{ $item->tanggal_kembali }}</span>
                 </div>
                 <div class="pm-card-actions">
-                    <a href="{{ route('peminjaman.edit', $item->id) }}" class="btn btn-warning">
+                    <a href="{{ route('peminjaman.edit', $item->id) }}"
+                        style="padding:6px 14px;background:#dbeafe;color:#2563eb;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none">
                         <i class="bi bi-pencil"></i> Edit
                     </a>
                     <form action="{{ route('peminjaman.destroy', $item->id) }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin hapus?')">
+                        <button type="submit" onclick="return confirm('Yakin hapus?')"
+                            style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
                             <i class="bi bi-trash"></i> Hapus
                         </button>
                     </form>

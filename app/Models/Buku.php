@@ -9,7 +9,7 @@ class Buku extends Model
 {
     protected $table = 'buku';
 
-    protected $fillable = ['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'isbn', 'kode_buku', 'stok', 'genre', 'sampul', 'deskripsi', 'lokasi', 'qrcode_path'];
+    protected $fillable = ['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'isbn', 'kode_buku', 'stok', 'genre', 'sampul', 'rekom_bg', 'deskripsi', 'lokasi', 'qrcode_path'];
 
     protected static function booted()
     {

@@ -23,7 +23,7 @@
             @endforeach
         </select>
         <button type="submit" id="btnUpgrade"
-                style="padding:8px 18px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
+                style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
             ⭐ Upgrade 7 Hari
         </button>
     </form>
@@ -74,7 +74,7 @@
                             <form action="{{ route('admin.vip.upgrade', $u->id) }}" method="POST">
                                 @csrf
                                 <button type="submit"
-                                        style="padding:6px 14px;background:#fef3c7;color:#92400e;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                        style="padding:6px 14px;background:#d1fae5;color:#065f46;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
                                     +7 Hari
                                 </button>
                             </form>

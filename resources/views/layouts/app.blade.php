@@ -18,7 +18,7 @@
                     <a class="nav-link" href="{{ route('buku.index') }}"><i class="bi bi-book"></i> Buku</a>
                     <a class="nav-link" href="{{ route('anggota.index') }}"><i class="bi bi-people"></i> Anggota</a>
                     <a class="nav-link" href="{{ route('peminjaman.index') }}"><i class="bi bi-journal-check"></i> Peminjaman</a>
-                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                    <form method="POST" action="{{ route('logout') }}" class="d-inline" onsubmit="return confirm('Yakin ingin logout?');">
                         @csrf
                         <button type="submit" class="btn btn-link nav-link">
                             <i class="bi bi-box-arrow-right"></i> Logout

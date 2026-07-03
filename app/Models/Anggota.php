@@ -9,7 +9,7 @@ class Anggota extends Model
     protected $table = 'anggota';
     
     protected $fillable = [
-    'user_id',  // tambah ini
+    'user_id',
     'nama',
     'email',
     'no_telepon',
@@ -17,6 +17,10 @@ class Anggota extends Model
     'tanggal_daftar',
     'role',
     'nis',
+    'kelas',
+    'jurusan',
+    'jenis_kelamin',
+    'status',
 ];
 
 public function peminjaman()

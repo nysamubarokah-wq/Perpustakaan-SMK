@@ -56,41 +56,124 @@
 
         .nav-link.active { color: #1a6e35 !important; }
 
-        /* Search bar di navbar */
-        .navbar-search {
-            display: flex;
-            align-items: center;
-            background: #f5f5f5;
-            border-radius: 25px;
-            padding: 6px 15px;
-            gap: 8px;
-        }
-
-        .navbar-search input {
-            border: none;
-            background: transparent;
-            outline: none;
-            font-size: 13px;
-            width: 180px;
-        }
-
-        .navbar-search i { color: #999; }
-
-        /* Dropdown Layanan */
+        /* Dropdown */
         .layanan-dropdown {
             position: absolute;
-            top: 100%;
-            left: 0;
+            top: calc(100% + 40px);
+            left: -70px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             padding: 20px;
-            min-width: 250px;
+            min-width: 280px;
             display: none;
             z-index: 999;
         }
 
         .layanan-dropdown.show { display: block; }
+
+        /* Profil Popup */
+        .profil-popup {
+            position: absolute;
+            top: calc(100% + 40px);
+            right: -10px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 20px;
+            min-width: 260px;
+            display: none;
+            z-index: 999;
+        }
+
+        .profil-popup.show { display: block; }
+
+        .profil-popup .profil-foto {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1a6e35;
+            margin: 0 auto 12px;
+            display: block;
+        }
+
+        .profil-popup h5 {
+            text-align: center;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .profil-info {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+
+        .profil-info p {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 5px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .profil-info p:last-child { margin-bottom: 0; }
+
+        .profil-info i { color: #1a6e35; width: 16px; }
+
+        .btn-lihat-profil {
+            width: 100%;
+            padding: 9px;
+            background: linear-gradient(135deg, #1a6e35, #27ae60);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .btn-lihat-profil:hover {
+            background: linear-gradient(135deg, #155c2c, #1e8f4e);
+            color: white;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 9px;
+            background: #f1f1f1;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .btn-logout:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        @media (min-width: 769px) {
+            .profil-popup {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                left: auto;
+                transform: none;
+            }
+        }
 
         .penjaga-card {
             display: flex;
@@ -116,70 +199,6 @@
             font-size: 12px;
             color: #666;
             margin: 0;
-        }
-
-        /* Profil Popup */
-        .profil-popup {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 25px;
-            min-width: 280px;
-            display: none;
-            z-index: 999;
-        }
-
-        .profil-popup.show { display: block; }
-
-        .profil-popup .profil-foto {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #1a6e35;
-            margin: 0 auto 15px;
-            display: block;
-        }
-
-        .profil-popup h5 {
-            text-align: center;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 15px;
-        }
-
-        .profil-info {
-            background: #f9f9f9;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 15px;
-        }
-
-        .profil-info p {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 6px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .profil-info p:last-child { margin-bottom: 0; }
-
-        .profil-info i { color: #1a6e35; width: 16px; }
-
-        .btn-logout {
-            width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, #1a6e35, #27ae60);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
         }
 
         /* HERO */
@@ -292,53 +311,6 @@
             margin: 0;
         }
 
-        /* GENRE */
-        .genre-section {
-            padding: 60px 0;
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 5px;
-        }
-
-        .section-subtitle {
-            color: #999;
-            font-size: 14px;
-            margin-bottom: 35px;
-        }
-
-        .genre-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-
-        .genre-card:hover {
-            border-color: #1a6e35;
-            transform: translateY(-3px);
-        }
-
-        .genre-card i {
-            font-size: 32px;
-            color: #1a6e35;
-            margin-bottom: 10px;
-        }
-
-        .genre-card h6 {
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-            font-size: 13px;
-        }
-
         /* Relative position untuk dropdown */
         .nav-item { position: relative; }
 
@@ -348,8 +320,6 @@
                 flex-wrap: wrap;
                 gap: 8px;
             }
-
-            .navbar-search { display: none; }
 
             .nav-link {
                 padding: 8px 10px !important;
@@ -361,9 +331,8 @@
             .layanan-dropdown,
             .profil-popup {
                 position: fixed;
-                top: auto;
+                top: 70px;
                 left: 50%;
-                right: auto;
                 transform: translateX(-50%);
                 width: 90vw;
                 max-width: 320px;
@@ -393,10 +362,8 @@
             .hero-box p { font-size: 13px; }
 
             .stats-section { padding: 40px 0; }
-            .genre-section { padding: 40px 0; }
 
             .stat-card { margin-bottom: 16px; }
-            .genre-card { margin-bottom: 12px; }
         }
 
         /* Phone */
@@ -445,13 +412,6 @@
             .stat-card h3 { font-size: 26px; }
             .stat-card .icon { width: 48px; height: 48px; }
             .stat-card .icon i { font-size: 20px; }
-
-            .section-title { font-size: 20px; }
-            .section-subtitle { font-size: 13px; margin-bottom: 24px; }
-
-            .profil-popup .profil-foto { width: 60px; height: 60px; }
-            .profil-popup h5 { font-size: 16px; }
-            .profil-popup { padding: 18px; }
         }
 
 /* DARK MODE */
@@ -473,21 +433,25 @@ body.dark-mode .navbar-brand span {
     color: #4ade80;
 }
 
-body.dark-mode .navbar-search {
-    background: #2a2a2a;
-}
-
-body.dark-mode .navbar-search input {
+body.dark-mode .layanan-dropdown {
+    background: #1e1e1e;
     color: white;
 }
 
-body.dark-mode .navbar-search input::placeholder {
-    color: #aaa;
+body.dark-mode .penjaga-card p {
+    color: #ccc;
 }
 
-body.dark-mode .layanan-dropdown,
+body.dark-mode .penjaga-card h6 {
+    color: white;
+}
+
 body.dark-mode .profil-popup {
     background: #1e1e1e;
+    color: white;
+}
+
+body.dark-mode .profil-popup h5 {
     color: white;
 }
 
@@ -495,9 +459,18 @@ body.dark-mode .profil-info {
     background: #2a2a2a;
 }
 
-body.dark-mode .profil-info p,
-body.dark-mode .penjaga-card p {
+body.dark-mode .profil-info p {
     color: #ccc;
+}
+
+body.dark-mode .btn-logout {
+    background: #2a2a2a;
+    color: #ccc;
+}
+
+body.dark-mode .btn-logout:hover {
+    background: #3a3a3a;
+    color: white;
 }
 
 body.dark-mode .hero-box {
@@ -508,21 +481,9 @@ body.dark-mode .stats-section {
     background: #181818;
 }
 
-body.dark-mode .stat-card,
-body.dark-mode .genre-card {
+body.dark-mode .stat-card {
     background: #1e1e1e;
     color: white;
-}
-
-body.dark-mode .section-title,
-body.dark-mode .genre-card h6,
-body.dark-mode .profil-popup h5,
-body.dark-mode .penjaga-card h6 {
-    color: white;
-}
-
-body.dark-mode .section-subtitle {
-    color: #aaa;
 }
     </style>
 </head>
@@ -586,22 +547,15 @@ body.dark-mode .section-subtitle {
 @endif
                         </div>
                     </li>
-                    <li class="nav-item">
-                       <a class="nav-link" href="#genre"><i class="bi bi-collection-fill"></i> <span class="nav-text">Genre Buku</span></a>
-                    </li>
                 </ul>
 
-                <!-- Search -->
-                <div class="navbar-search">
-                    <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Cari buku...">
-                </div>
-
-                <!-- Profil -->
+                <!-- Dark Mode Toggle -->
                  <button id="darkModeToggle"
         class="btn btn-sm btn-outline-secondary rounded-circle">
     <i class="bi bi-moon-fill"></i>
 </button>
+
+                <!-- Profil -->
                 <div class="nav-item">
                     <button onclick="toggleProfil(event)" style="background:none;border:none;cursor:pointer">
     @if(auth()->user()->foto)
@@ -612,7 +566,7 @@ body.dark-mode .section-subtitle {
              style="width:38px;height:38px;border-radius:50%;border:2px solid #1a6e35">
     @endif
 </button>
-                   <div class="profil-popup" id="profilPopup">
+                    <div class="profil-popup" id="profilPopup">
     @if(auth()->user()->foto)
         <img src="{{ asset(auth()->user()->foto) }}"
              class="profil-foto" alt="Foto Profil" style="object-fit:cover">
@@ -625,12 +579,15 @@ body.dark-mode .section-subtitle {
         <p><i class="bi bi-person-badge"></i> NIS: {{ auth()->user()->nis }}</p>
         <p><i class="bi bi-envelope"></i> {{ auth()->user()->email }}</p>
     </div>
-    <form method="POST" action="{{ route('logout') }}">
+    <a href="{{ route('profil.index') }}" class="btn-lihat-profil">
+        <i class="bi bi-person"></i> Lihat Profil
+    </a>
+    <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Yakin ingin logout?');">
         @csrf
         <button type="submit" class="btn-logout">
             <i class="bi bi-box-arrow-right"></i> Logout
         </button>
-                        </form>
+    </form>
                     </div>
                 </div>
             </div>
@@ -656,19 +613,9 @@ body.dark-mode .section-subtitle {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  function positionDropdown(el) {
-    const navbar = document.querySelector('.navbar');
-    if (window.innerWidth <= 768) {
-        el.style.top = (navbar.offsetHeight + 10) + 'px';
-    } else {
-        el.style.top = '';
-    }
-}
-
 function toggleLayanan(e) {
     e.preventDefault();
     const el = document.getElementById('layananDropdown');
-    positionDropdown(el);
     el.classList.toggle('show');
     document.getElementById('profilPopup').classList.remove('show');
 }
@@ -676,17 +623,16 @@ function toggleLayanan(e) {
 function toggleProfil(e) {
     e.preventDefault();
     const el = document.getElementById('profilPopup');
-    positionDropdown(el);
     el.classList.toggle('show');
     document.getElementById('layananDropdown').classList.remove('show');
 }
-    // Tutup dropdown kalau klik di luar
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.nav-item')) {
-            document.getElementById('layananDropdown').classList.remove('show');
-            document.getElementById('profilPopup').classList.remove('show');
-        }
-    });
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-item')) {
+        document.getElementById('layananDropdown').classList.remove('show');
+        document.getElementById('profilPopup').classList.remove('show');
+    }
+});
 </script>
 
 <script>

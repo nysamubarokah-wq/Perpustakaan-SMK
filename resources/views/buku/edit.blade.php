@@ -77,6 +77,18 @@
                     <small class="text-muted">Kosongkan jika tidak ingin mengubah sampul</small>
                     @error('sampul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Background Rekomendasi <small class="text-muted">(opsional)</small></label>
+                    @if($buku->rekom_bg)
+                        <div class="mb-2">
+                            <img src="{{ asset($buku->rekom_bg) }}" style="height:80px;border-radius:8px;object-fit:cover">
+                            <p style="font-size:12px;color:#888;margin-top:5px">Background saat ini</p>
+                        </div>
+                    @endif
+                    <input type="file" name="rekom_bg" class="form-control @error('rekom_bg') is-invalid @enderror" accept="image/*">
+                    <small class="text-muted">Kosongkan jika tidak ingin mengubah background rekomendasi</small>
+                    @error('rekom_bg') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Lokasi Rak</label>
                     <select name="lokasi" class="form-control @error('lokasi') is-invalid @enderror">

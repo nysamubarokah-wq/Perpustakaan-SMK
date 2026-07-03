@@ -92,7 +92,7 @@
 <div style="margin-bottom:12px;display:flex;gap:8px;align-items:center">
     <form id="bulkForm" action="{{ route('admin.ulasan.bulkDelete') }}" method="POST" onsubmit="return confirm('Hapus semua ulasan yang dipilih?')" style="display:contents">
         @csrf
-        <button type="submit" id="bulkDeleteBtn" style="display:none;padding:6px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+        <button type="submit" id="bulkDeleteBtn" style="display:none;padding:5px 10px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
             <i class="bi bi-trash"></i> Hapus Terpilih (<span id="selectedCount">0</span>)
         </button>
     </form>
@@ -174,7 +174,7 @@
                         @else
                             <button type="button"
                                     onclick="toggleForm({{ $item->id }})"
-                                    style="padding:6px 14px;background:#dbeafe;color:#2563eb;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                    style="padding:5px 10px;background:#dbeafe;color:#2563eb;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
                                 <i class="bi bi-reply"></i> Balas
                             </button>
                             <form id="form-balas-{{ $item->id }}" action="{{ route('admin.ulasan.balas', $item->id) }}" method="POST" style="display:none;margin-top:8px">
@@ -183,11 +183,11 @@
                                           style="width:100%;padding:8px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;resize:vertical"></textarea>
                                 <div style="margin-top:6px;display:flex;gap:6px">
                                     <button type="submit"
-                                            style="padding:6px 14px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                            style="padding:5px 10px;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
                                         <i class="bi bi-send"></i> Kirim
                                     </button>
                                     <button type="button" onclick="toggleForm({{ $item->id }})"
-                                            style="padding:6px 14px;background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                            style="padding:5px 10px;background:#f3f4f6;color:#6b7280;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
                                         Batal
                                     </button>
                                 </div>
@@ -200,7 +200,7 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit"
-                                    style="padding:6px 14px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
+                                    style="padding:5px 10px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">
                                 <i class="bi bi-trash"></i> Hapus
                             </button>
                         </form>

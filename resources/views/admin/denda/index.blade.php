@@ -4,17 +4,35 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h4 class="mb-0"><i class="bi bi-currency-dollar"></i> Kelola Denda</h4>
-    @if($dendas->where('status', 'belum_dibayar')->count() > 0)
-    <form action="{{ route('admin.denda.lunasi-semua') }}" method="POST">
-        @csrf
-        <button type="submit"
-                style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer"
-                onclick="return confirm('Lunasi semua denda?')">
-            <i class="bi bi-check-all"></i> Lunasi Semua
-        </button>
-    </form>
-    @endif
+    <div class="d-flex align-items-center gap-3">
+        <h5 class="mb-0">Total Denda:</h5>
+    </div>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <form action="{{ route('admin.denda.index') }}" method="GET" class="d-flex align-items-center gap-2">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari anggota/buku..."
+                   style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;width:180px">
+            <select name="filter_pengembalian" onchange="this.form.submit()"
+                    style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;background:white">
+                <option value="">Semua Status</option>
+                <option value="belum" {{ request('filter_pengembalian') === 'belum' ? 'selected' : '' }}>Belum Kembali</option>
+                <option value="sudah" {{ request('filter_pengembalian') === 'sudah' ? 'selected' : '' }}>Sudah Kembali</option>
+            </select>
+            <button type="submit"
+                    style="padding:8px 14px;background:#4361ee;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+        @if($dendas->where('status', 'belum_dibayar')->count() > 0)
+        <form action="{{ route('admin.denda.lunasi-semua') }}" method="POST">
+            @csrf
+            <button type="submit"
+                    style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer"
+                    onclick="return confirm('Lunasi semua denda?')">
+                <i class="bi bi-check-all"></i> Lunasi Semua
+            </button>
+        </form>
+        @endif
+    </div>
 </div>
 
     <div class="row g-3 mb-4">
@@ -56,7 +74,6 @@
     <div class="card border-0 shadow-sm" style="border-radius:15px">
         <div class="card-body p-3 p-md-4">
             <h5 class="mb-3 mb-md-4">Daftar Denda</h5>
-
             <div class="table-responsive">
                 <table class="table table-denda table-hover align-middle mb-0">
                     <thead>
@@ -64,8 +81,10 @@
                             <th class="text-nowrap">No</th>
                             <th class="text-nowrap">Anggota</th>
                             <th class="text-nowrap">Buku</th>
+                            <th class="text-nowrap">Terlambat</th>
                             <th class="text-nowrap">Jumlah</th>
-                            <th class="text-nowrap">Status</th>
+                            <th class="text-nowrap">Status Bayar</th>
+                            <th class="text-nowrap">Pengembalian</th>
                             <th class="text-nowrap text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -77,16 +96,41 @@
                                 <div class="fw-semibold">{{ $d->peminjaman->anggota->nama ?? '-' }}</div>
                             </td>
                             <td>
-                                <div style="max-width:150px" class="text-truncate">{{ $d->peminjaman->buku->judul ?? '-' }}</div>
+                                <div style="max-width:150px" class="text-truncate" title="{{ $d->peminjaman->buku->judul ?? '-' }}">{{ $d->peminjaman->buku->judul ?? '-' }}</div>
                             </td>
                             <td>
-                                <span class="fw-bold text-danger">Rp {{ number_format($d->jumlah_denda, 0, ',', '.') }}</span>
+                                @php
+                                    $tglKembali = \Carbon\Carbon::parse($d->peminjaman->tanggal_kembali)->startOfDay();
+                                    if ($d->peminjaman->tanggal_dikembalikan) {
+                                        $tglDikembalikan = \Carbon\Carbon::parse($d->peminjaman->tanggal_dikembalikan)->startOfDay();
+                                    } elseif ($d->peminjaman->status === 'dikembalikan') {
+                                        $tglDikembalikan = $tglKembali->copy();
+                                    } else {
+                                        $tglDikembalikan = \Carbon\Carbon::now('Asia/Jakarta')->startOfDay();
+                                    }
+                                    $hariTerlambat = $tglDikembalikan->gt($tglKembali) ? (int) $tglKembali->diffInDays($tglDikembalikan) : 0;
+                                @endphp
+                                <span class="badge rounded-pill bg-warning text-dark px-3">{{ $hariTerlambat }} hari</span>
                             </td>
+<td>
+    <span class="fw-bold text-danger d-none d-md-inline">Rp {{ number_format($d->jumlah_denda, 0, ',', '.') }}</span>
+    <div class="d-inline d-md-none">
+        <div class="fw-bold text-danger" style="font-size:11px">Rp</div>
+        <div class="fw-bold text-danger" style="font-size:13px">{{ number_format($d->jumlah_denda, 0, ',', '.') }}</div>
+    </div>
+</td>
                             <td>
                                 @if($d->status === 'belum_dibayar')
                                     <span class="badge rounded-pill bg-danger px-3">Belum Bayar</span>
                                 @else
                                     <span class="badge rounded-pill bg-success px-3">Lunas</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($d->peminjaman->status === 'dikembalikan')
+                                    <span class="badge rounded-pill bg-info px-3">Sudah Kembali</span>
+                                @else
+                                    <span class="badge rounded-pill bg-secondary px-3">Belum Kembali</span>
                                 @endif
                             </td>
                             <td class="text-center">
@@ -107,7 +151,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="bi bi-check-circle" style="font-size:50px;color:#27ae60"></i>
                                     <p class="mt-3 mb-1 fw-semibold">Tidak ada denda</p>
@@ -131,8 +175,6 @@
     padding: 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
-.card-stat.danger { border-left: 4px solid #e74c3c; }
-.card-stat.success { border-left: 4px solid #27ae60; }
 
 .icon-stat {
     width: 50px;

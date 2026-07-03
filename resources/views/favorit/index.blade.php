@@ -36,22 +36,25 @@
 
         .buku-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
-            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1);
             height: 100%;
             display: flex;
             flex-direction: column;
+            max-width: 185px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .buku-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
 
         .buku-cover {
-            height: 200px;
+            height: 220px;
             position: relative;
             overflow: hidden;
         }
@@ -60,6 +63,11 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.4s;
+        }
+
+        .buku-card:hover .buku-cover img {
+            transform: scale(1.05);
         }
 
         .buku-cover-placeholder {
@@ -80,26 +88,27 @@
         .cover-6 { background: linear-gradient(135deg, #16a085, #1abc9c); }
 
         .buku-body {
-            padding: 18px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
             flex: 1;
-            gap: 6px;
+            gap: 4px;
         }
 
         .buku-body h5 {
             font-size: 14px;
             font-weight: 700;
-            color: #222;
-            margin-bottom: 5px;
+            color: #1a1a2e;
+            margin-bottom: 0;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             min-height: 2.4em;
+            line-height: 1.3;
         }
 
-        .buku-meta { font-size: 12px; color: #888; margin-bottom: 0; }
+        .buku-meta { font-size: 12px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 5px; }
 
         .stok-badge {
             display: inline-block;
@@ -116,19 +125,26 @@
         .btn-detail-link {
             display: block;
             width: 100%;
-            padding: 10px;
+            padding: 11px;
             background: linear-gradient(135deg, #1a6e35, #27ae60);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
             text-align: center;
             text-decoration: none;
             margin-top: auto;
+            transition: all 0.3s;
         }
 
-        .empty-state { text-align: center; padding: 80px 0; }
+        .btn-detail-link:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            color: white;
+        }
+
+        .empty-state { text-align: center; padding: 60px 0; }
         .empty-state i { font-size: 60px; color: #ddd; margin-bottom: 15px; display: block; }
         .empty-state p { color: #aaa; font-size: 15px; }
         .empty-state a {
@@ -150,7 +166,7 @@
         @media (max-width: 768px) {
             .main-container { margin-top: 80px; padding: 0 12px; margin-bottom: 30px; }
             .page-title { font-size: 18px; }
-            .buku-cover { height: 160px; }
+            .buku-cover { height: 170px; }
             .buku-cover-placeholder { font-size: 45px; }
             .buku-body { padding: 14px; }
             .buku-body h5 { font-size: 13px; min-height: 2.2em; }
@@ -165,7 +181,7 @@
         @media (max-width: 480px) {
             .main-container { margin-top: 75px; padding: 0 10px; margin-bottom: 25px; }
             .page-title { font-size: 16px; margin-bottom: 18px; }
-            .buku-cover { height: 140px; }
+            .buku-cover { height: 170px; }
             .buku-cover-placeholder { font-size: 36px; }
             .buku-body { padding: 12px; }
             .buku-body h5 { font-size: 12px; margin-bottom: 3px; min-height: 2em; }
@@ -229,11 +245,11 @@
     </h1>
 
     @if($favorit->count() > 0)
-    <div class="row g-4">
+    <div class="row g-4" style="display:flex;flex-wrap:wrap">
         @foreach($favorit as $index => $fav)
         @php $item = $fav->buku; @endphp
         @if($item)
-        <div class="col-6 col-md-4 col-lg-3">
+        <div class="col-6 col-md-4 col-lg-3" style="width:185px;max-width:185px;flex:0 0 185px">
             <div class="buku-card">
                 <div class="buku-cover cover-{{ ($index % 6) + 1 }}">
                     @if($item->sampul)

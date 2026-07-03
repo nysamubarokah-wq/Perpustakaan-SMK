@@ -47,12 +47,16 @@ Route::middleware(['auth'])->group(function () {
 
     // Koleksi & Detail Buku
     Route::get('/koleksi', [App\Http\Controllers\KoleksiController::class, 'index'])->name('koleksi.index');
+    Route::get('/koleksi/populer', [App\Http\Controllers\KoleksiController::class, 'populer'])->name('koleksi.populer');
+    Route::get('/koleksi/terbaru', [App\Http\Controllers\KoleksiController::class, 'terbaru'])->name('koleksi.terbaru');
     Route::get('/buku/{buku}/detail', [PinjamController::class, 'detail'])->name('buku.detail');
     Route::post('/buku/{buku}/pinjam', [PinjamController::class, 'store'])->name('buku.pinjam');
     Route::post('/buku/{buku}/favorit', [FavoritController::class, 'toggle'])->name('buku.favorit');
 
     // Profil Siswa
     Route::get('/profil', [App\Http\Controllers\ProfilController::class, 'index'])->name('profil.index');
+    Route::get('/profil/riwayat', [App\Http\Controllers\ProfilController::class, 'riwayat'])->name('profil.riwayat');
+    Route::get('/profil/riwayat/{id}', [App\Http\Controllers\ProfilController::class, 'detailRiwayat'])->name('profil.riwayat.detail');
     Route::put('/profil/peminjaman/{id}/kembalikan', [App\Http\Controllers\ProfilController::class, 'kembalikan'])->name('peminjaman.kembalikan');
     Route::post('/profil/foto', [App\Http\Controllers\ProfilController::class, 'uploadFoto'])->name('profil.foto');
     Route::post('/profil/background/{key}', [App\Http\Controllers\ProfilController::class, 'beliBackground'])->name('profil.background');
@@ -98,7 +102,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     // Anggota
+    Route::get('/admin/anggota', [AnggotaController::class, 'adminIndex'])->name('anggota.admin');
     Route::put('/admin/anggota/{id}/role/{role}', [AnggotaController::class, 'updateRole'])->name('admin.anggota.role');
+    Route::post('/admin/anggota/import', [AnggotaController::class, 'import'])->name('admin.anggota.import');
+    Route::post('/admin/anggota/hapus-banyak', [AnggotaController::class, 'hapusBanyak'])->name('admin.anggota.hapusBanyak');
     Route::resource('anggota', AnggotaController::class)->parameters(['anggota' => 'anggota']);
     Route::post('/admin/anggota/{userId}/duty', [App\Http\Controllers\AnggotaController::class, 'setDuty'])->name('admin.anggota.duty');
     Route::post('/admin/anggota/{userId}/cabut-duty', [App\Http\Controllers\AnggotaController::class, 'cabutDuty'])->name('admin.anggota.cabutDuty');
@@ -155,13 +162,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/ulasan/{ulasan}/hapus-balasan', [UlasanController::class, 'hapusBalasan'])->name('admin.ulasan.hapusBalasan');
     Route::post('/admin/ulasan/bulk-delete', [UlasanController::class, 'bulkDelete'])->name('admin.ulasan.bulkDelete');
     Route::get('/admin/ulasan/export', [UlasanController::class, 'export'])->name('admin.ulasan.export');
-
-    // Data Siswa
-    Route::post('/admin/data-siswa/hapus-banyak', [App\Http\Controllers\Admin\DataSiswaController::class, 'hapusBanyak'])->name('admin.siswa.hapusBanyak');
-    Route::post('/admin/data-siswa/import', [App\Http\Controllers\Admin\DataSiswaController::class, 'import'])->name('admin.siswa.import');
-    Route::get('/admin/data-siswa', [App\Http\Controllers\Admin\DataSiswaController::class, 'index'])->name('admin.siswa.index');
-    Route::post('/admin/data-siswa', [App\Http\Controllers\Admin\DataSiswaController::class, 'store'])->name('admin.siswa.store');
-    Route::delete('/admin/data-siswa/{dataSiswa}', [App\Http\Controllers\Admin\DataSiswaController::class, 'destroy'])->name('admin.siswa.destroy');
 
     // VIP Admin
     Route::get('/admin/vip', [App\Http\Controllers\VipController::class, 'adminIndex'])->name('admin.vip.index');

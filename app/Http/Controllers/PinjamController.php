@@ -257,6 +257,25 @@ class PinjamController extends Controller
 
     public function konfirmasiIndex()
     {
+        $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
+
+        // Auto-tolak pinjam yang sudah lewat tanggal_kembali belum dikonfirmasi
+        $kedaluwarsa = Peminjaman::with(['buku', 'eksemplar'])
+            ->where('status', 'menunggu_konfirmasi')
+            ->where('tipe_konfirmasi', 'pinjam')
+            ->whereDate('tanggal_kembali', '<', $hariIni)
+            ->get();
+
+        foreach ($kedaluwarsa as $p) {
+            if ($p->eksemplar) {
+                $p->eksemplar->update(['status' => 'tersedia']);
+            }
+            if ($p->buku) {
+                $p->buku->update(['stok' => $p->buku->eksemplarTersedia()->count()]);
+            }
+            $p->delete();
+        }
+
         $permintaan = Peminjaman::with(['anggota', 'buku', 'eksemplar'])
             ->where('status', 'menunggu_konfirmasi')
             ->where('tipe_konfirmasi', 'pinjam')

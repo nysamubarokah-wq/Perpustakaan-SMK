@@ -741,9 +741,9 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
         @foreach($rekomendasi as $rec)
         <a href="{{ route('buku.detail', $rec->id) }}" style="text-decoration:none;flex:0 0 160px;width:160px">
             <div style="background:#f8f9fa;border-radius:12px;overflow:hidden;transition:transform 0.3s;height:100%" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <div style="height:200px;overflow:hidden">
+                <div style="aspect-ratio:2/3;overflow:hidden">
                     @if($rec->sampul)
-                        <img src="{{ asset($rec->sampul) }}" style="width:100%;height:100%;object-fit:cover" alt="{{ $rec->judul }}">
+                        <img src="{{ asset($rec->sampul) }}" style="width:100%;height:100%;object-fit:cover;object-position:center center" alt="{{ $rec->judul }}">
                     @else
                         <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a6e35,#27ae60);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:36px">
                             <i class="bi bi-book"></i>

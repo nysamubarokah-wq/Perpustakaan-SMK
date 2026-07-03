@@ -10,6 +10,7 @@ use App\Models\Favorit;
 use App\Models\Peminjaman;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class ProfilController extends Controller
 {
@@ -30,9 +31,11 @@ class ProfilController extends Controller
 
         $riwayat = Peminjaman::with(['buku', 'eksemplar'])
             ->where('anggota_id', $anggotaId)
-            ->where('status', '!=', 'dikembalikan')
             ->latest()
+            ->take(3)
             ->get();
+
+        $totalRiwayatCount = Peminjaman::where('anggota_id', $anggotaId)->count();
 
         $tarifDendaPerHari = 1000;
         $totalDendaBelumBayar = 0;
@@ -57,7 +60,7 @@ class ProfilController extends Controller
         $totalFavorit = Favorit::where('user_id', $user->id)->count();
         $totalEbook = Ebook::count();
 
-        return view('profil.index', compact('riwayat', 'totalDendaBelumBayar', 'user', 'totalFavorit', 'totalEbook'));
+        return view('profil.index', compact('riwayat', 'totalDendaBelumBayar', 'user', 'totalFavorit', 'totalEbook', 'totalRiwayatCount'));
     }
 
     public function kembalikan($id)
@@ -112,6 +115,96 @@ class ProfilController extends Controller
         $user->save();
 
         return back()->with('success', 'Foto profil berhasil diupdate!');
+    }
+
+    public function riwayat(Request $request)
+    {
+        $user = auth()->user();
+        $anggota = Anggota::where('user_id', $user->id)->first();
+
+        if (!$anggota) {
+            $anggota = Anggota::where('email', $user->email)->first();
+            if ($anggota) {
+                $anggota->update(['user_id' => $user->id]);
+            }
+        }
+
+        $anggotaId = $anggota ? $anggota->id : 0;
+
+        $query = Peminjaman::with(['buku', 'eksemplar', 'denda'])
+            ->where('anggota_id', $anggotaId)
+            ->latest('tanggal_pinjam');
+
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->whereHas('buku', function ($q) use ($cari) {
+                $q->where('judul', 'like', "%{$cari}%")
+                  ->orWhere('kode_buku', 'like', "%{$cari}%");
+            });
+        }
+
+        $filter = $request->filter;
+        if ($filter === 'dipinjam') {
+            $query->where('status', 'dipinjam');
+        } elseif ($filter === 'dikembalikan') {
+            $query->where('status', 'dikembalikan');
+        } elseif ($filter === 'terlambat') {
+            $query->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
+                  ->whereDate('tanggal_kembali', '<', now()->toDateString());
+        } elseif ($filter === 'menunggu') {
+            $query->whereIn('status', ['menunggu_konfirmasi', 'menunggu_pengembalian']);
+        }
+
+        $peminjaman = $query->paginate(10)->withQueryString();
+
+        foreach ($peminjaman as $item) {
+            $item->terlambat_hari = 0;
+            $item->taksiran_denda = 0;
+
+            if ($item->status === 'dipinjam' || $item->status === 'menunggu_konfirmasi') {
+                $tanggalKembali = Carbon::parse($item->tanggal_kembali)->startOfDay();
+                $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
+
+                if ($hariIni->gt($tanggalKembali)) {
+                    $item->terlambat_hari = (int) $hariIni->diffInDays($tanggalKembali);
+                    $item->taksiran_denda = $item->terlambat_hari * 1000;
+                }
+            }
+        }
+
+        return view('profil.riwayat', compact('peminjaman', 'user'));
+    }
+
+    public function detailRiwayat($id)
+    {
+        $user = auth()->user();
+        $anggota = Anggota::where('user_id', $user->id)->first();
+
+        if (!$anggota) {
+            $anggota = Anggota::where('email', $user->email)->first();
+        }
+
+        $anggotaId = $anggota ? $anggota->id : 0;
+
+        $peminjaman = Peminjaman::with(['buku', 'eksemplar', 'denda'])
+            ->where('id', $id)
+            ->where('anggota_id', $anggotaId)
+            ->firstOrFail();
+
+        $peminjaman->terlambat_hari = 0;
+        $peminjaman->taksiran_denda = 0;
+
+        if ($peminjaman->status === 'dipinjam' || $peminjaman->status === 'menunggu_konfirmasi') {
+            $tanggalKembali = Carbon::parse($peminjaman->tanggal_kembali)->startOfDay();
+            $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
+
+            if ($hariIni->gt($tanggalKembali)) {
+                $peminjaman->terlambat_hari = (int) $hariIni->diffInDays($tanggalKembali);
+                $peminjaman->taksiran_denda = $peminjaman->terlambat_hari * 1000;
+            }
+        }
+
+        return view('profil.riwayat-detail', compact('peminjaman', 'user'));
     }
 
     public function beliBackground($key)

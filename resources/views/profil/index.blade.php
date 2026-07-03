@@ -763,7 +763,7 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     </p>
 </div>
         <div class="ms-auto d-flex flex-column gap-2">
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Yakin ingin logout?');">
                 @csrf
                 <button type="submit" class="btn-logout">
                     <i class="bi bi-box-arrow-right"></i> Logout
@@ -910,15 +910,22 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
 
             <h5><i class="bi bi-clock-history" style="color:#1a6e35"></i> Riwayat Peminjaman</h5>
 
-            <span style="font-size:13px;color:#888">{{ count($riwayat) }} buku</span>
+            <div style="display:flex;align-items:center;gap:10px;">
+                @if(isset($totalRiwayatCount) && $totalRiwayatCount > 0)
+                    <span style="font-size:13px;color:#888">{{ $totalRiwayatCount }} transaksi</span>
+                @endif
+                @if(isset($totalRiwayatCount) && $totalRiwayatCount > 3)
+                    <a href="{{ route('profil.riwayat') }}" class="btn btn-sm" style="background:#1a6e35;color:white;border-radius:20px;font-size:11px;font-weight:600;padding:5px 14px;text-decoration:none;">
+                        <i class="bi bi-arrow-right"></i> Lihat Semua
+                    </a>
+                @endif
+            </div>
 
         </div>
 
-
-
         @if(count($riwayat) > 0)
 
-           @foreach($riwayat as $item)
+           @foreach($riwayat->take(3) as $item)
 <div class="riwayat-item">
     @if($item->buku->sampul)
         <img src="{{ asset($item->buku->sampul) }}" class="riwayat-sampul" alt="{{ $item->buku->judul }}">

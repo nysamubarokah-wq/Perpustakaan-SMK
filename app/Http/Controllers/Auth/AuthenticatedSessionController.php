@@ -19,11 +19,11 @@ class AuthenticatedSessionController extends Controller
 {
     if (auth()->check()) {
         if (auth()->user()->role === 'admin') {
-            return redirect()->route('buku.index');
+            return redirect()->route('admin.dashboard');
         }
         return redirect()->route('dashboard');
     }
-    
+
     return view('auth.login');
 }
 
