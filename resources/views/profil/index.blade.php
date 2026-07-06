@@ -15,7 +15,6 @@
     </script>
     <title>Profil - Perpustakaan SMK Maarif</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-   
 
     <title>Profil - Perpustakaan SMK Maarif</title>
 
@@ -744,6 +743,7 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
             <label for="uploadFoto" style="position:absolute;bottom:0;right:0;background:#1a6e35;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px">
                 <i class="bi bi-camera"></i>
             </label>
+            <input type="file" id="uploadFoto" style="display:none" accept="image/*" onchange="uploadFotoFunc(this)">
         </div>
        <div class="profil-header-info">
     <h2 style="display:flex;align-items:center;gap:8px">
@@ -776,10 +776,7 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     </div>
 </div>
 
-<form id="fotoForm" action="{{ route('profil.foto') }}" method="POST" enctype="multipart/form-data" style="display:none">
-    @csrf
-    <input type="file" id="uploadFoto" name="foto" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp" onchange="uploadFotoFunc(this)">
-</form>
+
 
 <!-- TOKO BACKGROUND -->
 <div id="tokoBackground" style="display:none;padding:25px 35px;border-bottom:1px solid #eee;background:#f8f9fa">
@@ -1005,24 +1002,28 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-function toggleToko() {
-    const toko = document.getElementById('tokoBackground');
-    toko.style.display = toko.style.display === 'none' ? 'block' : 'none';
-}
-
 function uploadFotoFunc(input) {
     if (!input.files || !input.files[0]) return;
 
-    const file = input.files[0];
-    const maxSize = 10 * 1024 * 1024;
+    const formData = new FormData();
+    formData.append('foto', input.files[0]);
+    formData.append('_token', '{{ csrf_token() }}');
 
-    if (file.size > maxSize) {
-        alert('Ukuran foto terlalu besar! Maksimal 10 MB.');
-        input.value = '';
-        return;
-    }
+    fetch('{{ route("profil.foto") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => {
+        if (res.ok || res.redirected) {
+            window.location.reload();
+        }
+    })
+    .catch(() => alert('Gagal upload foto, coba lagi.'));
+}
 
-    document.getElementById('fotoForm').submit();
+function toggleToko() {
+    const toko = document.getElementById('tokoBackground');
+    toko.style.display = toko.style.display === 'none' ? 'block' : 'none';
 }
 
 if(localStorage.getItem('darkMode') === 'enabled'){

@@ -36,10 +36,10 @@
         /* CARD */
         .buku-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1);
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -76,7 +76,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 60px;
+            font-size: 50px;
             color: rgba(255,255,255,0.5);
         }
 
@@ -88,15 +88,15 @@
         .cover-6 { background: linear-gradient(135deg, #16a085, #1abc9c); }
 
         .buku-body {
-            padding: 16px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             flex: 1;
-            gap: 4px;
+            gap: 2px;
         }
 
         .buku-body h5 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: #1a1a2e;
             margin-bottom: 0;
@@ -104,7 +104,7 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            min-height: 2.4em;
+            min-height: 2.2em;
             line-height: 1.3;
         }
 
@@ -145,8 +145,8 @@
             .page-title { font-size: 18px; margin-bottom: 18px; }
             .buku-cover { height: 170px; }
             .buku-cover-placeholder { font-size: 44px; }
-            .buku-body { padding: 12px; }
-            .buku-body h5 { font-size: 13px; min-height: 2.2em; }
+            .buku-body { padding: 10px; }
+            .buku-body h5 { font-size: 12px; min-height: 2em; }
             .buku-meta { font-size: 11px; }
             .btn-baca { padding: 10px; font-size: 12px; }
         }
@@ -154,8 +154,9 @@
         @media (max-width: 400px) {
             .main-container { padding: 0 8px; }
             .buku-cover { height: 140px; }
-            .buku-body { padding: 10px; }
-            .buku-body h5 { font-size: 12px; min-height: 2em; }
+            .buku-cover-placeholder { font-size: 40px; }
+            .buku-body { padding: 8px; }
+            .buku-body h5 { font-size: 11px; min-height: 1.8em; }
             .btn-baca { padding: 8px; font-size: 11px; }
         }
 
@@ -195,11 +196,11 @@
     </h1>
 
     @if($ebooks->count() > 0)
-    <div class="row g-4" style="display:flex;flex-wrap:wrap">
+    <div class="row g-3">
         @foreach($ebooks as $index => $ebook)
-        <div class="col-6 col-md-4 col-lg-3" style="width:185px;max-width:185px;flex:0 0 185px">
-            <a href="{{ route('ebook.show', $ebook->id) }}" style="text-decoration:none">
-                <div class="buku-card">
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="{{ route('ebook.show', $ebook->id) }}" style="text-decoration:none;height:100%;display:flex;flex-direction:column">
+                <div class="buku-card" style="height:100%">
                     <div class="buku-cover cover-{{ ($index % 6) + 1 }}">
                         @if($ebook->cover)
                             <img src="{{ asset($ebook->cover) }}" alt="{{ $ebook->judul }}">

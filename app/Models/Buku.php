@@ -9,7 +9,7 @@ class Buku extends Model
 {
     protected $table = 'buku';
 
-    protected $fillable = ['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'isbn', 'kode_buku', 'stok', 'genre', 'sampul', 'rekom_bg', 'deskripsi', 'lokasi', 'qrcode_path'];
+    protected $fillable = ['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'isbn', 'kode_buku', 'stok', 'genre', 'genre_id', 'penerbit_id', 'sampul', 'rekom_bg', 'deskripsi', 'lokasi', 'qrcode_path'];
 
     protected static function booted()
     {
@@ -113,6 +113,16 @@ class Buku extends Model
     public function ulasan()
     {
         return $this->hasMany(\App\Models\Ulasan::class, 'buku_id');
+    }
+
+    public function genre()
+    {
+        return $this->belongsTo(Genre::class, 'genre_id');
+    }
+
+    public function penerbit()
+    {
+        return $this->belongsTo(\App\Models\Penerbit::class, 'penerbit_id');
     }
 
     // ============================================================

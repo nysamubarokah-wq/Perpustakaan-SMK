@@ -2,8 +2,12 @@
 
 @section('header_title', 'Edit Anggota')
 
+@php
+$backParams = request()->only(['search', 'sort', 'direction', 'per_page']);
+@endphp
+
 @section('content')
-<x-admin-page-header title="Edit Anggota" icon="bi bi-person-gear" :backUrl="route('anggota.index')" />
+<x-admin-page-header title="Edit Anggota" icon="bi bi-person-gear" :backUrl="route('anggota.index', $backParams)" />
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -24,6 +28,10 @@
         <form action="{{ route('anggota.update', $anggota->id) }}" method="POST">
             @csrf
             @method('PUT')
+            <input type="hidden" name="search" value="{{ request('search') }}">
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
+            <input type="hidden" name="direction" value="{{ request('direction') }}">
+            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Nama Lengkap <span style="color:red">*</span></label>

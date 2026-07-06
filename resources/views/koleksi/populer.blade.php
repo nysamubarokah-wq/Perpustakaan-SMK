@@ -7,6 +7,7 @@
     <title>Buku Populer - Perpustakaan SMK Maarif</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; overflow-x: hidden; }
@@ -23,6 +24,42 @@
         .genre-list-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: background 0.2s; font-size: 13px; color: #333; text-decoration: none; }
         .genre-list-item:hover { background: #f0faf4; color: #1a6e35; }
         .genre-list-item i { color: #1a6e35; width: 18px; }
+
+        /* Genre Dropdown - Redesign */
+        .genre-dropdown-wrapper { min-width: 400px; max-width: 500px; }
+        @media (max-width: 576px) { .genre-dropdown-wrapper { min-width: 280px; max-width: 95vw; } }
+        .genre-dropdown-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #e9ecef; margin-bottom: 12px; }
+        .genre-dropdown-header h6 { font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: 600; }
+        .genre-dropdown-header .badge { font-size: 10px; padding: 4px 8px; border-radius: 20px; background: #e8f5e9; color: #1a6e35; }
+        .genre-search-box { position: relative; margin-bottom: 12px; }
+        .genre-search-box input { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid #e9ecef; border-radius: 10px; font-size: 13px; transition: border-color 0.2s, box-shadow 0.2s; background: #f8f9fa; }
+        .genre-search-box input:focus { outline: none; border-color: #1a6e35; box-shadow: 0 0 0 3px rgba(26, 110, 53, 0.1); background: white; }
+        .genre-search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #adb5bd; font-size: 14px; }
+        .genre-dropdown-body { max-height: 50vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #c1dbc8 transparent; }
+        .genre-dropdown-body::-webkit-scrollbar { width: 6px; }
+        .genre-dropdown-body::-webkit-scrollbar-track { background: transparent; }
+        .genre-dropdown-body::-webkit-scrollbar-thumb { background: #c1dbc8; border-radius: 3px; }
+        .genre-dropdown-body::-webkit-scrollbar-thumb:hover { background: #1a6e35; }
+        .genre-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        @media (max-width: 576px) { .genre-grid { grid-template-columns: 1fr; } }
+        .genre-grid-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 13px; color: #495057; text-decoration: none; background: #f8f9fa; border: 1px solid transparent; }
+        .genre-grid-item:hover { background: #e8f5e9; border-color: #c8e6c9; color: #1a6e35; transform: translateX(3px); }
+        .genre-grid-item.active { background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; border-color: transparent; box-shadow: 0 4px 12px rgba(26, 110, 53, 0.3); }
+        .genre-grid-item.active i { color: white; }
+        .genre-grid-item i { color: #1a6e35; font-size: 16px; width: 20px; text-align: center; }
+        .genre-dropdown-footer { padding-top: 12px; margin-top: 12px; border-top: 1px solid #e9ecef; text-align: center; }
+        .genre-dropdown-footer a { font-size: 12px; color: #6c757d; text-decoration: none; transition: color 0.2s; }
+        .genre-dropdown-footer a:hover { color: #1a6e35; }
+
+        /* Dark mode support */
+        body.dark-mode .genre-dropdown-header { border-color: #444; }
+        body.dark-mode .genre-search-box input { background: #2d2d2d; border-color: #444; color: #e0e0e0; }
+        body.dark-mode .genre-search-box input:focus { border-color: #27ae60; }
+        body.dark-mode .genre-search-box i { color: #888; }
+        body.dark-mode .genre-grid-item { background: #2d2d2d; color: #e0e0e0; }
+        body.dark-mode .genre-grid-item:hover { background: #1a3d1a; border-color: #2d5c2d; color: #4ade80; }
+        body.dark-mode .genre-dropdown-body { scrollbar-color: #444 transparent; }
+        body.dark-mode .genre-dropdown-footer { border-color: #444; }
         .layanan-dropdown { position: absolute; top: calc(100% + 10px); left: 0; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 20px; min-width: 260px; display: none; z-index: 999; animation: fadeDown 0.2s ease; }
         .layanan-dropdown.show { display: block; }
         .penjaga-card { display: flex; align-items: center; gap: 15px; }
@@ -39,16 +76,14 @@
         .page-section { padding: 32px 0 60px; }
         .book-grid { display: flex; flex-wrap: wrap; }
         .book-grid > [class*="col-"] { display: flex; margin-bottom: 1rem; }
-        .book-grid .col-6, .book-grid .col-md-4, .book-grid .col-lg-3 { width: 185px; max-width: 185px; flex: 0 0 185px; }
-        .book-grid .book-card { max-width: 185px; width: 100%; margin: 0 auto; }
-        .book-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.35s cubic-bezier(0.25,0.8,0.25,1); height: 100%; display: flex; flex-direction: column; width: 100%; }
+        .book-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1); height: 100%; display: flex; flex-direction: column; width: 100%; }
         .book-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
         .book-card-cover { height: 220px; position: relative; overflow: hidden; }
         .book-card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
         .book-card:hover .book-card-cover img { transform: scale(1.05); }
-        .book-card-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 60px; color: rgba(255,255,255,0.5); }
-        .book-card-body { padding: 16px; display: flex; flex-direction: column; flex: 1; gap: 4px; }
-        .book-card-body h5 { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.4em; line-height: 1.3; }
+        .book-card-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 50px; color: rgba(255,255,255,0.5); }
+        .book-card-body { padding: 12px; display: flex; flex-direction: column; flex: 1; gap: 2px; }
+        .book-card-body h5 { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.2em; line-height: 1.3; }
         .book-card-meta { font-size: 12px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 5px; }
         .book-card-genre { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; background: #f0f0f0; color: #666; margin-top: 4px; align-self: flex-start; }
         .badge-trending { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 5; }
@@ -126,7 +161,7 @@
             .page-section { padding: 20px 0 40px; }
             .book-card-cover { height: 170px; }
             .book-card-body { padding: 12px; }
-            .book-card-body h5 { font-size: 13px; }
+            .book-card-body h5 { font-size: 13px; min-height: 2.2em; }
             .book-card-meta { font-size: 11px; }
             .search-box { padding: 14px; margin-top: -16px; border-radius: 12px; }
             .search-input { padding: 12px 16px 12px 42px; font-size: 14px; }
@@ -142,7 +177,7 @@
         @media (max-width: 480px) {
             .book-card-cover { height: 140px; }
             .book-card-body { padding: 10px; }
-            .book-card-body h5 { font-size: 12px; }
+            .book-card-body h5 { font-size: 12px; min-height: 2em; }
             .book-card-meta { font-size: 10px; }
         }
 
@@ -248,12 +283,29 @@
                         <a class="nav-link" href="#" onclick="toggleGenre(event)">
                             <i class="bi bi-collection-fill"></i> <span class="nav-text">Genre Buku</span> <i class="bi bi-chevron-down" style="font-size:10px"></i>
                         </a>
-                        <div class="floating-dropdown" id="genreDropdown">
-                            <h6>Pilih Genre</h6>
-                            <a href="{{ route('koleksi.populer', $penerbit ? ['penerbit' => $penerbit] : []) }}" class="genre-list-item"><i class="bi bi-grid-fill"></i> Semua Buku</a>
-                            @foreach([['icon'=>'bi-journal-text','nama'=>'Fiksi'],['icon'=>'bi-lightbulb','nama'=>'Non-Fiksi'],['icon'=>'bi-tools','nama'=>'Kejuruan'],['icon'=>'bi-calculator','nama'=>'Sains & Teknologi'],['icon'=>'bi-globe','nama'=>'Sejarah'],['icon'=>'bi-heart','nama'=>'Romance'],['icon'=>'bi-mortarboard','nama'=>'Pendidikan'],['icon'=>'bi-brush','nama'=>'Seni & Budaya']] as $g)
-                            <a href="{{ route('koleksi.populer', array_filter(['genre' => $g['nama'], 'penerbit' => $penerbit])) }}" class="genre-list-item"><i class="bi {{ $g['icon'] }}"></i> {{ $g['nama'] }}</a>
-                            @endforeach
+                        <div class="floating-dropdown genre-dropdown-wrapper" id="genreDropdown">
+                            <div class="genre-dropdown-header">
+                                <h6><i class="bi bi-collection-fill"></i> Pilih Genre</h6>
+                                <span class="badge">{{ $genreList->count() }} genre</span>
+                            </div>
+                            <div class="genre-search-box">
+                                <i class="bi bi-search"></i>
+                                <input type="text" id="genreSearchInput" placeholder="Cari genre..." autocomplete="off">
+                            </div>
+                            <div class="genre-dropdown-body">
+                                <div class="genre-grid" id="genreGrid">
+                                    <a href="{{ route('koleksi.populer', $penerbit ? ['penerbit' => $penerbit] : []) }}" class="genre-grid-item {{ !$genre ? 'active' : '' }}" data-genre="">
+                                        <i class="bi bi-grid-fill"></i>
+                                        <span>Semua</span>
+                                    </a>
+                                    @foreach($genreList as $g)
+                                    <a href="{{ route('koleksi.populer', array_filter(['genre' => $g->id, 'penerbit' => $penerbit])) }}" class="genre-grid-item {{ $genre == $g->id ? 'active' : '' }}" data-genre="{{ strtolower($g->nama) }}">
+                                        <i class="bi bi-tag-fill"></i>
+                                        <span>{{ $g->nama }}</span>
+                                    </a>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -335,7 +387,7 @@
     <div class="penerbit-scroll">
         <a href="{{ route('koleksi.populer', $genre ? ['genre' => $genre] : []) }}" class="penerbit-chip {{ !$penerbit ? 'active' : '' }}">Semua</a>
         @foreach($penerbitList as $p)
-        <a href="{{ route('koleksi.populer', array_filter(['penerbit' => $p, 'genre' => $genre])) }}" class="penerbit-chip {{ $penerbit === $p ? 'active' : '' }}">{{ $p }}</a>
+            <a href="{{ route('koleksi.populer', array_filter(['penerbit' => $p->id, 'genre' => $genre])) }}" class="penerbit-chip {{ $penerbit == $p->id ? 'active' : '' }}">{{ $p->nama }}</a>
         @endforeach
     </div>
 </div>
@@ -403,7 +455,7 @@
 </div><!-- end mainSections -->
 
 <!-- SEARCH RESULTS (shown only when searching) -->
-<div id="searchResults" class="container" style="padding:32px 0 60px">
+<div id="searchResults" class="container" style="padding:32px 0 60px;display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
         <h3 style="font-size:20px;font-weight:800;color:#1a1a2e;display:flex;align-items:center;gap:10px"><i class="bi bi-search" style="color:#1a6e35;font-size:22px"></i> Hasil Pencarian</h3>
         <span id="searchCount" style="font-size:13px;color:#888"></span>
@@ -506,7 +558,22 @@ function positionDropdown(el) {
     }
 }
 function toggleLayanan(e) { e.preventDefault(); var el = document.getElementById('layananDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('genreDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); }
-function toggleGenre(e) { e.preventDefault(); var el = document.getElementById('genreDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); }
+function toggleGenre(e) { e.preventDefault(); var el = document.getElementById('genreDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); if (el.classList.contains('show')) { setTimeout(function() { document.getElementById('genreSearchInput').focus(); }, 100); } }
+
+// Genre search functionality
+document.getElementById('genreSearchInput').addEventListener('input', function(e) {
+    var query = e.target.value.toLowerCase().trim();
+    var items = document.querySelectorAll('#genreGrid .genre-grid-item');
+    items.forEach(function(item) {
+        var genreName = item.getAttribute('data-genre');
+        if (genreName === '' || genreName.includes(query)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+document.getElementById('genreSearchInput').addEventListener('click', function(e) { e.stopPropagation(); });
 function toggleProfil(e) { e.preventDefault(); var el = document.getElementById('profilDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); }
 document.addEventListener('click', function(e) { if (!e.target.closest('.nav-item') && !e.target.closest('.profil-avatar')) { document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); } });
 
@@ -702,5 +769,8 @@ window.addEventListener('load', function() {
     }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+<x-crop-modal />
 </body>
 </html>

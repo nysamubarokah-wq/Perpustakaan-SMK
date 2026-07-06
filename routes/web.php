@@ -14,6 +14,7 @@ use App\Http\Controllers\BackgroundController;
 use App\Http\Controllers\FavoritController;
 use App\Http\Controllers\UlasanController;
 use App\Http\Controllers\BarcodeController;
+use App\Http\Controllers\ImportTemplateController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 Route::get('/qrcode-test', function () {
@@ -113,6 +114,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Buku
     Route::post('/buku/hapus-banyak', [BukuController::class, 'hapusBanyak'])->name('buku.hapusBanyak');
     Route::post('/buku/import', [BukuController::class, 'import'])->name('buku.import');
+    Route::get('/download-template/{type}', [ImportTemplateController::class, 'download'])->name('import.template')->where('type', 'buku|anggota');
     Route::post('/buku/generate-qr', [BukuController::class, 'generateAllEksemplarQr'])->name('buku.generateAllQr');
     Route::get('/buku/download-all-qr', [BukuController::class, 'downloadAllEksemplarQr'])->name('buku.downloadAllQr');
     Route::get('/buku/cetak-semua-qr', [BukuController::class, 'cetakSemuaQr'])->name('buku.cetakSemuaQr');

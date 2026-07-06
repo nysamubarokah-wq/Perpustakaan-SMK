@@ -11,6 +11,8 @@ use App\Models\Peminjaman;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ProfilController extends Controller
 {
@@ -98,23 +100,30 @@ class ProfilController extends Controller
     public function uploadFoto(Request $request)
     {
         $request->validate([
-            'foto' => 'required|image|mimes:jpg,jpeg,png,webp,gif,bmp,svg|max:10240',
+            'foto' => 'required|image|mimes:jpeg,png,jpg,gif,bmp,webp|max:5120',
         ]);
 
         $user = auth()->user();
+        $oldFoto = $user->foto;
 
-        if ($user->foto && file_exists(public_path($user->foto))) {
-            unlink(public_path($user->foto));
+        try {
+            $file = $request->file('foto');
+            $filename = 'foto_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = 'profile-photos/' . $filename;
+
+            Storage::disk('public')->put($path, file_get_contents($file->getRealPath()));
+
+            $user->foto = 'storage/' . $path;
+            $user->save();
+
+            if ($oldFoto && str_contains($oldFoto, 'profile-photos') && Storage::disk('public')->exists(str_replace('storage/', '', $oldFoto))) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $oldFoto));
+            }
+
+            return back()->with('success', 'Foto profil berhasil diupdate!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengupload foto!');
         }
-
-        $file = $request->file('foto');
-        $filename = 'foto_'.$user->id.'_'.time().'.'.$file->getClientOriginalExtension();
-        $file->move(public_path('images/profil'), $filename);
-
-        $user->foto = 'images/profil/'.$filename;
-        $user->save();
-
-        return back()->with('success', 'Foto profil berhasil diupdate!');
     }
 
     public function riwayat(Request $request)

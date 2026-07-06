@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use App\Models\Favorit;
+use App\Models\Genre;
+use App\Models\Penerbit;
 use Illuminate\Http\Request;
 use App\Models\Peminjaman;
 use Illuminate\Support\Facades\Cache;
@@ -21,10 +23,10 @@ public function index(Request $request)
     ->withCount('peminjaman');
 
 if ($genre) {
-    $query->where('genre', $genre);
+    $query->where('genre_id', $genre);
 }
 if ($penerbit) {
-    $query->where('penerbit', $penerbit);
+    $query->where('penerbit_id', $penerbit);
 }
 if ($search) {
     $query->where(function ($q) use ($search) {
@@ -48,30 +50,27 @@ $buku = $query->get();
         ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
         : [];
 
+    $penerbitList = Penerbit::orderBy('nama')->get();
+    $genreList = Genre::orderBy('nama')->get();
+
     $populerQuery = Buku::withCount('peminjaman')
         ->orderByDesc('peminjaman_count');
     if ($genre) {
-        $populerQuery->where('genre', $genre);
+        $populerQuery->where('genre_id', $genre);
     }
     if ($penerbit) {
-        $populerQuery->where('penerbit', $penerbit);
+        $populerQuery->where('penerbit_id', $penerbit);
     }
     $bukuPopuler = $populerQuery->take(10)->get();
 
     $terbaruQuery = Buku::latest();
     if ($genre) {
-        $terbaruQuery->where('genre', $genre);
+        $terbaruQuery->where('genre_id', $genre);
     }
     if ($penerbit) {
-        $terbaruQuery->where('penerbit', $penerbit);
+        $terbaruQuery->where('penerbit_id', $penerbit);
     }
     $bukuTerbaru = $terbaruQuery->take(10)->get();
-
-    $penerbitList = Buku::select('penerbit')
-        ->whereNotNull('penerbit')
-        ->distinct()
-        ->orderBy('penerbit')
-        ->pluck('penerbit');
 
     $bukuAcak = Buku::inRandomOrder()
         ->take(8)
@@ -107,7 +106,7 @@ $buku = $query->get();
 
     return view('koleksi.index', compact(
         'buku', 'search', 'genre', 'penerbit', 'sort', 'favoritIds',
-        'bukuPopuler', 'bukuTerbaru', 'penerbitList', 'bukuAcak', 'allBuku', 'rekomendasi'
+        'bukuPopuler', 'bukuTerbaru', 'penerbitList', 'genreList', 'bukuAcak', 'allBuku', 'rekomendasi'
     ));
 }
 
@@ -122,10 +121,10 @@ public function populer(Request $request)
         ->take(10);
 
     if ($penerbit) {
-        $query->where('penerbit', $penerbit);
+        $query->where('penerbit_id', $penerbit);
     }
     if ($genre) {
-        $query->where('genre', $genre);
+        $query->where('genre_id', $genre);
     }
 
     $buku = $query->get();
@@ -134,14 +133,11 @@ public function populer(Request $request)
         ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
         : [];
 
-    $penerbitList = Buku::select('penerbit')
-        ->whereNotNull('penerbit')
-        ->distinct()
-        ->orderBy('penerbit')
-        ->pluck('penerbit');
+    $penerbitList = Penerbit::orderBy('nama')->get();
+    $genreList = Genre::orderBy('nama')->get();
 
     return view('koleksi.populer', compact(
-        'buku', 'penerbit', 'genre', 'favoritIds', 'penerbitList'
+        'buku', 'penerbit', 'genre', 'favoritIds', 'penerbitList', 'genreList'
     ));
 }
 
@@ -154,10 +150,10 @@ public function terbaru(Request $request)
     $query = Buku::withCount('peminjaman')->latest();
 
     if ($penerbit) {
-        $query->where('penerbit', $penerbit);
+        $query->where('penerbit_id', $penerbit);
     }
     if ($genre) {
-        $query->where('genre', $genre);
+        $query->where('genre_id', $genre);
     }
     if ($search) {
         $query->where(function ($q) use ($search) {
@@ -172,14 +168,11 @@ public function terbaru(Request $request)
         ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
         : [];
 
-    $penerbitList = Buku::select('penerbit')
-        ->whereNotNull('penerbit')
-        ->distinct()
-        ->orderBy('penerbit')
-        ->pluck('penerbit');
+    $penerbitList = Penerbit::orderBy('nama')->get();
+    $genreList = Genre::orderBy('nama')->get();
 
     return view('koleksi.terbaru', compact(
-        'buku', 'search', 'penerbit', 'genre', 'favoritIds', 'penerbitList'
+        'buku', 'search', 'penerbit', 'genre', 'favoritIds', 'penerbitList', 'genreList'
     ));
 }
 }

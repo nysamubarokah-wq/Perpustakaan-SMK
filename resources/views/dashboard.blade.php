@@ -6,6 +6,7 @@
     <title>Perpustakaan SMK Maarif Walisongo Kajoran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -560,19 +561,21 @@ body.dark-mode .stat-card {
                     <button onclick="toggleProfil(event)" style="background:none;border:none;cursor:pointer">
     @if(auth()->user()->foto)
         <img src="{{ asset(auth()->user()->foto) }}"
+             class="profil-avatar"
              style="width:38px;height:38px;border-radius:50%;border:2px solid #1a6e35;object-fit:cover">
     @else
         <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff"
+             class="profil-avatar"
              style="width:38px;height:38px;border-radius:50%;border:2px solid #1a6e35">
     @endif
 </button>
                     <div class="profil-popup" id="profilPopup">
     @if(auth()->user()->foto)
         <img src="{{ asset(auth()->user()->foto) }}"
-             class="profil-foto" alt="Foto Profil" style="object-fit:cover">
+             class="profil-avatar profil-foto" alt="Foto Profil" style="object-fit:cover">
     @else
         <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff&size=200"
-             class="profil-foto" alt="Foto Profil">
+             class="profil-avatar profil-foto" alt="Foto Profil">
     @endif
     <h5>{{ auth()->user()->name }}</h5>
     <div class="profil-info">
@@ -662,6 +665,9 @@ darkToggle.addEventListener('click', () => {
     }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
+<x-crop-modal />
 
 
 </body>

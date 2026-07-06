@@ -3,6 +3,25 @@
 @section('title', 'Kelola Anggota')
 @section('page-title', 'Kelola Anggota')
 
+@php
+$sortUrl = function($col) use ($sortBy, $sortDir, $search, $perPage) {
+    $params = array_filter([
+        'search' => $search,
+        'sort' => $col,
+        'direction' => ($sortBy === $col && $sortDir === 'asc') ? 'desc' : 'asc',
+        'per_page' => $perPage,
+    ]);
+    return route('anggota.index', $params);
+};
+
+$sortIcon = function($col) use ($sortBy, $sortDir) {
+    if ($sortBy !== $col) return '<i class="bi bi-chevron-expand" style="opacity:0.3"></i>';
+    return $sortDir === 'asc'
+        ? '<i class="bi bi-chevron-up" style="color:#1a6e35"></i>'
+        : '<i class="bi bi-chevron-down" style="color:#1a6e35"></i>';
+};
+@endphp
+
 @section('content')
 
 <style>
@@ -13,7 +32,38 @@
         .search-row { flex-direction: column !important; }
         .search-row .form-control { width: 100% !important; }
         .search-row .btn { width: 100% !important; }
+        .pagination-wrap { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+        .pagination { flex-wrap: wrap; }
+        .pagination .page-link { padding: 4px 8px; font-size: 12px; }
     }
+    .sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+    .sortable-th:hover { background: #e9ecef !important; }
+    .sort-icon { font-size: 10px; margin-left: 3px; vertical-align: middle; }
+    .pagination { gap: 4px; }
+    .pagination .page-link {
+        border-radius: 8px !important;
+        font-size: 13px;
+        color: #1a6e35;
+        border: 1.5px solid #eee;
+        padding: 6px 12px;
+    }
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #1a6e35, #27ae60);
+        border-color: #1a6e35;
+        color: white;
+    }
+    .pagination .page-link:hover { background: #e8f5e9; color: #1a6e35; }
+    .pagination .page-item.disabled .page-link { border-radius: 8px; }
+    .per-page-select {
+        border: 1.5px solid #eee;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 13px;
+        color: #555;
+        outline: none;
+        cursor: pointer;
+    }
+    .per-page-select:focus { border-color: #1a6e35; }
 </style>
 
 @if(session('success'))
@@ -38,23 +88,26 @@
             <i class="bi bi-people" style="color:#1a6e35"></i> Data Anggota
         </h4>
         <p style="font-size:13px;color:#888;margin:0">
-            Total: <strong style="color:#1a6e35">{{ $anggota->count() }}</strong> anggota
+            Total: <strong style="color:#1a6e35">{{ $anggota->total() }}</strong> anggota
         </p>
     </div>
 
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         {{-- SEARCH --}}
         <div style="display:flex;gap:8px;align-items:center">
-            <input type="text" id="searchInput" value="{{ request('search') }}"
+            <input type="text" id="searchInput" value="{{ $search ?? '' }}"
                 placeholder="Cari nama / NIS / email..."
                 style="padding:8px 14px;border:1.5px solid #eee;border-radius:10px;font-size:13px;outline:none;width:220px"
                 onkeydown="if(event.key==='Enter'){cariAnggota()}">
+            <input type="hidden" id="sortInput" value="{{ $sortBy }}">
+            <input type="hidden" id="dirInput" value="{{ $sortDir }}">
+            <input type="hidden" id="perPageInput" value="{{ $perPage }}">
             <button type="button" onclick="cariAnggota()"
                     style="padding:8px 16px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
                 <i class="bi bi-search"></i> Cari
             </button>
-            @if(request('search'))
-                <a href="{{ route('anggota.index') }}"
+            @if($search)
+                <a href="{{ route('anggota.index', array_filter(['sort' => $sortBy, 'direction' => $sortDir, 'per_page' => $perPage])) }}"
                    style="padding:8px 14px;background:#f3f4f6;color:#666;border:none;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none">
                     <i class="bi bi-x"></i>
                 </a>
@@ -63,7 +116,7 @@
 
         {{-- IMPORT --}}
         <button onclick="document.getElementById('importModal').style.display='flex'"
-                style="padding:8px 16px;background:#f3f4f6;color:#666;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
+                style="padding:8px 16px;background:#2c3e50;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
             <i class="bi bi-upload"></i> Import
         </button>
 
@@ -103,7 +156,7 @@
     <div style="padding:16px 24px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:#f8faff">
         <h5 style="font-weight:700;color:#2563eb;margin:0;font-size:15px">
             <i class="bi bi-mortarboard"></i> Daftar Siswa
-            <span style="font-size:12px;font-weight:400;color:#888">({{ $anggota->where('role','siswa')->count() }} siswa)</span>
+            <span style="font-size:12px;font-weight:400;color:#888">({{ $anggota->total() }} siswa)</span>
         </h5>
     </div>
     <div class="card-admin-body tbl-wrap">
@@ -114,18 +167,18 @@
                         <input type="checkbox" id="checkAllSiswa" onchange="toggleCheckAll('siswa')"
                             style="width:16px;height:16px;cursor:pointer">
                     </th>
-                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none">#</th>
-                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none">Nama</th>
-                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none">NIS</th>
-                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none">Kelas</th>
-                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none">Jurusan</th>
-                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none">Email</th>
-                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none">No. HP</th>
+                    <th style="padding:12px 16px;font-weight:600;color:#555;border:none;width:50px">#</th>
+                    <th class="sortable-th" style="padding:12px 16px;font-weight:600;color:#555;border:none" onclick="sortBy('nama')">Nama <span class="sort-icon">{!! $sortIcon('nama') !!}</span></th>
+                    <th class="sortable-th" style="padding:12px 16px;font-weight:600;color:#555;border:none" onclick="sortBy('nis')">NIS <span class="sort-icon">{!! $sortIcon('nis') !!}</span></th>
+                    <th class="sortable-th" style="padding:12px 16px;font-weight:600;color:#555;border:none" onclick="sortBy('kelas')">Kelas <span class="sort-icon">{!! $sortIcon('kelas') !!}</span></th>
+                    <th class="sortable-th" style="padding:12px 16px;font-weight:600;color:#555;border:none" onclick="sortBy('jurusan')">Jurusan <span class="sort-icon">{!! $sortIcon('jurusan') !!}</span></th>
+                    <th class="sortable-th" style="padding:12px 16px;font-weight:600;color:#555;border:none" onclick="sortBy('email')">Email <span class="sort-icon">{!! $sortIcon('email') !!}</span></th>
+                    <th class="sortable-th" style="padding:12px 16px;font-weight:600;color:#555;border:none" onclick="sortBy('no_telepon')">No. HP <span class="sort-icon">{!! $sortIcon('no_telepon') !!}</span></th>
                     <th style="padding:12px 16px;font-weight:600;color:#555;border:none;text-align:center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-            @forelse($anggota->where('role','siswa') as $item)
+            @forelse($anggota as $item)
                 <tr id="row-{{ $item->id }}" class="row-item" data-role="siswa">
                     <td style="padding:12px 16px;vertical-align:middle">
                         <input type="checkbox" name="ids[]" value="{{ $item->id }}"
@@ -133,7 +186,7 @@
                             onchange="updateToolbar('siswa')"
                             style="width:16px;height:16px;cursor:pointer">
                     </td>
-                    <td style="padding:12px 16px;vertical-align:middle;color:#aaa;font-size:12px">{{ $loop->iteration }}</td>
+                    <td style="padding:12px 16px;vertical-align:middle;color:#aaa;font-size:12px">{{ $anggota->firstItem() + $loop->index }}</td>
                     <td style="padding:12px 16px;vertical-align:middle">
                         <div style="font-weight:600;color:#222">{{ $item->nama }}</div>
                         @if($item->alamat)
@@ -193,49 +246,92 @@
             @endforelse
             </tbody>
         </table>
+        <div style="padding:12px 16px;border-top:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px" class="pagination-wrap">
+            <div style="font-size:13px;color:#666">
+                Menampilkan <strong>{{ $anggota->firstItem() ?? 0 }}</strong>–<strong>{{ $anggota->lastItem() ?? 0 }}</strong> dari <strong>{{ $anggota->total() }}</strong> data
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <label style="font-size:12px;color:#888;margin:0">Tampilkan:</label>
+                <select class="per-page-select" id="perPageSelect" onchange="changePerPage(this.value)" style="width:auto">
+                    <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                </select>
+                <label style="font-size:12px;color:#888;margin:0">data</label>
+            </div>
+            @if($anggota->hasPages())
+            <nav aria-label="Pagination">
+                <ul class="pagination mb-0">
+                    @if($anggota->onFirstPage())
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-double-left" title="First"></i></span></li>
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-left" title="Previous"></i></span></li>
+                    @else
+                        <li class="page-item"><a class="page-link" href="{{ $anggota->url(1) }}" title="First"><i class="bi bi-chevron-double-left"></i></a></li>
+                        <li class="page-item"><a class="page-link" href="{{ $anggota->previousPageUrl() }}" title="Previous"><i class="bi bi-chevron-left"></i></a></li>
+                    @endif
+
+                    @php $window = 2; @endphp
+                    @foreach($anggota->getUrlRange(max(1, $anggota->currentPage() - $window), min($anggota->lastPage(), $anggota->currentPage() + $window)) as $page => $url)
+                        <li class="page-item {{ $page == $anggota->currentPage() ? 'active' : '' }}">
+                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                        </li>
+                    @endforeach
+
+                    @if($anggota->hasMorePages())
+                        <li class="page-item"><a class="page-link" href="{{ $anggota->nextPageUrl() }}" title="Next"><i class="bi bi-chevron-right"></i></a></li>
+                        <li class="page-item"><a class="page-link" href="{{ $anggota->url($anggota->lastPage()) }}" title="Last"><i class="bi bi-chevron-double-right"></i></a></li>
+                    @else
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-right" title="Next"></i></span></li>
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-double-right" title="Last"></i></span></li>
+                    @endif
+                </ul>
+            </nav>
+            @endif
+        </div>
     </div>
 </div>
 
-{{-- ============================================================
-     MODAL IMPORT
-     ============================================================ --}}
-<div id="importModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
-    <div style="background:white;border-radius:20px;padding:30px;max-width:500px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-            <h5 style="font-weight:700;color:#222;margin:0">
-                <i class="bi bi-upload" style="color:#1a6e35"></i> Import CSV
-            </h5>
-            <button onclick="document.getElementById('importModal').style.display='none'"
-                    style="background:none;border:none;font-size:22px;color:#aaa;cursor:pointer">&times;</button>
+{{-- MODAL IMPORT --}}
+<div id="importModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:15px">
+    <div style="background:white;border-radius:20px;padding:25px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto">
+        <h5 style="font-weight:700;color:#222;margin-bottom:5px"><i class="bi bi-upload" style="color:#1a6e35"></i> Import CSV</h5>
+
+        <div style="margin-bottom:16px">
+            <p style="font-size:11px;color:#888;margin:0 0 6px">Download template terlebih dahulu agar format CSV sesuai dengan sistem.</p>
+            <a href="{{ route('import.template', 'anggota') }}"
+               style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none">
+                <i class="bi bi-download"></i> Download Template
+            </a>
         </div>
 
-        <form method="POST" action="{{ route('admin.anggota.import') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.anggota.import') }}" enctype="multipart/form-data" id="formImportAnggota" onsubmit="return validateImportForm()">
             @csrf
-            <div class="mb-3">
-                <label style="font-size:13px;font-weight:600;color:#444;margin-bottom:8px;display:block">Pilih File CSV</label>
-                <input type="file" name="file" accept=".csv,.txt"
+            <div id="importErrorMsg" style="display:none;margin-bottom:12px;padding:10px 14px;background:#fee2e2;border:1px solid #f5c6cb;border-radius:8px;color:#dc2626;font-size:13px;font-weight:500">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span id="importErrorText">Pilih file CSV terlebih dahulu!</span>
+            </div>
+            <div style="margin-bottom:15px">
+                <input type="file" name="file" id="fileImport" accept=".csv,.txt"
                     class="form-control @error('file') is-invalid @enderror"
-                    style="border-radius:10px;font-size:13px">
+                    style="border-radius:10px" onchange="hideImportError()">
                 @error('file')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
 
-            <div style="background:#f8f9fa;border-radius:12px;padding:16px;font-size:12px;color:#666;margin-bottom:20px;line-height:1.8">
-                <strong style="color:#333">Format kolom CSV:</strong><br>
-                <code>nis, nama, kelas, jurusan, jk(L/P), no_hp, email</code><br><br>
-                <strong style="color:#333">Contoh baris:</strong><br>
-                <code>2024001,Anisa Rahmawati,X RPL 1,RPL,L,081234567890,anisa@siswa.sch.id</code>
+            <div style="background:#f8f9fa;border-radius:10px;padding:12px;font-size:12px;color:#666;margin-bottom:15px">
+                <strong>Contoh:</strong><br>
+                <code style="font-size:10px">2024001,Anisa Rahmawati,X RPL 1,RPL,L,081234567890,anisa@siswa.sch.id</code>
             </div>
 
-            <div style="display:flex;gap:10px">
-                <button type="button" onclick="document.getElementById('importModal').style.display='none'"
-                        style="flex:1;padding:12px;background:#f3f4f6;color:#666;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
-                    Batal
-                </button>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
                 <button type="submit"
-                        style="flex:1;padding:12px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
-                    <i class="bi bi-upload"></i> Import
+                        style="flex:1;min-width:140px;padding:12px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
+                    <i class="bi bi-upload"></i> Import Sekarang
+                </button>
+                <button type="button" onclick="document.getElementById('importModal').style.display='none'"
+                        style="flex:1;min-width:140px;padding:12px;background:#f0f0f0;color:#555;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
+                    Batal
                 </button>
             </div>
         </form>
@@ -245,26 +341,43 @@
 @endsection
 
 @push('scripts')
-<style>
-.pagination { gap: 5px; }
-.pagination .page-link {
-    border-radius: 8px !important;
-    font-size: 13px;
-    color: #1a6e35;
-    border: 1.5px solid #eee;
-    padding: 6px 12px;
-}
-.pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #1a6e35, #27ae60);
-    border-color: #1a6e35;
-    color: white;
-}
-.pagination .page-link:hover { background: #e8f5e9; color: #1a6e35; }
-</style>
 <script>
 function cariAnggota() {
     const keyword = document.getElementById('searchInput').value;
-    window.location.href = '{{ route('anggota.index') }}?search=' + encodeURIComponent(keyword);
+    const sort = document.getElementById('sortInput') ? document.getElementById('sortInput').value : 'nama';
+    const dir = document.getElementById('dirInput') ? document.getElementById('dirInput').value : 'asc';
+    const perPage = document.getElementById('perPageInput') ? document.getElementById('perPageInput').value : '10';
+    const params = new URLSearchParams();
+    if (keyword) params.set('search', keyword);
+    params.set('sort', sort);
+    params.set('direction', dir);
+    params.set('per_page', perPage);
+    window.location.href = '{{ route('anggota.index') }}?' + params.toString();
+}
+
+function sortBy(column) {
+    const sort = document.getElementById('sortInput') ? document.getElementById('sortInput').value : 'nama';
+    const dir = document.getElementById('dirInput') ? document.getElementById('dirInput').value : 'asc';
+    const search = document.getElementById('searchInput') ? document.getElementById('searchInput').value : '';
+    const perPage = document.getElementById('perPageInput') ? document.getElementById('perPageInput').value : '10';
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    params.set('sort', column);
+    params.set('direction', (sort === column && dir === 'asc') ? 'desc' : 'asc');
+    params.set('per_page', perPage);
+    window.location.href = '{{ route('anggota.index') }}?' + params.toString();
+}
+
+function changePerPage(value) {
+    const sort = document.getElementById('sortInput') ? document.getElementById('sortInput').value : 'nama';
+    const dir = document.getElementById('dirInput') ? document.getElementById('dirInput').value : 'asc';
+    const search = document.getElementById('searchInput') ? document.getElementById('searchInput').value : '';
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    params.set('sort', sort);
+    params.set('direction', dir);
+    params.set('per_page', value);
+    window.location.href = '{{ route('anggota.index') }}?' + params.toString();
 }
 
 function toggleCheckAll(role) {
@@ -281,7 +394,6 @@ function updateToolbar(role) {
 
     master.checked = checkboxes.length === total.length && total.length > 0;
 
-    // Count ALL checked across both tables
     const allChecked = document.querySelectorAll('.cb-siswa:checked, .cb-admin:checked');
     const toolbar = document.getElementById('toolbarHapus');
     const jumlah = document.getElementById('jumlahDipilih');
@@ -326,6 +438,19 @@ function submitHapusBanyak() {
     csrf.value = '{{ csrf_token() }}';
     form.appendChild(csrf);
 
+    const sort = document.getElementById('sortInput') ? document.getElementById('sortInput').value : 'nama';
+    const dir = document.getElementById('dirInput') ? document.getElementById('dirInput').value : 'asc';
+    const perPage = document.getElementById('perPageInput') ? document.getElementById('perPageInput').value : '10';
+    const search = document.getElementById('searchInput') ? document.getElementById('searchInput').value : '';
+
+    ['search', 'sort', 'direction', 'per_page', 'page'].forEach(name => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = name === 'search' ? search : (name === 'sort' ? sort : (name === 'direction' ? dir : (name === 'per_page' ? perPage : '{{ $anggota->currentPage() }}')));
+        form.appendChild(input);
+    });
+
     checked.forEach(cb => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -336,6 +461,28 @@ function submitHapusBanyak() {
 
     document.body.appendChild(form);
     form.submit();
+}
+
+function validateImportForm() {
+    var fileInput = document.getElementById('fileImport');
+    var errorMsg = document.getElementById('importErrorMsg');
+    var errorText = document.getElementById('importErrorText');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        errorText.textContent = 'Pilih file CSV terlebih dahulu!';
+        errorMsg.style.display = 'block';
+        return false;
+    }
+    var fileName = fileInput.files[0].name.toLowerCase();
+    if (!fileName.endsWith('.csv') && !fileName.endsWith('.txt')) {
+        errorText.textContent = 'File harus berformat CSV atau TXT!';
+        errorMsg.style.display = 'block';
+        return false;
+    }
+    return true;
+}
+
+function hideImportError() {
+    document.getElementById('importErrorMsg').style.display = 'none';
 }
 </script>
 @endpush

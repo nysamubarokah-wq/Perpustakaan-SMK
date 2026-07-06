@@ -11,21 +11,41 @@ class AnggotaController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $sortBy = $request->get('sort', 'nama');
+        $sortDir = $request->get('direction', 'asc');
+        $perPage = (int) $request->get('per_page', 10);
+
+        if (!in_array($perPage, [10, 25, 50, 100])) {
+            $perPage = 10;
+        }
+
+        $sortable = ['nama', 'nis', 'email', 'kelas', 'jurusan', 'no_telepon', 'tanggal_daftar', 'created_at'];
+        if (!in_array($sortBy, $sortable)) {
+            $sortBy = 'nama';
+        }
+        if (!in_array($sortDir, ['asc', 'desc'])) {
+            $sortDir = 'asc';
+        }
 
         $query = Anggota::query()
             ->where('role', 'siswa')
             ->when($search, function ($q) use ($search) {
-                $q->where('nama', 'like', "%$search%")
-                  ->orWhere('email', 'like', "%$search%")
-                  ->orWhere('nis', 'like', "%$search%")
-                  ->orWhere('no_telepon', 'like', "%$search%")
-                  ->orWhere('kelas', 'like', "%$search%");
+                $q->where(function ($sq) use ($search) {
+                    $sq->where('nama', 'like', "%$search%")
+                      ->orWhere('email', 'like', "%$search%")
+                      ->orWhere('nis', 'like', "%$search%")
+                      ->orWhere('no_telepon', 'like', "%$search%")
+                      ->orWhere('kelas', 'like', "%$search%");
+                });
             })
-            ->orderBy('nama');
+            ->orderBy($sortBy, $sortDir);
 
-        $anggota = $query->get();
+        $anggota = $query->paginate($perPage);
+        $anggota->appends($request->query());
 
-        return view('anggota.index', compact('anggota', 'search'));
+        session(['anggota_index_params' => $request->query()]);
+
+        return view('anggota.index', compact('anggota', 'search', 'sortBy', 'sortDir', 'perPage'));
     }
 
     public function adminIndex(Request $request)
@@ -72,6 +92,7 @@ class AnggotaController extends Controller
             'nis'   => $request->nis,
             'email' => $request->email,
             'role'  => 'siswa',
+            'password' => bcrypt($defaultPassword),
         ]);
 
         // Create Anggota linked to User
@@ -125,14 +146,18 @@ class AnggotaController extends Controller
             ]);
         }
 
-        return redirect()->route('anggota.index')->with('success', 'Anggota berhasil diupdate!');
+        $params = $request->only(['search', 'sort', 'direction', 'per_page']);
+        if (empty(array_filter($params))) {
+            $params = session('anggota_index_params', []);
+        }
+
+        return redirect()->route('anggota.index', $params)->with('success', 'Anggota berhasil diupdate!');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $anggota = Anggota::findOrFail($id);
 
-        // Check for active peminjaman
         $activePeminjaman = $anggota->peminjaman()
             ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
             ->count();
@@ -141,7 +166,6 @@ class AnggotaController extends Controller
             return redirect()->back()->with('error', 'Tidak bisa menghapus anggota yang masih memiliki peminjaman aktif!');
         }
 
-        // Delete associated User
         $user = $anggota->user;
         $anggota->delete();
 
@@ -149,7 +173,21 @@ class AnggotaController extends Controller
             $user->delete();
         }
 
-        return redirect()->route('anggota.index')->with('success', 'Anggota berhasil dihapus!');
+        $params = $request->only(['search', 'sort', 'direction', 'per_page', 'page']);
+        if (empty(array_filter($params))) {
+            $params = session('anggota_index_params', []);
+        }
+
+        $perPage = max(10, (int) ($params['per_page'] ?? 10));
+        unset($params['page']);
+        $totalAfter = Anggota::where('role', 'siswa')->count();
+        $lastPage = max(1, (int) ceil($totalAfter / $perPage));
+        $currentPage = (int) ($params['page'] ?? 1);
+        if ($currentPage > $lastPage) {
+            $params['page'] = $lastPage;
+        }
+
+        return redirect()->route('anggota.index', $params)->with('success', 'Anggota berhasil dihapus!');
     }
 
     public function updateRole(Request $request, $id, $role)
@@ -238,6 +276,7 @@ class AnggotaController extends Controller
                         'nis'   => $nis ?: null,
                         'email' => $email,
                         'role'  => 'siswa',
+                        'password' => bcrypt($defaultPassword),
                     ]);
 
                     Anggota::create([
@@ -262,7 +301,7 @@ class AnggotaController extends Controller
 
         fclose($file);
 
-        return back()->with('success', "$berhasil anggota berhasil diimport." . ($gagal > 0 ? " $gagal baris dilewati." : ''));
+        return redirect()->route('anggota.index')->with('success', "$berhasil anggota berhasil diimport." . ($gagal > 0 ? " $gagal baris dilewati." : ''));
     }
 
     public function hapusBanyak(Request $request)
@@ -300,7 +339,21 @@ class AnggotaController extends Controller
             $pesan .= " $tidakBisaDihapus dilewati karena masih punya peminjaman aktif.";
         }
 
-        return back()->with('success', $pesan);
+        $params = $request->only(['search', 'sort', 'direction', 'per_page', 'page']);
+        if (empty(array_filter($params))) {
+            $params = session('anggota_index_params', []);
+        }
+
+        $perPage = max(10, (int) ($params['per_page'] ?? 10));
+        unset($params['page']);
+        $totalAfter = Anggota::where('role', 'siswa')->count();
+        $lastPage = max(1, (int) ceil($totalAfter / $perPage));
+        $currentPage = (int) ($params['page'] ?? 1);
+        if ($currentPage > $lastPage) {
+            $params['page'] = $lastPage;
+        }
+
+        return redirect()->route('anggota.index', $params)->with('success', $pesan);
     }
 
 }

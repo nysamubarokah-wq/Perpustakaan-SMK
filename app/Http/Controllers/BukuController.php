@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Buku;
 use App\Models\EksemplarBuku;
+use App\Models\Genre;
+use App\Models\Penerbit;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use ZipArchive;
@@ -13,24 +15,48 @@ class BukuController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $sortBy = $request->get('sort', 'created_at');
+        $sortDir = $request->get('direction', 'desc');
+        $perPage = (int) $request->get('per_page', 10);
+
+        if (!in_array($perPage, [10, 25, 50, 100])) {
+            $perPage = 10;
+        }
+
+        $sortable = ['judul', 'pengarang', 'penerbit', 'isbn', 'genre', 'kode_buku', 'created_at', 'stok'];
+        if (!in_array($sortBy, $sortable)) {
+            $sortBy = 'created_at';
+        }
+        if (!in_array($sortDir, ['asc', 'desc'])) {
+            $sortDir = 'desc';
+        }
 
         $buku = Buku::query()
             ->withCount(['eksemplar', 'eksemplarTersedia'])
             ->when($search, function ($q) use ($search) {
-                $q->where('judul', 'like', "%$search%")
-                    ->orWhere('pengarang', 'like', "%$search%")
-                    ->orWhere('isbn', 'like', "%$search%")
-                    ->orWhere('genre', 'like', "%$search%")
-                    ->orWhere('kode_buku', 'like', "%$search%");
+                $q->where(function ($sq) use ($search) {
+                    $sq->where('judul', 'like', "%$search%")
+                        ->orWhere('pengarang', 'like', "%$search%")
+                        ->orWhere('isbn', 'like', "%$search%")
+                        ->orWhere('genre', 'like', "%$search%")
+                        ->orWhere('kode_buku', 'like', "%$search%");
+                });
             })
-            ->get();
+            ->orderBy($sortBy, $sortDir)
+            ->paginate($perPage);
 
-        return view('buku.index', compact('buku', 'search'));
+        $buku->appends($request->query());
+
+        session(['buku_index_params' => $request->query()]);
+
+        return view('buku.index', compact('buku', 'search', 'sortBy', 'sortDir', 'perPage'));
     }
 
     public function create()
     {
-        return view('buku.create');
+        $genres = Genre::orderBy('nama')->get();
+        $penerbitList = Penerbit::orderBy('nama')->get();
+        return view('buku.create', compact('genres', 'penerbitList'));
     }
 
     public function show(Buku $buku)
@@ -57,6 +83,26 @@ class BukuController extends Controller
 
         if (empty($data['kode_buku'])) {
             $data['kode_buku'] = Buku::generateKodeBuku();
+        }
+
+        // Auto-create genre if new
+        if (!empty($data['genre_baru'])) {
+            $genre = Genre::findOrCreate($data['genre_baru']);
+            $data['genre_id'] = $genre->id;
+            $data['genre'] = $genre->nama;
+        } elseif (!empty($data['genre_id'])) {
+            $genre = Genre::find($data['genre_id']);
+            $data['genre'] = $genre ? $genre->nama : '';
+        }
+
+        // Auto-create penerbit if new
+        if (!empty($data['penerbit_baru'])) {
+            $penerbit = Penerbit::findOrCreate($data['penerbit_baru']);
+            $data['penerbit_id'] = $penerbit->id;
+            $data['penerbit'] = $penerbit->nama;
+        } elseif (!empty($data['penerbit_id'])) {
+            $penerbit = Penerbit::find($data['penerbit_id']);
+            $data['penerbit'] = $penerbit ? $penerbit->nama : '';
         }
 
         // stok diset sesuai jumlah eksemplar (backward compat)
@@ -95,7 +141,9 @@ class BukuController extends Controller
     public function edit(Buku $buku)
     {
         $buku->load('eksemplar');
-        return view('buku.edit', compact('buku'));
+        $genres = Genre::orderBy('nama')->get();
+        $penerbitList = Penerbit::orderBy('nama')->get();
+        return view('buku.edit', compact('buku', 'genres', 'penerbitList'));
     }
 
     public function update(Request $request, Buku $buku)
@@ -111,7 +159,29 @@ class BukuController extends Controller
             'kode_buku'    => 'nullable|unique:buku,kode_buku,' . $buku->id,
         ]);
 
-        $data = $request->only(['judul', 'pengarang', 'penerbit', 'tahun_terbit', 'isbn', 'genre', 'deskripsi', 'lokasi', 'kode_buku']);
+        $data = $request->only(['judul', 'pengarang', 'tahun_terbit', 'isbn', 'deskripsi', 'lokasi', 'kode_buku']);
+
+        // Auto-create genre if new
+        if (!empty($request->genre_baru)) {
+            $genre = Genre::findOrCreate($request->genre_baru);
+            $data['genre_id'] = $genre->id;
+            $data['genre'] = $genre->nama;
+        } elseif (!empty($request->genre_id)) {
+            $genre = Genre::find($request->genre_id);
+            $data['genre_id'] = $genre->id ?? null;
+            $data['genre'] = $genre ? $genre->nama : '';
+        }
+
+        // Auto-create penerbit if new
+        if (!empty($request->penerbit_baru)) {
+            $penerbit = Penerbit::findOrCreate($request->penerbit_baru);
+            $data['penerbit_id'] = $penerbit->id;
+            $data['penerbit'] = $penerbit->nama;
+        } elseif (!empty($request->penerbit_id)) {
+            $penerbit = Penerbit::find($request->penerbit_id);
+            $data['penerbit_id'] = $penerbit->id ?? null;
+            $data['penerbit'] = $penerbit ? $penerbit->nama : '';
+        }
 
         if ($request->hasFile('sampul')) {
             if ($buku->sampul && file_exists(public_path($buku->sampul))) {
@@ -138,13 +208,33 @@ class BukuController extends Controller
 
         $buku->update($data);
 
-        return redirect()->route('buku.index')->with('success', 'Buku berhasil diupdate!');
+        $params = $request->only(['search', 'sort', 'direction', 'per_page']);
+        if (empty(array_filter($params))) {
+            $params = session('buku_index_params', []);
+        }
+
+        return redirect()->route('buku.index', $params)->with('success', 'Buku berhasil diupdate!');
     }
 
-    public function destroy(Buku $buku)
+    public function destroy(Request $request, Buku $buku)
     {
         $buku->delete();
-        return redirect()->route('buku.index')->with('success', 'Buku berhasil dihapus!');
+
+        $params = $request->only(['search', 'sort', 'direction', 'per_page', 'page']);
+        if (empty(array_filter($params))) {
+            $params = session('buku_index_params', []);
+        }
+
+        $perPage = max(10, (int) ($params['per_page'] ?? 10));
+        unset($params['page']);
+        $totalAfter = Buku::count();
+        $lastPage = max(1, (int) ceil($totalAfter / $perPage));
+        $currentPage = (int) ($params['page'] ?? 1);
+        if ($currentPage > $lastPage) {
+            $params['page'] = $lastPage;
+        }
+
+        return redirect()->route('buku.index', $params)->with('success', 'Buku berhasil dihapus!');
     }
 
     public function hapusBanyak(Request $request)
@@ -158,7 +248,21 @@ class BukuController extends Controller
         $jumlah = Buku::whereIn('id', $ids)->count();
         Buku::whereIn('id', $ids)->delete();
 
-        return back()->with('success', "$jumlah buku berhasil dihapus.");
+        $params = $request->only(['search', 'sort', 'direction', 'per_page', 'page']);
+        if (empty(array_filter($params))) {
+            $params = session('buku_index_params', []);
+        }
+
+        $perPage = max(10, (int) ($params['per_page'] ?? 10));
+        unset($params['page']);
+        $totalAfter = Buku::count();
+        $lastPage = max(1, (int) ceil($totalAfter / $perPage));
+        $currentPage = (int) ($params['page'] ?? 1);
+        if ($currentPage > $lastPage) {
+            $params['page'] = $lastPage;
+        }
+
+        return redirect()->route('buku.index', $params)->with('success', "$jumlah buku berhasil dihapus.");
     }
 
     public function import(Request $request)
@@ -240,7 +344,7 @@ class BukuController extends Controller
         if ($dilewati > 0) $pesan .= " $dilewati dilewati (ISBN duplikat).";
         if ($gagalGambar > 0) $pesan .= " $gagalGambar gambar gagal didownload.";
 
-        return back()->with('success', $pesan);
+        return redirect()->route('buku.index')->with('success', $pesan);
     }
 
     // ============================================================

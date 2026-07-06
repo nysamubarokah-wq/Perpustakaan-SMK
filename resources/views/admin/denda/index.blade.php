@@ -18,7 +18,7 @@
                 <option value="sudah" {{ request('filter_pengembalian') === 'sudah' ? 'selected' : '' }}>Sudah Kembali</option>
             </select>
             <button type="submit"
-                    style="padding:8px 14px;background:#4361ee;color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer">
+                    style="padding:8px 14px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer">
                 <i class="bi bi-search"></i>
             </button>
         </form>

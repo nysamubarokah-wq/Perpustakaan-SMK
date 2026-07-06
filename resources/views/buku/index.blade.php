@@ -2,6 +2,25 @@
 
 @section('header_title', 'Kelola Buku')
 
+@php
+$sortUrl = function($col) use ($sortBy, $sortDir, $search, $perPage) {
+    $params = array_filter([
+        'search' => $search,
+        'sort' => $col,
+        'direction' => ($sortBy === $col && $sortDir === 'asc') ? 'desc' : 'asc',
+        'per_page' => $perPage,
+    ]);
+    return route('buku.index', $params);
+};
+
+$sortIcon = function($col) use ($sortBy, $sortDir) {
+    if ($sortBy !== $col) return '<i class="bi bi-chevron-expand" style="opacity:0.3"></i>';
+    return $sortDir === 'asc'
+        ? '<i class="bi bi-chevron-up" style="color:#1a6e35"></i>'
+        : '<i class="bi bi-chevron-down" style="color:#1a6e35"></i>';
+};
+@endphp
+
 @section('content')
 
 <style>
@@ -34,6 +53,9 @@
         .kelola-toolbar { flex-direction: column; align-items: flex-start !important; }
         .kelola-toolbar > div { width: 100%; }
         .kelola-toolbar button { flex: 1; }
+        .pagination-wrap { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+        .pagination { flex-wrap: wrap; }
+        .pagination .page-link { padding: 4px 8px; font-size: 12px; }
     }
     @media (max-width: 480px) {
         .kelola-table-wrap table { min-width: 750px; }
@@ -42,6 +64,34 @@
             font-size: 11px;
         }
     }
+    .sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+    .sortable-th:hover { background: #e9ecef !important; }
+    .sort-icon { font-size: 10px; margin-left: 3px; vertical-align: middle; }
+    .pagination { gap: 4px; }
+    .pagination .page-link {
+        border-radius: 8px !important;
+        font-size: 13px;
+        color: #1a6e35;
+        border: 1.5px solid #eee;
+        padding: 6px 12px;
+    }
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #1a6e35, #27ae60);
+        border-color: #1a6e35;
+        color: white;
+    }
+    .pagination .page-link:hover { background: #e8f5e9; color: #1a6e35; }
+    .pagination .page-item.disabled .page-link { border-radius: 8px; }
+    .per-page-select {
+        border: 1.5px solid #eee;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 13px;
+        color: #555;
+        outline: none;
+        cursor: pointer;
+    }
+    .per-page-select:focus { border-color: #1a6e35; }
 </style>
 
 @if(session('success'))
@@ -88,7 +138,10 @@
     </x-admin-card-header>
     <div class="card-admin-body">
         <div style="padding:15px 25px;border-bottom:1px solid #eee;background:#fafafa" class="kelola-search-bar">
-            <form method="GET" action="{{ route('buku.index') }}">
+            <form method="GET" action="{{ route('buku.index') }}" id="searchForm">
+                <input type="hidden" name="sort" value="{{ $sortBy }}">
+                <input type="hidden" name="direction" value="{{ $sortDir }}">
+                <input type="hidden" name="per_page" value="{{ $perPage }}" id="perPageInput">
                 <div class="d-flex gap-2">
                     <input type="text" name="search"
                            value="{{ $search ?? '' }}"
@@ -99,7 +152,7 @@
                         <i class="bi bi-search"></i> Cari
                     </button>
                     @if($search)
-                    <a href="{{ route('buku.index') }}"
+                    <a href="{{ route('buku.index', array_filter(['sort' => $sortBy, 'direction' => $sortDir, 'per_page' => $perPage])) }}"
                        style="padding:8px 16px;background:#f0f0f0;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap">
                         <i class="bi bi-x"></i> Reset
                     </a>
@@ -131,13 +184,13 @@
                     </th>
                     <th style="width:35px">#</th>
                     <th style="width:50px">Sampul</th>
-                    <th>Judul</th>
-                    <th style="min-width:90px">Kode Buku</th>
-                    <th style="min-width:100px">ISBN</th>
-                    <th>Pengarang</th>
-                    <th>Genre</th>
+                    <th class="sortable-th" style="min-width:150px" onclick="sortBy('judul')">Judul <span class="sort-icon">{!! $sortIcon('judul') !!}</span></th>
+                    <th class="sortable-th" style="min-width:90px" onclick="sortBy('kode_buku')">Kode Buku <span class="sort-icon">{!! $sortIcon('kode_buku') !!}</span></th>
+                    <th class="sortable-th" style="min-width:100px" onclick="sortBy('isbn')">ISBN <span class="sort-icon">{!! $sortIcon('isbn') !!}</span></th>
+                    <th class="sortable-th" onclick="sortBy('pengarang')">Pengarang <span class="sort-icon">{!! $sortIcon('pengarang') !!}</span></th>
+                    <th class="sortable-th" onclick="sortBy('genre')">Genre <span class="sort-icon">{!! $sortIcon('genre') !!}</span></th>
                     <th style="min-width:80px">Lokasi</th>
-                    <th style="width:70px">Eksemplar</th>
+                    <th class="sortable-th" style="width:70px" onclick="sortBy('stok')">Stok <span class="sort-icon">{!! $sortIcon('stok') !!}</span></th>
                     <th style="min-width:170px">Aksi</th>
                 </tr>
             </thead>
@@ -149,7 +202,7 @@
                             class="checkbox-buku" onchange="updateToolbar()"
                             style="width:15px;height:15px;cursor:pointer">
                     </td>
-                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $buku->firstItem() + $loop->index }}</td>
                     <td>
                         @if($item->sampul)
                             <img src="{{ asset($item->sampul) }}" style="width:40px;height:55px;object-fit:cover;border-radius:5px">
@@ -215,6 +268,49 @@
             </tbody>
         </table>
         </div>
+        <div style="padding:12px 16px;border-top:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px" class="pagination-wrap">
+            <div style="font-size:13px;color:#666">
+                Menampilkan <strong>{{ $buku->firstItem() ?? 0 }}</strong>–<strong>{{ $buku->lastItem() ?? 0 }}</strong> dari <strong>{{ $buku->total() }}</strong> data
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <label style="font-size:12px;color:#888;margin:0">Tampilkan:</label>
+                <select class="per-page-select" onchange="changePerPage(this.value)" style="width:auto">
+                    <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                    <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                    <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                </select>
+                <label style="font-size:12px;color:#888;margin:0">data</label>
+            </div>
+            @if($buku->hasPages())
+            <nav aria-label="Pagination">
+                <ul class="pagination mb-0">
+                    @if($buku->onFirstPage())
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-double-left" title="First"></i></span></li>
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-left" title="Previous"></i></span></li>
+                    @else
+                        <li class="page-item"><a class="page-link" href="{{ $buku->url(1) }}" title="First"><i class="bi bi-chevron-double-left"></i></a></li>
+                        <li class="page-item"><a class="page-link" href="{{ $buku->previousPageUrl() }}" title="Previous"><i class="bi bi-chevron-left"></i></a></li>
+                    @endif
+
+                    @php $window = 2; @endphp
+                    @foreach($buku->getUrlRange(max(1, $buku->currentPage() - $window), min($buku->lastPage(), $buku->currentPage() + $window)) as $page => $url)
+                        <li class="page-item {{ $page == $buku->currentPage() ? 'active' : '' }}">
+                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                        </li>
+                    @endforeach
+
+                    @if($buku->hasMorePages())
+                        <li class="page-item"><a class="page-link" href="{{ $buku->nextPageUrl() }}" title="Next"><i class="bi bi-chevron-right"></i></a></li>
+                        <li class="page-item"><a class="page-link" href="{{ $buku->url($buku->lastPage()) }}" title="Last"><i class="bi bi-chevron-double-right"></i></a></li>
+                    @else
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-right" title="Next"></i></span></li>
+                        <li class="page-item disabled"><span class="page-link" style="opacity:0.4"><i class="bi bi-chevron-double-right" title="Last"></i></span></li>
+                    @endif
+                </ul>
+            </nav>
+            @endif
+        </div>
     </div>
 </div>
 
@@ -222,14 +318,23 @@
 <div id="modalImport" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;padding:15px">
     <div style="background:white;border-radius:20px;padding:25px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto">
         <h5 style="font-weight:700;color:#222;margin-bottom:5px"><i class="bi bi-upload" style="color:#1a6e35"></i> Import Buku dari CSV</h5>
-        <p style="font-size:12px;color:#888;margin-bottom:20px">Format kolom: <code>judul, pengarang, penerbit, tahun_terbit, isbn, stok, genre, lokasi, deskripsi, url_sampul</code><br>
-        <span style="font-size:11px;color:#aaa">* url_sampul opsional</span></p>
 
-        <form method="POST" action="{{ route('buku.import') }}" enctype="multipart/form-data">
+        <div style="margin-bottom:16px">
+            <p style="font-size:11px;color:#888;margin:0 0 6px">Download template terlebih dahulu agar format CSV sesuai dengan sistem.</p>
+            <a href="{{ route('import.template', 'buku') }}"
+               style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;text-decoration:none">
+                <i class="bi bi-download"></i> Download Template
+            </a>
+        </div>
+
+        <form method="POST" action="{{ route('buku.import') }}" enctype="multipart/form-data" id="formImportBuku" onsubmit="return validateImportForm()">
             @csrf
+            <div id="importErrorMsg" style="display:none;margin-bottom:12px;padding:10px 14px;background:#fee2e2;border:1px solid #f5c6cb;border-radius:8px;color:#dc2626;font-size:13px;font-weight:500">
+                <i class="bi bi-exclamation-triangle-fill"></i> <span id="importErrorText">Pilih file CSV terlebih dahulu!</span>
+            </div>
             <div style="margin-bottom:15px">
-                <input type="file" name="file" accept=".csv,.txt"
-                    class="form-control" style="border-radius:10px">
+                <input type="file" name="file" id="fileImport" accept=".csv,.txt"
+                    class="form-control" style="border-radius:10px" onchange="hideImportError()">
             </div>
             <div style="background:#f8f9fa;border-radius:10px;padding:12px;font-size:12px;color:#666;margin-bottom:15px">
                 <strong>Contoh:</strong><br>
@@ -320,6 +425,36 @@ function submitHapusBanyak() {
     csrf.value = '{{ csrf_token() }}';
     form.appendChild(csrf);
 
+    const searchInput = document.createElement('input');
+    searchInput.type = 'hidden';
+    searchInput.name = 'search';
+    searchInput.value = '{{ $search ?? '' }}';
+    form.appendChild(searchInput);
+
+    const sortInput = document.createElement('input');
+    sortInput.type = 'hidden';
+    sortInput.name = 'sort';
+    sortInput.value = '{{ $sortBy }}';
+    form.appendChild(sortInput);
+
+    const dirInput = document.createElement('input');
+    dirInput.type = 'hidden';
+    dirInput.name = 'direction';
+    dirInput.value = '{{ $sortDir }}';
+    form.appendChild(dirInput);
+
+    const perPageInput = document.createElement('input');
+    perPageInput.type = 'hidden';
+    perPageInput.name = 'per_page';
+    perPageInput.value = '{{ $perPage }}';
+    form.appendChild(perPageInput);
+
+    const pageInput = document.createElement('input');
+    pageInput.type = 'hidden';
+    pageInput.name = 'page';
+    pageInput.value = '{{ $buku->currentPage() }}';
+    form.appendChild(pageInput);
+
     checked.forEach(cb => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -330,6 +465,23 @@ function submitHapusBanyak() {
 
     document.body.appendChild(form);
     form.submit();
+}
+
+function sortBy(column) {
+    const form = document.getElementById('searchForm');
+    const sortInput = form.querySelector('input[name="sort"]');
+    const dirInput = form.querySelector('input[name="direction"]');
+    const currentSort = sortInput.value;
+    const currentDir = dirInput.value;
+
+    sortInput.value = column;
+    dirInput.value = (currentSort === column && currentDir === 'asc') ? 'desc' : 'asc';
+    form.submit();
+}
+
+function changePerPage(value) {
+    document.getElementById('perPageInput').value = value;
+    document.getElementById('searchForm').submit();
 }
 
 async function lihatQR(bukuId) {
@@ -353,6 +505,28 @@ async function lihatQR(bukuId) {
     } catch (e) {
         alert('Gagal terhubung ke server.');
     }
+}
+
+function validateImportForm() {
+    var fileInput = document.getElementById('fileImport');
+    var errorMsg = document.getElementById('importErrorMsg');
+    var errorText = document.getElementById('importErrorText');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        errorText.textContent = 'Pilih file CSV terlebih dahulu!';
+        errorMsg.style.display = 'block';
+        return false;
+    }
+    var fileName = fileInput.files[0].name.toLowerCase();
+    if (!fileName.endsWith('.csv') && !fileName.endsWith('.txt')) {
+        errorText.textContent = 'File harus berformat CSV atau TXT!';
+        errorMsg.style.display = 'block';
+        return false;
+    }
+    return true;
+}
+
+function hideImportError() {
+    document.getElementById('importErrorMsg').style.display = 'none';
 }
 </script>
 @endpush

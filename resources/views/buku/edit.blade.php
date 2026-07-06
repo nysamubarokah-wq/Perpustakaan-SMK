@@ -3,14 +3,92 @@
 @section('title', 'Edit Buku')
 @section('page-title', 'Edit Buku')
 
+@php
+$backParams = request()->only(['search', 'sort', 'direction', 'per_page']);
+$genreListData = $genres->map(fn($g) => ['id' => $g->id, 'nama' => $g->nama])->toArray();
+$penerbitListData = $penerbitList->map(fn($p) => ['id' => $p->id, 'nama' => $p->nama])->toArray();
+@endphp
+
+@push('scripts')
+<script>
+var genreData = @json($genreListData);
+var penerbitData = @json($penerbitListData);
+
+function toggleNew(field) {
+    const input = document.getElementById(field + 'Baru');
+    if (input.style.display === 'none') {
+        input.style.display = 'block';
+        input.focus();
+        selectOption(field, '', '');
+        closeDropdown(field);
+    } else {
+        input.style.display = 'none';
+        input.value = '';
+    }
+}
+
+function closeDropdown(field) {
+    const dropdown = document.getElementById(field + 'Dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+}
+
+function toggleDropdown(field, event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById(field + 'Dropdown');
+    const input = document.getElementById(field + 'Baru');
+    if (input && input.style.display !== 'none') return;
+    
+    document.querySelectorAll('.custom-dropdown-menu').forEach(el => {
+        el.style.display = 'none';
+    });
+    dropdown.style.display = 'block';
+}
+
+function selectOption(field, id, nama) {
+    const hidden = document.getElementById(field + 'Id');
+    const display = document.getElementById(field + 'Display');
+    const dropdown = document.getElementById(field + 'Dropdown');
+    const input = document.getElementById(field + 'Baru');
+    
+    hidden.value = id;
+    display.querySelector('span').textContent = nama || '-- Pilih / Tambah Baru --';
+    display.querySelector('span').classList.toggle('text-muted', !nama);
+    dropdown.style.display = 'none';
+    
+    if (input) {
+        input.style.display = 'none';
+        input.value = '';
+    }
+}
+
+function filterDropdown(field, query) {
+    const items = document.querySelectorAll('#' + field + 'Dropdown .dropdown-item[data-search]');
+    items.forEach(item => {
+        const text = item.getAttribute('data-search').toLowerCase();
+        item.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+    });
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-select-wrapper')) {
+        document.querySelectorAll('.custom-dropdown-menu').forEach(el => el.style.display = 'none');
+    }
+});
+</script>
+@endpush
+
 @section('content')
-<x-admin-page-header title="Edit Buku" icon="bi bi-pencil-square" :backUrl="route('buku.index')" />
+<x-admin-page-header title="Edit Buku" icon="bi bi-pencil-square" :backUrl="route('buku.index', $backParams)" />
 
 <div class="card-admin">
-    <div class="card-admin-body">
+    <div class="card-admin-body" style="position:relative">
         <form action="{{ route('buku.update', $buku->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <input type="hidden" name="search" value="{{ request('search') }}">
+            <input type="hidden" name="sort" value="{{ request('sort') }}">
+            <input type="hidden" name="direction" value="{{ request('direction') }}">
+            <input type="hidden" name="per_page" value="{{ request('per_page') }}">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Judul</label>
@@ -24,8 +102,25 @@
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Penerbit</label>
-                    <input type="text" name="penerbit" class="form-control @error('penerbit') is-invalid @enderror" value="{{ old('penerbit', $buku->penerbit) }}">
-                    @error('penerbit') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="input-group">
+                        <div class="custom-select-wrapper" style="flex:1">
+                            <input type="hidden" name="penerbit_id" id="penerbitId" value="{{ old('penerbit_id', $buku->penerbit_id) }}">
+                            <div class="form-control custom-select-display @error('penerbit_id') is-invalid @enderror" id="penerbitDisplay" onclick="toggleDropdown('penerbit', event)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+                                <span class="{{ old('penerbit_id', $buku->penerbit_id) ? '' : 'text-muted' }}">{{ old('penerbit_id', $buku->penerbit_id) ? $penerbitList->firstWhere('id', old('penerbit_id', $buku->penerbit_id))?->nama : '-- Pilih / Tambah Baru --' }}</span>
+                                <i class="bi bi-chevron-down" style="font-size:12px"></i>
+                            </div>
+                            <div class="custom-dropdown-menu" id="penerbitDropdown" style="display:none;position:absolute;top:100%;left:0;z-index:9999;background:white;border:1px solid #ced4da;border-radius:4px;width:100%;max-height:200px;overflow-y:auto;box-shadow:0 4px 6px rgba(0,0,0,0.1)">
+                                <div style="padding:8px;border-bottom:1px solid #eee">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Cari..." onkeyup="filterDropdown('penerbit', this.value)" style="font-size:12px">
+                                </div>
+                                @foreach($penerbitList as $p)
+                                <div class="dropdown-item" data-search="{{ strtolower($p->nama) }}" onclick="selectOption('penerbit', {{ $p->id }}, '{{ addslashes($p->nama) }}')" style="padding:8px 12px;cursor:pointer;font-size:13px;{{ $p->id == old('penerbit_id', $buku->penerbit_id) ? 'background:#e9ecef;font-weight:600' : '' }}">{{ $p->nama }}</div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary" onclick="toggleNew('penerbit')">+ Baru</button>
+                    </div>
+                    <input type="text" name="penerbit_baru" id="penerbitBaru" class="form-control mt-2" placeholder="Ketik nama penerbit baru..." style="display:none">
                 </div>
                 <div class="col-md-3 mb-3">
                     <label class="form-label">Tahun Terbit</label>
@@ -50,15 +145,27 @@
                     <input type="text" name="isbn" class="form-control @error('isbn') is-invalid @enderror" value="{{ old('isbn', $buku->isbn) }}">
                     @error('isbn') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <label class="form-label">Genre</label>
-                    <select name="genre" class="form-control @error('genre') is-invalid @enderror">
-                        <option value="">-- Pilih Genre --</option>
-                        @foreach(['Fiksi','Non-Fiksi','Kejuruan','Sains & Teknologi','Sejarah','Romance','Pendidikan','Seni & Budaya'] as $g)
-                            <option value="{{ $g }}" {{ old('genre', $buku->genre) == $g ? 'selected' : '' }}>{{ $g }}</option>
-                        @endforeach
-                    </select>
-                    @error('genre') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="input-group">
+                        <div class="custom-select-wrapper" style="flex:1;position:relative">
+                            <input type="hidden" name="genre_id" id="genreId" value="{{ old('genre_id', $buku->genre_id) }}">
+                            <div class="form-control custom-select-display @error('genre_id') is-invalid @enderror" id="genreDisplay" onclick="toggleDropdown('genre', event)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+                                <span class="{{ old('genre_id', $buku->genre_id) ? '' : 'text-muted' }}">{{ old('genre_id', $buku->genre_id) ? $genres->firstWhere('id', old('genre_id', $buku->genre_id))?->nama : '-- Pilih / Tambah Baru --' }}</span>
+                                <i class="bi bi-chevron-down" style="font-size:12px"></i>
+                            </div>
+                            <div class="custom-dropdown-menu" id="genreDropdown" style="display:none;position:absolute;top:100%;left:0;z-index:9999;background:white;border:1px solid #ced4da;border-radius:4px;width:100%;max-height:200px;overflow-y:auto;box-shadow:0 4px 6px rgba(0,0,0,0.1)">
+                                <div style="padding:8px;border-bottom:1px solid #eee">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Cari..." onkeyup="filterDropdown('genre', this.value)" style="font-size:12px">
+                                </div>
+                                @foreach($genres as $g)
+                                <div class="dropdown-item" data-search="{{ strtolower($g->nama) }}" onclick="selectOption('genre', {{ $g->id }}, '{{ addslashes($g->nama) }}')" style="padding:8px 12px;cursor:pointer;font-size:13px;{{ $g->id == old('genre_id', $buku->genre_id) ? 'background:#e9ecef;font-weight:600' : '' }}">{{ $g->nama }}</div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary" onclick="toggleNew('genre')">+ Baru</button>
+                    </div>
+                    <input type="text" name="genre_baru" id="genreBaru" class="form-control mt-2" placeholder="Ketik genre baru..." style="display:none">
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Deskripsi Buku</label>
