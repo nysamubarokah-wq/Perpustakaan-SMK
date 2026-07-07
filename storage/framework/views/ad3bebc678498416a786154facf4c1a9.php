@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title><?php echo e($buku->judul); ?> - Perpustakaan SMK Maarif</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
@@ -570,31 +571,18 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
             </a>
             <div class="d-flex align-items-center gap-3">
                 <?php if(auth()->guard()->check()): ?>
-                    <div style="position:relative">
-                        <button onclick="toggleNotifikasi()" style="background:none;border:none;cursor:pointer;padding:6px;position:relative">
-                            <i class="bi bi-bell" style="font-size:20px;color:#1a6e35"></i>
-                            <?php if($notifikasiCount > 0): ?>
-                                <span style="position:absolute;top:0;right:0;background:#e74c3c;color:white;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center"><?php echo e($notifikasiCount); ?></span>
-                            <?php endif; ?>
-                        </button>
-                        <div id="notifikasiDropdown" style="display:none;position:absolute;right:0;top:100%;width:320px;background:white;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.15);z-index:1000;max-height:400px;overflow-y:auto">
-                            <div style="padding:14px 16px;border-bottom:1px solid #eee;font-weight:700;font-size:14px;color:#222">
-                                <i class="bi bi-bell-fill" style="color:#1a6e35"></i> Notifikasi
-                            </div>
-                            <?php $__empty_1 = true; $__currentLoopData = $notifikasiList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notif): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                                <div style="padding:12px 16px;border-bottom:1px solid #f3f4f6;background:#f0fdf4">
-                                    <div style="font-size:12px;font-weight:700;color:#1a6e35;margin-bottom:4px"><?php echo e($notif->judul); ?></div>
-                                    <div style="font-size:12px;color:#555;line-height:1.4"><?php echo e($notif->pesan); ?></div>
-                                    <div style="font-size:11px;color:#999;margin-top:4px"><?php echo e($notif->created_at->diffForHumans()); ?></div>
-                                </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                                <div style="padding:30px 16px;text-align:center;color:#999;font-size:13px">
-                                    <i class="bi bi-bell-slash" style="font-size:24px;display:block;margin-bottom:8px"></i>
-                                    Tidak ada notifikasi baru
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                    <?php
+                        $detailUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+                    ?>
+                    <a href="<?php echo e(route('notifikasi.index')); ?>" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
+                        <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
+                        <?php if($detailUnreadCount > 0): ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                                <?php echo e($detailUnreadCount > 99 ? '99+' : $detailUnreadCount); ?>
+
+                            </span>
+                        <?php endif; ?>
+                    </a>
                 <?php endif; ?>
                 <a href="#" onclick="kembaliKeKoleksi()" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
                     <i class="bi bi-arrow-left"></i> Kembali

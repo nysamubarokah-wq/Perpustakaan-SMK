@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Anggota;
 use App\Models\User;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 
 class AnggotaController extends Controller
@@ -300,6 +301,17 @@ class AnggotaController extends Controller
         }
 
         fclose($file);
+
+        $userId = auth()->id();
+
+        if ($berhasil > 0) {
+            NotifikasiService::importBerhasil($userId, 'anggota', $berhasil);
+        }
+
+        if ($gagal > 0 && $berhasil == 0) {
+            NotifikasiService::importGagal($userId, 'anggota', "Format tidak valid atau data tidak lengkap. {$gagal} baris dilewati.");
+            return redirect()->route('anggota.index')->with('error', "Import gagal. {$gagal} baris tidak valid.");
+        }
 
         return redirect()->route('anggota.index')->with('success', "$berhasil anggota berhasil diimport." . ($gagal > 0 ? " $gagal baris dilewati." : ''));
     }

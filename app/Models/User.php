@@ -49,6 +49,11 @@ public function notifikasi()
     return $this->hasMany(\App\Models\Notifikasi::class);
 }
 
+public function notifications()
+{
+    return $this->hasMany(\App\Models\Notification::class);
+}
+
 public function anggota()
 {
     return $this->hasOne(\App\Models\Anggota::class, 'user_id');

@@ -73,26 +73,29 @@
         .hero-content { position: relative; text-align: center; color: white; padding: 60px 20px 20px; }
         .hero-content h1 { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
         .hero-content p { font-size: 15px; opacity: 0.85; }
-        .page-section { padding: 32px 0 60px; }
+        .page-section { padding: 20px 0 40px; }
         .book-grid { display: flex; flex-wrap: wrap; }
-        .book-grid > [class*="col-"] { display: flex; margin-bottom: 1rem; }
-        .book-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1); height: 100%; display: flex; flex-direction: column; width: 100%; }
-        .book-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
-        .book-card-cover { height: 220px; position: relative; overflow: hidden; }
+        .book-grid > [class*="col-"] { display: flex; margin-bottom: 0.75rem; }
+        .book-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1); height: 100%; display: flex; flex-direction: column; width: 100%; }
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
+        .book-card-cover { height: 160px; position: relative; overflow: hidden; }
+        @media (max-width: 768px) { .book-card-cover { height: 140px; } }
+        @media (max-width: 480px) { .book-card-cover { height: 130px; } }
         .book-card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
         .book-card:hover .book-card-cover img { transform: scale(1.05); }
-        .book-card-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 50px; color: rgba(255,255,255,0.5); }
-        .book-card-body { padding: 12px; display: flex; flex-direction: column; flex: 1; gap: 2px; }
-        .book-card-body h5 { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.2em; line-height: 1.3; }
-        .book-card-meta { font-size: 12px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 5px; }
-        .book-card-genre { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; background: #f0f0f0; color: #666; margin-top: 4px; align-self: flex-start; }
-        .badge-trending { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 5; }
-        .btn-favorit { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.15); z-index: 5; transition: all 0.2s; }
-        .btn-favorit:hover { transform: scale(1.15); }
-        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .book-card-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: rgba(255,255,255,0.5); }
+        .book-card-body { padding: 8px 10px; display: flex; flex-direction: column; flex: 1; gap: 1px; }
+        .book-card-body h5 { font-size: 12px; font-weight: 700; color: #1a1a2e; margin-bottom: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2em; line-height: 1.25; }
+        .book-card-meta { font-size: 11px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 4px; }
+        .book-card-genre { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 600; background: #f0f0f0; color: #666; margin-top: 3px; align-self: flex-start; }
+        .badge-trending { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; }
+        .btn-favorit { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5; transition: all 0.2s; }
+        .btn-favorit:hover { transform: scale(1.12); }
+        .btn-favorit i { font-size: 14px !important; }
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
         .status-ada { background: #d4edda; color: #1a6e35; }
         .status-habis { background: #f8d7da; color: #721c24; }
-        .btn-detail { display: block; width: 100%; padding: 11px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; border: none; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; text-decoration: none; transition: all 0.3s; margin-top: auto; }
+        .btn-detail { display: block; width: 100%; padding: 8px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; border: none; border-radius: 10px; font-size: 12px; font-weight: 600; text-align: center; text-decoration: none; transition: all 0.3s; margin-top: auto; }
         .btn-detail:hover { opacity: 0.9; transform: scale(1.02); color: white; }
         .btn-detail-disabled { background: #e9ecef; color: #aaa; cursor: not-allowed; pointer-events: none; }
         .cover-1 { background: linear-gradient(135deg, #4a5568, #718096); }
@@ -158,11 +161,7 @@
             .hero { height: 20vh; min-height: 140px; margin-top: 56px; }
             .hero-content h1 { font-size: 20px; }
             .hero-content p { font-size: 12px; }
-            .page-section { padding: 20px 0 40px; }
-            .book-card-cover { height: 170px; }
-            .book-card-body { padding: 12px; }
-            .book-card-body h5 { font-size: 13px; min-height: 2.2em; }
-            .book-card-meta { font-size: 11px; }
+            .page-section { padding: 16px 0 30px; }
             .search-box { padding: 14px; margin-top: -16px; border-radius: 12px; }
             .search-input { padding: 12px 16px 12px 42px; font-size: 14px; }
             .penerbit-chip { padding: 8px 16px; font-size: 12px; }
@@ -175,10 +174,7 @@
         }
 
         @media (max-width: 480px) {
-            .book-card-cover { height: 140px; }
-            .book-card-body { padding: 10px; }
-            .book-card-body h5 { font-size: 12px; min-height: 2em; }
-            .book-card-meta { font-size: 10px; }
+            .page-section { padding: 12px 0 24px; }
         }
 
         body.dark-mode { background: #121212; color: #e0e0e0; }
@@ -316,6 +312,17 @@
                     </li>
                 </ul>
                 <button id="darkModeToggle" class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-moon-fill"></i></button>
+                @php
+                    $userUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+                @endphp
+                <a href="{{ route('notifikasi.index') }}" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
+                    <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
+                    @if($userUnreadCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                            {{ $userUnreadCount > 99 ? '99+' : $userUnreadCount }}
+                        </span>
+                    @endif
+                </a>
                 <div class="nav-item">
                     <a href="#" onclick="toggleProfil(event)">
                       @if(auth()->user()->foto)
@@ -413,27 +420,26 @@
                         @endif
                         <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
                             @if(in_array($item->id, $favoritIds ?? []))
-                                <i class="bi bi-heart-fill" style="color:#e74c3c;font-size:15px"></i>
+                                <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
                             @else
-                                <i class="bi bi-heart" style="color:#999;font-size:15px"></i>
+                                <i class="bi bi-heart" style="color:#999"></i>
                             @endif
                         </button>
                     </div>
                     <div class="book-card-body">
                         <h5>{{ $item->judul }}</h5>
                         <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                        <p class="book-card-meta"><i class="bi bi-building"></i> {{ $item->penerbit }}</p>
                         @if($item->genre)<span class="book-card-genre">{{ $item->genre }}</span>@endif
-                        <div style="margin-top:auto;margin-bottom:10px">
+                        <div style="margin-top:auto;padding-top:4px">
                             <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
                                 {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
                             </span>
-                            <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#fff3cd;color:#d97706;margin-left:4px">{{ $item->peminjaman_count }}x dipinjam</span>
+                            <span style="display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:600;background:#fff3cd;color:#d97706;margin-left:4px">{{ $item->peminjaman_count }}x</span>
                         </div>
                         @if($item->stok > 0)
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail"><i class="bi bi-eye"></i> Detail</a>
+                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:6px"><i class="bi bi-eye"></i> Detail</a>
                         @else
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail btn-detail-disabled"><i class="bi bi-eye"></i> Detail</a>
+                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail btn-detail-disabled" style="margin-top:6px"><i class="bi bi-eye"></i> Detail</a>
                         @endif
                     </div>
                 </div>
@@ -637,9 +643,9 @@ function performSearch() {
         var statusClass = item.stok > 0 ? 'status-ada' : 'status-habis';
         var statusText = item.stok > 0 ? 'Tersedia (' + item.stok + ')' : 'Dipinjam';
         var btnHtml = item.stok > 0
-            ? '<a href="/buku/' + item.id + '/detail" class="btn-detail" style="margin-top:10px"><i class="bi bi-eye"></i> Detail</a>'
-            : '<a href="/buku/' + item.id + '/detail" class="btn-detail btn-detail-disabled" style="margin-top:10px">Tidak Tersedia</a>';
-        var favIcon = isFav ? '<i class="bi bi-heart-fill" style="color:#e74c3c;font-size:15px"></i>' : '<i class="bi bi-heart" style="color:#999;font-size:15px"></i>';
+            ? '<a href="/buku/' + item.id + '/detail" class="btn-detail" style="margin-top:6px"><i class="bi bi-eye"></i> Detail</a>'
+            : '<a href="/buku/' + item.id + '/detail" class="btn-detail btn-detail-disabled" style="margin-top:6px">Tidak Tersedia</a>';
+        var favIcon = isFav ? '<i class="bi bi-heart-fill" style="color:#e74c3c"></i>' : '<i class="bi bi-heart" style="color:#999"></i>';
 
         var html = '<div class="col-6 col-md-4 col-lg-3">' +
             '<div class="book-card">' +
@@ -649,10 +655,9 @@ function performSearch() {
             '<div class="book-card-body">' +
             '<h5>' + item.judul + '</h5>' +
             '<p class="book-card-meta"><i class="bi bi-person"></i> ' + item.pengarang + '</p>' +
-            '<p class="book-card-meta"><i class="bi bi-building"></i> ' + (item.penerbit || '-') + '</p>' +
             genreHtml +
-            '<div style="margin-top:auto;margin-bottom:10px"><span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
-            '<span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:#fff3cd;color:#d97706;margin-left:4px">' + item.peminjaman_count + 'x dipinjam</span></div>' +
+            '<div style="margin-top:auto;padding-top:4px"><span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
+            '<span style="display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:600;background:#fff3cd;color:#d97706;margin-left:4px">' + item.peminjaman_count + 'x</span></div>' +
             btnHtml +
             '</div></div></div>';
         searchGrid.insertAdjacentHTML('beforeend', html);

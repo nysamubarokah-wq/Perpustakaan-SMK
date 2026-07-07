@@ -7,10 +7,10 @@ use App\Models\Buku;
 use App\Models\Denda;
 use App\Models\EksemplarBuku;
 use App\Models\Favorit;
-use App\Models\Notifikasi;
 use App\Models\Peminjaman;
 use App\Models\Ulasan;
 use App\Models\User;
+use App\Services\NotifikasiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -49,28 +49,15 @@ class PinjamController extends Controller
                 ->get()
             : collect();
 
-        $notifikasiList = collect();
-        $notifikasiCount = 0;
+        $unreadCount = 0;
         if (auth()->check()) {
-            $notifikasiList = Notifikasi::where('user_id', auth()->id())
-                ->whereNull('dibaca_pada')
-                ->with('ulasan.buku')
-                ->latest()
-                ->limit(10)
-                ->get();
-            $notifikasiCount = $notifikasiList->count();
-
-            $ulasanIds = $ulasanList->where('user_id', auth()->id())->pluck('id');
-            Notifikasi::where('user_id', auth()->id())
-                ->whereIn('ulasan_id', $ulasanIds)
-                ->whereNull('dibaca_pada')
-                ->update(['dibaca_pada' => now()]);
+            $unreadCount = NotifikasiService::unreadCount(auth()->id());
         }
 
         $stokTersedia = $buku->eksemplarTersedia()->count();
 
         return view('pinjam.detail', compact(
-            'buku', 'isFavorit', 'ulasanList', 'avgRating', 'totalUlasan', 'ulasanSaya', 'bolehUlasan', 'rekomendasi', 'notifikasiList', 'notifikasiCount', 'stokTersedia'
+            'buku', 'isFavorit', 'ulasanList', 'avgRating', 'totalUlasan', 'ulasanSaya', 'bolehUlasan', 'rekomendasi', 'unreadCount', 'stokTersedia'
         ));
     }
 
@@ -149,13 +136,11 @@ class PinjamController extends Controller
             return back()->with('error', 'Kamu sudah meminjam eksemplar ini.');
         }
 
-        // Update status eksemplar
         $eksemplar->update(['status' => 'dipinjam']);
 
-        // Update stok buku
         $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
 
-        Peminjaman::create([
+        $peminjaman = Peminjaman::create([
             'anggota_id' => $anggota->id,
             'buku_id' => $buku->id,
             'eksemplar_id' => $eksemplar->id,
@@ -164,6 +149,11 @@ class PinjamController extends Controller
             'status' => 'menunggu_konfirmasi',
             'tipe_konfirmasi' => 'pinjam',
         ]);
+
+        $adminUsers = User::where('role', 'admin')->get();
+        foreach ($adminUsers as $admin) {
+            NotifikasiService::permintaanPinjamBaru($admin->id, $user->name, $buku->judul, $peminjaman->id);
+        }
 
         $redirectUrl = $request->input('redirect_url') ?: route('koleksi.index');
 
@@ -179,13 +169,10 @@ class PinjamController extends Controller
             return back()->with('error', 'Status peminjaman tidak valid.');
         }
 
-        // Eksemplar sudah di-status-kan 'dipinjam' saat request, jadi tidak perlu ubah lagi
-        // Tapi pastikan status benar
         if ($peminjaman->eksemplar) {
             $peminjaman->eksemplar->update(['status' => 'dipinjam']);
         }
 
-        // Update stok buku
         if ($peminjaman->buku) {
             $peminjaman->buku->update(['stok' => $peminjaman->buku->eksemplarTersedia()->count()]);
         }
@@ -195,6 +182,8 @@ class PinjamController extends Controller
         $user = User::where('email', $peminjaman->anggota->email)->first();
         if ($user) {
             $user->increment('coin', 10);
+            NotifikasiService::coinBertambah($user->id, 10, 'Peminjaman buku');
+            NotifikasiService::pinjamDisetujui($user->id, $peminjaman);
         }
 
         return back()->with('success', 'Peminjaman "'.$peminjaman->buku->judul.'" ('.($peminjaman->eksemplar->kode_buku ?? '-').') oleh '.$peminjaman->anggota->nama.' berhasil dikonfirmasi!');
@@ -202,20 +191,25 @@ class PinjamController extends Controller
 
     public function tolakPinjam($id)
     {
-        $peminjaman = Peminjaman::with(['buku', 'eksemplar'])->findOrFail($id);
+        $peminjaman = Peminjaman::with(['buku', 'eksemplar', 'anggota'])->findOrFail($id);
 
         if ($peminjaman->status !== 'menunggu_konfirmasi') {
             return back()->with('error', 'Status peminjaman tidak valid.');
         }
 
-        // Kembalikan status eksemplar ke tersedia
         if ($peminjaman->eksemplar) {
             $peminjaman->eksemplar->update(['status' => 'tersedia']);
         }
 
-        // Update stok buku
         if ($peminjaman->buku) {
             $peminjaman->buku->update(['stok' => $peminjaman->buku->eksemplarTersedia()->count()]);
+        }
+
+        $user = User::where('email', $peminjaman->anggota->email)->first();
+        $judulBuku = $peminjaman->buku ? $peminjaman->buku->judul : 'buku';
+
+        if ($user) {
+            NotifikasiService::pinjamDitolak($user->id, $judulBuku);
         }
 
         $peminjaman->delete();
@@ -287,7 +281,7 @@ class PinjamController extends Controller
 
     public function setujuiKembali($id)
     {
-        $peminjaman = Peminjaman::findOrFail($id);
+        $peminjaman = Peminjaman::with(['buku', 'anggota'])->findOrFail($id);
 
         if ($peminjaman->status === 'menunggu_pengembalian' ||
             ($peminjaman->status === 'menunggu_konfirmasi' && $peminjaman->tipe_konfirmasi === 'kembali')) {
@@ -318,14 +312,17 @@ class PinjamController extends Controller
                 );
             }
 
-            // Kembalikan status eksemplar
             if ($peminjaman->eksemplar) {
                 $peminjaman->eksemplar->update(['status' => 'tersedia']);
             }
 
-            // Update stok buku
             $buku = Buku::findOrFail($peminjaman->buku_id);
             $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
+
+            $user = User::where('email', $peminjaman->anggota->email)->first();
+            if ($user) {
+                NotifikasiService::pengembalianBerhasil($user->id, $peminjaman);
+            }
 
             return redirect()->back()->with('success', 'Pengembalian buku berhasil disetujui dan eksemplar telah dikembalikan!');
         }

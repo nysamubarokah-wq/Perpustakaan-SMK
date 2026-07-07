@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Anggota;
 use App\Models\Buku;
+use App\Models\Genre;
 use App\Models\Peminjaman;
 
 class DashboardController extends Controller
@@ -14,12 +15,14 @@ class DashboardController extends Controller
         $totalAnggota    = Anggota::count();
         $totalPeminjaman = Peminjaman::count();
         $sedangDipinjam  = Peminjaman::where('status', 'dipinjam')->count();
+        $genreList       = Genre::orderBy('nama')->get();
 
         return view('dashboard', compact(
             'totalBuku',
             'totalAnggota',
             'totalPeminjaman',
-            'sedangDipinjam'
+            'sedangDipinjam',
+            'genreList'
         ));
     }
 }

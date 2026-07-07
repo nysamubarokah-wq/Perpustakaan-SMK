@@ -7,6 +7,7 @@ use App\Models\Buku;
 use App\Models\Notifikasi;
 use App\Models\Peminjaman;
 use App\Models\Ulasan;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
@@ -108,14 +109,16 @@ public function balas(Request $request, Ulasan $ulasan)
         'balasan_admin' => $request->balasan_admin,
     ]);
 
-    // Buat notifikasi untuk user
-    Notifikasi::create([
-        'user_id' => $ulasan->user_id,
-        'ulasan_id' => $ulasan->id,
-        'tipe' => 'balasan_admin',
-        'judul' => 'Admin Membalas Ulasanmu',
-        'pesan' => 'Admin membalas ulasan kamu di buku "' . ($ulasan->buku->judul ?? '-') . '": ' . Str::limit($request->balasan_admin, 100),
-    ]);
+    $bukuJudul = $ulasan->buku->judul ?? '-';
+    NotifikasiService::createCustomNotification(
+        userId: $ulasan->user_id,
+        judul: 'Admin Membalas Ulasanmu',
+        pesan: "Admin membalas ulasan kamu di buku \"{$bukuJudul}\": " . Str::limit($request->balasan_admin, 100),
+        type: 'balasan_admin',
+        icon: 'chat-dots',
+        warna: '#3498db',
+        link: route('buku.detail', $ulasan->buku_id)
+    );
 
     return back()->with('success', 'Balasan berhasil dikirim.');
 }

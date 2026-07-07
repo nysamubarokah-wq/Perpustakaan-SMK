@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ebook;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 
 class EbookController extends Controller
@@ -172,24 +173,32 @@ public function adminUpdate(Request $request, $id)
         return back()->with('success', 'E-book berhasil dihapus!');
     }
     public function beliDenganKoin($id)
-{
-    $user = auth()->user();
-    $ebook = Ebook::findOrFail($id);
+    {
+        $user = auth()->user();
+        $ebook = Ebook::findOrFail($id);
 
-    if ($user->coin < $ebook->harga_koin) {
-        return back()->with('error', 'Koin tidak cukup!');
+        if ($user->coin < $ebook->harga_koin) {
+            return back()->with('error', 'Koin tidak cukup!');
+        }
+
+        $user->decrement('coin', $ebook->harga_koin);
+
+        \App\Models\EbookAccess::firstOrCreate([
+            'user_id'  => $user->id,
+            'ebook_id' => $ebook->id,
+        ]);
+
+        NotifikasiService::createCustomNotification(
+            userId: $user->id,
+            judul: 'E-book Dibeli!',
+            pesan: "Kamu berhasil membeli \"{$ebook->judul}\". Selamat membaca!",
+            type: 'ebook_dibeli',
+            icon: 'book-half',
+            warna: '#27ae60',
+            link: route('ebook.baca', $ebook->id)
+        );
+
+        return redirect()->route('ebook.baca', $ebook->id)
+                         ->with('success', 'Berhasil! Selamat membaca');
     }
-
-    // Potong koin
-    $user->decrement('coin', $ebook->harga_koin);
-
-    // Catat akses (buat tabel ebook_access dulu kalau belum ada)
-    \App\Models\EbookAccess::firstOrCreate([
-        'user_id'  => $user->id,
-        'ebook_id' => $ebook->id,
-    ]);
-
-    return redirect()->route('ebook.baca', $ebook->id)
-                     ->with('success', 'Berhasil! Selamat membaca 📖');
-}
 }

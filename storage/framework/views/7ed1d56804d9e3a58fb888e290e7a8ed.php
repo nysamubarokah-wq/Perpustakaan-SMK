@@ -1,8 +1,8 @@
-@php
+<?php
     $user = auth()->user();
     $filters = ['semua' => 'Semua', 'dipinjam' => 'Sedang Dipinjam', 'dikembalikan' => 'Sudah Dikembalikan', 'terlambat' => 'Terlambat', 'menunggu' => 'Menunggu Konfirmasi'];
     $currentFilter = request('filter', 'semua');
-@endphp
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -11,7 +11,7 @@
     <title>Riwayat Peminjaman - Perpustakaan SMK Maarif</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { overflow-x: hidden; -webkit-text-size-adjust: 100%; }
@@ -265,11 +265,11 @@
     <nav class="navbar">
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center justify-content-between w-100">
-                <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                    <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
+                <a href="<?php echo e(route('koleksi.index')); ?>" class="d-flex align-items-center gap-2 text-decoration-none">
+                    <img src="<?php echo e(asset('images/logo.jpg')); ?>" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                     <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
                 </a>
-                <a href="{{ route('profil.index') }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+                <a href="<?php echo e(route('profil.index')); ?>" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -279,31 +279,31 @@
     <div class="main-container">
         <div class="profil-card">
             <div class="profil-header">
-                <a href="{{ route('profil.index') }}" style="background:rgba(255,255,255,0.2);border:none;color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:background 0.2s;flex-shrink:0">
+                <a href="<?php echo e(route('profil.index')); ?>" style="background:rgba(255,255,255,0.2);border:none;color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:background 0.2s;flex-shrink:0">
                     <i class="bi bi-arrow-left"></i>
                 </a>
                 <h2><i class="bi bi-clock-history me-2"></i>Riwayat Peminjaman</h2>
             </div>
             <div class="profil-body">
                 <div class="filter-tabs">
-                    @foreach($filters as $key => $label)
-                        <a href="{{ route('profil.riwayat', array_merge(request()->except('filter'), ['filter' => $key])) }}"
-                           class="filter-tab {{ $currentFilter === $key ? 'active' : '' }}">{{ $label }}</a>
-                    @endforeach
+                    <?php $__currentLoopData = $filters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <a href="<?php echo e(route('profil.riwayat', array_merge(request()->except('filter'), ['filter' => $key]))); ?>"
+                           class="filter-tab <?php echo e($currentFilter === $key ? 'active' : ''); ?>"><?php echo e($label); ?></a>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
 
-                <form method="GET" action="{{ route('profil.riwayat') }}" class="search-bar">
-                    <input type="hidden" name="filter" value="{{ $currentFilter }}">
-                    <input type="text" name="cari" placeholder="Cari judul atau kode buku..." value="{{ request('cari') }}">
+                <form method="GET" action="<?php echo e(route('profil.riwayat')); ?>" class="search-bar">
+                    <input type="hidden" name="filter" value="<?php echo e($currentFilter); ?>">
+                    <input type="text" name="cari" placeholder="Cari judul atau kode buku..." value="<?php echo e(request('cari')); ?>">
                     <button type="submit"><i class="bi bi-search"></i></button>
-                    @if(request('cari'))
-                        <a href="{{ route('profil.riwayat', ['filter' => $currentFilter]) }}" class="btn btn-secondary">Reset</a>
-                    @endif
+                    <?php if(request('cari')): ?>
+                        <a href="<?php echo e(route('profil.riwayat', ['filter' => $currentFilter])); ?>" class="btn btn-secondary">Reset</a>
+                    <?php endif; ?>
                 </form>
 
-                @if($peminjaman->count() > 0)
-                    @foreach($peminjaman as $item)
-                        @php
+                <?php if($peminjaman->count() > 0): ?>
+                    <?php $__currentLoopData = $peminjaman; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php
                             $badgeClass = 'status-dipinjam';
                             $badgeText = 'Dipinjam';
                             if ($item->status === 'dikembalikan') {
@@ -319,50 +319,51 @@
                                 $badgeClass = 'status-terlambat';
                                 $badgeText = 'Terlambat';
                             }
-                        @endphp
-                        <a href="{{ route('profil.riwayat.detail', $item->id) }}" class="history-item">
-                            @if($item->buku && $item->buku->sampul)
-                                <img src="{{ asset($item->buku->sampul) }}" class="history-cover" alt="{{ $item->buku->judul }}">
-                            @else
+                        ?>
+                        <a href="<?php echo e(route('profil.riwayat.detail', $item->id)); ?>" class="history-item">
+                            <?php if($item->buku && $item->buku->sampul): ?>
+                                <img src="<?php echo e(asset($item->buku->sampul)); ?>" class="history-cover" alt="<?php echo e($item->buku->judul); ?>">
+                            <?php else: ?>
                                 <div class="cover-placeholder"><i class="bi bi-book"></i></div>
-                            @endif
+                            <?php endif; ?>
                             <div class="history-info">
-                                <div class="history-title">{{ $item->buku->judul ?? 'Buku tidak ditemukan' }}</div>
+                                <div class="history-title"><?php echo e($item->buku->judul ?? 'Buku tidak ditemukan'); ?></div>
                                 <div class="history-code">
-                                    @if($item->eksemplar){{ $item->eksemplar->kode_buku }}@endif
+                                    <?php if($item->eksemplar): ?><?php echo e($item->eksemplar->kode_buku); ?><?php endif; ?>
                                 </div>
                                 <div class="history-meta">
-                                    <span><i class="bi bi-calendar"></i> {{ $item->tanggal_pinjam }}</span>
-                                    <span><i class="bi bi-calendar-x"></i> {{ $item->tanggal_kembali }}</span>
-                                    @if($item->tanggal_dikembalikan)
-                                        <span><i class="bi bi-check-circle"></i> {{ $item->tanggal_dikembalikan }}</span>
-                                    @endif
+                                    <span><i class="bi bi-calendar"></i> <?php echo e($item->tanggal_pinjam); ?></span>
+                                    <span><i class="bi bi-calendar-x"></i> <?php echo e($item->tanggal_kembali); ?></span>
+                                    <?php if($item->tanggal_dikembalikan): ?>
+                                        <span><i class="bi bi-check-circle"></i> <?php echo e($item->tanggal_dikembalikan); ?></span>
+                                    <?php endif; ?>
                                 </div>
-                                @if($item->terlambat_hari > 0)
-                                    <div class="fine-info mt-1"><i class="bi bi-exclamation-triangle"></i> Terlambat {{ $item->terlambat_hari }} hari</div>
-                                @endif
-                                @if($item->denda)
-                                    <div class="fine-info"><i class="bi bi-currency-dollar"></i> Denda: Rp {{ number_format($item->denda->jumlah_denda ?? $item->denda, 0, ',', '.') }}</div>
-                                @endif
+                                <?php if($item->terlambat_hari > 0): ?>
+                                    <div class="fine-info mt-1"><i class="bi bi-exclamation-triangle"></i> Terlambat <?php echo e($item->terlambat_hari); ?> hari</div>
+                                <?php endif; ?>
+                                <?php if($item->denda): ?>
+                                    <div class="fine-info"><i class="bi bi-currency-dollar"></i> Denda: Rp <?php echo e(number_format($item->denda->jumlah_denda ?? $item->denda, 0, ',', '.')); ?></div>
+                                <?php endif; ?>
                             </div>
                             <div class="history-right">
-                                <span class="status-badge {{ $badgeClass }}">{{ $badgeText }}</span>
-                                @if($item->terlambat_hari > 0)
-                                    <div class="fine-info">Rp {{ number_format($item->taksiran_denda, 0, ',', '.') }}</div>
-                                @endif
+                                <span class="status-badge <?php echo e($badgeClass); ?>"><?php echo e($badgeText); ?></span>
+                                <?php if($item->terlambat_hari > 0): ?>
+                                    <div class="fine-info">Rp <?php echo e(number_format($item->taksiran_denda, 0, ',', '.')); ?></div>
+                                <?php endif; ?>
                             </div>
                         </a>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
                     <div class="pagination-wrap">
-                        {{ $peminjaman->withQueryString()->links() }}
+                        <?php echo e($peminjaman->withQueryString()->links()); ?>
+
                     </div>
-                @else
+                <?php else: ?>
                     <div class="empty-state">
                         <i class="bi bi-journal-x"></i>
                         <p>Tidak ada riwayat peminjaman</p>
                     </div>
-                @endif
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -374,3 +375,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\PerpustakaanDigital\resources\views/profil/riwayat.blade.php ENDPATH**/ ?>

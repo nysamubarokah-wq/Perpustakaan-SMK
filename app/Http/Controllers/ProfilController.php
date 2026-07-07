@@ -8,6 +8,8 @@ use App\Models\Denda;
 use App\Models\Ebook;
 use App\Models\Favorit;
 use App\Models\Peminjaman;
+use App\Models\User;
+use App\Services\NotifikasiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -67,7 +69,7 @@ class ProfilController extends Controller
 
     public function kembalikan($id)
     {
-        $peminjaman = Peminjaman::findOrFail($id);
+        $peminjaman = Peminjaman::with('buku')->findOrFail($id);
 
         $peminjaman->update([
             'status' => 'menunggu_konfirmasi',
@@ -92,6 +94,13 @@ class ProfilController extends Controller
                     'keterangan' => 'Terlambat '.$selisihHari.' hari',
                 ]);
             }
+        }
+
+        $adminUsers = User::where('role', 'admin')->get();
+        $user = auth()->user();
+        $judulBuku = $peminjaman->buku ? $peminjaman->buku->judul : 'buku';
+        foreach ($adminUsers as $admin) {
+            NotifikasiService::permintaanPengembalianBaru($admin->id, $user->name, $judulBuku);
         }
 
         return redirect()->back()->with('success', 'Buku berhasil diajukan untuk dikembalikan! Menunggu konfirmasi admin.');

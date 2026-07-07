@@ -6,6 +6,7 @@ use App\Models\Buku;
 use App\Models\EksemplarBuku;
 use App\Models\Genre;
 use App\Models\Penerbit;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 use ZipArchive;
 
@@ -346,6 +347,17 @@ class BukuController extends Controller
         }
 
         fclose($file);
+
+        $userId = auth()->id();
+
+        if ($berhasil > 0) {
+            NotifikasiService::importBerhasil($userId, 'buku', $berhasil);
+        }
+
+        if ($gagalGambar > 0 && $berhasil == 0) {
+            NotifikasiService::importGagal($userId, 'buku', "Format tidak valid atau file corrupted. {$gagalGambar} gambar gagal.");
+            return redirect()->route('buku.index')->with('error', "Import gagal. {$gagalGambar} gambar gagal didownload.");
+        }
 
         $pesan = "$berhasil buku berhasil diimport.";
         if ($dilewati > 0) $pesan .= " $dilewati dilewati (ISBN duplikat).";

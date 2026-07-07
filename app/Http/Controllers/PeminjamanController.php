@@ -6,6 +6,8 @@ use App\Models\Peminjaman;
 use App\Models\Anggota;
 use App\Models\Buku;
 use App\Models\EksemplarBuku;
+use App\Models\User;
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 
 class PeminjamanController extends Controller
@@ -130,20 +132,20 @@ class PeminjamanController extends Controller
         }
 
         foreach ($pending as $peminjaman) {
-            // Pastikan eksemplar status dipinjam
             if ($peminjaman->eksemplar) {
                 $peminjaman->eksemplar->update(['status' => 'dipinjam']);
             }
             $peminjaman->update(['status' => 'dipinjam']);
 
-            // Update stok buku
             if ($peminjaman->buku) {
                 $peminjaman->buku->update(['stok' => $peminjaman->buku->eksemplarTersedia()->count()]);
             }
 
-            $user = \App\Models\User::where('email', $peminjaman->anggota->email)->first();
+            $user = User::where('email', $peminjaman->anggota->email)->first();
             if ($user) {
                 $user->increment('coin', 10);
+                NotifikasiService::coinBertambah($user->id, 10, 'Peminjaman buku');
+                NotifikasiService::pinjamDisetujui($user->id, $peminjaman);
             }
         }
 

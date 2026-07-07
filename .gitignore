@@ -26,3 +26,15 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 
+# Upload Files
+/public/images/buku/*
+!/public/images/buku/.gitignore
+
+/public/qrcode/*
+!/public/qrcode/.gitignore
+
+/public/ebooks/*
+!/public/ebooks/.gitignore
+
+/public/foto-profil/*
+!/public/foto-profil/.gitignore

@@ -18,6 +18,17 @@
                     <a class="nav-link" href="{{ route('buku.index') }}"><i class="bi bi-book"></i> Buku</a>
                     <a class="nav-link" href="{{ route('anggota.index') }}"><i class="bi bi-people"></i> Anggota</a>
                     <a class="nav-link" href="{{ route('peminjaman.index') }}"><i class="bi bi-journal-check"></i> Peminjaman</a>
+                    @php
+                        $userUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+                    @endphp
+                    <a class="nav-link position-relative" href="{{ route('notifikasi.index') }}">
+                        <i class="bi bi-bell"></i>
+                        @if($userUnreadCount > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                                {{ $userUnreadCount > 99 ? '99+' : $userUnreadCount }}
+                            </span>
+                        @endif
+                    </a>
                     <form method="POST" action="{{ route('logout') }}" class="d-inline" onsubmit="return confirm('Yakin ingin logout?');">
                         @csrf
                         <button type="submit" class="btn btn-link nav-link">

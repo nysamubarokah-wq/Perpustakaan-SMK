@@ -15,6 +15,7 @@ use App\Http\Controllers\FavoritController;
 use App\Http\Controllers\UlasanController;
 use App\Http\Controllers\BarcodeController;
 use App\Http\Controllers\ImportTemplateController;
+use App\Http\Controllers\NotifikasiController;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 Route::get('/qrcode-test', function () {
@@ -37,6 +38,14 @@ Route::get('/', function () {
 // 2. RUTE SISWA / USER UMUM
 // ============================================================
 Route::middleware(['auth'])->group(function () {
+
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::post('/notifikasi/{id}/baca', [NotifikasiController::class, 'markRead'])->name('notifikasi.baca');
+    Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'markAllRead'])->name('notifikasi.bacaSemua');
+    Route::delete('/notifikasi/{id}', [NotifikasiController::class, 'destroy'])->name('notifikasi.destroy');
+    Route::post('/notifikasi/hapus-semua', [NotifikasiController::class, 'destroyAll'])->name('notifikasi.destroyAll');
+    Route::get('/notifikasi/unread-count', [NotifikasiController::class, 'getUnreadCount'])->name('notifikasi.unreadCount');
+    Route::get('/notifikasi/latest', [NotifikasiController::class, 'getLatest'])->name('notifikasi.latest');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

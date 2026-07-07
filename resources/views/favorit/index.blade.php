@@ -36,9 +36,9 @@
 
         .buku-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
             transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1);
             height: 100%;
             display: flex;
@@ -47,15 +47,17 @@
         }
 
         .buku-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.12);
         }
 
         .buku-cover {
-            height: 220px;
+            height: 160px;
             position: relative;
             overflow: hidden;
         }
+        @media (max-width: 768px) { .buku-cover { height: 140px; } }
+        @media (max-width: 480px) { .buku-cover { height: 130px; } }
 
         .buku-cover img {
             width: 100%;
@@ -74,7 +76,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 50px;
+            font-size: 40px;
             color: rgba(255,255,255,0.5);
         }
 
@@ -86,15 +88,15 @@
         .cover-6 { background: linear-gradient(135deg, #16a085, #1abc9c); }
 
         .buku-body {
-            padding: 12px;
+            padding: 8px 10px;
             display: flex;
             flex-direction: column;
             flex: 1;
-            gap: 2px;
+            gap: 1px;
         }
 
         .buku-body h5 {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: #1a1a2e;
             margin-bottom: 0;
@@ -102,17 +104,17 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            min-height: 2.2em;
-            line-height: 1.3;
+            min-height: 2em;
+            line-height: 1.25;
         }
 
-        .buku-meta { font-size: 12px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 5px; }
+        .buku-meta { font-size: 11px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 4px; }
 
         .stok-badge {
             display: inline-block;
             padding: 3px 10px;
             border-radius: 20px;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             align-self: flex-start;
         }
@@ -123,12 +125,12 @@
         .btn-detail-link {
             display: block;
             width: 100%;
-            padding: 11px;
+            padding: 8px;
             background: linear-gradient(135deg, #1a6e35, #27ae60);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 13px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 600;
             text-align: center;
             text-decoration: none;
@@ -142,19 +144,19 @@
             color: white;
         }
 
-        .empty-state { text-align: center; padding: 60px 0; }
-        .empty-state i { font-size: 60px; color: #ddd; margin-bottom: 15px; display: block; }
-        .empty-state p { color: #aaa; font-size: 15px; }
+        .empty-state { text-align: center; padding: 40px 0; }
+        .empty-state i { font-size: 50px; color: #ddd; margin-bottom: 12px; display: block; }
+        .empty-state p { color: #aaa; font-size: 14px; }
         .empty-state a {
             display: inline-block;
-            margin-top: 15px;
+            margin-top: 12px;
             background: linear-gradient(135deg,#1a6e35,#27ae60);
             color: white;
-            padding: 10px 25px;
+            padding: 8px 20px;
             border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         @media (max-width: 992px) {
@@ -164,38 +166,28 @@
         @media (max-width: 768px) {
             .main-container { margin-top: 80px; padding: 0 12px; margin-bottom: 30px; }
             .page-title { font-size: 18px; }
-            .buku-cover { height: 170px; }
-            .buku-cover-placeholder { font-size: 44px; }
-            .buku-body { padding: 10px; }
+            .buku-cover-placeholder { font-size: 36px; }
+            .buku-body { padding: 8px 10px; }
             .buku-body h5 { font-size: 12px; min-height: 2em; }
             .buku-meta { font-size: 11px; }
             .stok-badge { font-size: 10px; padding: 2px 8px; }
             .btn-detail-link { padding: 8px; font-size: 12px; }
-            .empty-state { padding: 50px 0; }
+            .empty-state { padding: 40px 0; }
             .empty-state i { font-size: 45px; }
-            .empty-state p { font-size: 14px; }
-        }
-
-        @media (max-width: 480px) {
-            .buku-cover { height: 140px; }
-            .buku-cover-placeholder { font-size: 40px; }
-            .buku-body { padding: 8px; }
-            .buku-body h5 { font-size: 11px; min-height: 1.8em; }
         }
 
         @media (max-width: 480px) {
             .main-container { margin-top: 75px; padding: 0 10px; margin-bottom: 25px; }
-            .page-title { font-size: 16px; margin-bottom: 18px; }
-            .buku-cover { height: 170px; }
-            .buku-cover-placeholder { font-size: 36px; }
-            .buku-body { padding: 12px; }
-            .buku-body h5 { font-size: 12px; margin-bottom: 3px; min-height: 2em; }
-            .buku-meta { font-size: 10px; margin-bottom: 2px; }
+            .page-title { font-size: 16px; margin-bottom: 16px; }
+            .buku-cover-placeholder { font-size: 32px; }
+            .buku-body { padding: 6px 8px; }
+            .buku-body h5 { font-size: 11px; min-height: 1.8em; }
+            .buku-meta { font-size: 10px; }
             .stok-badge { font-size: 9px; padding: 2px 7px; }
-            .btn-detail-link { padding: 7px; font-size: 11px; border-radius: 8px; }
-            .empty-state { padding: 40px 0; }
+            .btn-detail-link { padding: 6px; font-size: 11px; }
+            .empty-state { padding: 30px 0; }
             .empty-state i { font-size: 40px; }
-            .empty-state a { padding: 8px 20px; font-size: 12px; }
+            .empty-state a { padding: 6px 16px; font-size: 11px; }
         }
 
         /* DARK MODE */
@@ -278,11 +270,16 @@
                 <div class="buku-body">
                     <h5>{{ $item->judul }}</h5>
                     <p class="buku-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                    <span class="stok-badge {{ $item->stok > 0 ? 'stok-ada' : 'stok-habis' }}">
-                        {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Tidak Tersedia' }}
-                    </span>
+                    @if($item->genre)
+                    <span class="book-card-genre" style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:600;background:#f0f0f0;color:#666;margin-top:3px;align-self:flex-start">{{ $item->genre }}</span>
+                    @endif
+                    <div style="margin-top:auto;padding-top:4px">
+                        <span class="stok-badge {{ $item->stok > 0 ? 'stok-ada' : 'stok-habis' }}">
+                            {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Tidak Tersedia' }}
+                        </span>
+                    </div>
                     <a href="{{ route('buku.detail', $item->id) }}"
-                        class="btn-detail-link">
+                        class="btn-detail-link" style="margin-top:6px">
                         <i class="bi bi-eye"></i> Lihat Detail
                     </a>
                 </div>

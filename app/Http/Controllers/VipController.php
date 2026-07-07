@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\NotifikasiService;
 use Illuminate\Http\Request;
 
 class VipController extends Controller
@@ -28,7 +29,6 @@ class VipController extends Controller
             return back()->with('error', 'Koin tidak cukup! Kamu butuh ' . self::HARGA_VIP . ' koin.');
         }
 
-        // Kalau sudah VIP, perpanjang dari tanggal expired
         $mulai = ($user->is_vip && $user->vip_expired_at && now()->lt($user->vip_expired_at))
             ? $user->vip_expired_at
             : now();
@@ -39,7 +39,17 @@ class VipController extends Controller
             'vip_expired_at' => $mulai->addDays(self::DURASI_VIP),
         ]);
 
-        return back()->with('success', 'Selamat! Kamu sekarang VIP selama 7 hari 🎉');
+        NotifikasiService::createCustomNotification(
+            userId: $user->id,
+            judul: 'VIP Aktif!',
+            pesan: "Selamat! Kamu sekarang VIP selama " . self::DURASI_VIP . " hari. Nikmati batas pinjam 6 buku dan durasi 14 hari!",
+            type: 'vip_aktif',
+            icon: 'star-fill',
+            warna: '#f1c40f',
+            link: route('vip.index')
+        );
+
+        return back()->with('success', 'Selamat! Kamu sekarang VIP selama 7 hari');
     }
 
     // Admin: lihat daftar VIP

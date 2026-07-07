@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Perpustakaan SMK Maarif Walisongo Kajoran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body { font-family: 'Segoe UI', sans-serif; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; overflow-x: hidden; }
 
         /* NAVBAR */
         .navbar {
@@ -23,72 +23,81 @@
             z-index: 1000;
             overflow: visible;
         }
-
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-brand img {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .navbar-brand span {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1a6e35;
-            line-height: 1.3;
-            text-transform: uppercase;
-        }
-
-        .nav-link {
-            color: #333 !important;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 8px 15px !important;
-            transition: color 0.3s;
-        }
-
+        .navbar-brand img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+        .navbar-brand span { font-size: 13px; font-weight: 700; color: #1a6e35; text-transform: uppercase; line-height: 1.3; }
+        .nav-link { color: #333 !important; font-weight: 500; font-size: 14px; padding: 8px 15px !important; transition: color 0.3s; }
         .nav-link:hover { color: #1a6e35 !important; }
-
         .nav-link.active { color: #1a6e35 !important; }
 
-        /* Dropdown */
-        .layanan-dropdown {
-            position: absolute;
-            top: calc(100% + 40px);
-            left: -70px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            padding: 20px;
-            min-width: 280px;
-            display: none;
-            z-index: 999;
-        }
+        /* Dropdown ngambang - Genre */
+        .floating-dropdown { position: absolute; top: calc(100% + 10px); left: 0; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 20px; min-width: 220px; display: none; z-index: 999; animation: fadeDown 0.2s ease; }
+        @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .floating-dropdown.show { display: block; }
+        .floating-dropdown h6 { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .genre-list-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; transition: background 0.2s; font-size: 13px; color: #333; text-decoration: none; }
+        .genre-list-item:hover { background: #f0faf4; color: #1a6e35; }
+        .genre-list-item i { color: #1a6e35; width: 18px; }
 
+        /* Genre Dropdown */
+        .genre-dropdown-wrapper { min-width: 400px; max-width: 500px; }
+        @media (max-width: 576px) { .genre-dropdown-wrapper { min-width: 280px; max-width: 95vw; } }
+        .genre-dropdown-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid #e9ecef; margin-bottom: 12px; }
+        .genre-dropdown-header h6 { font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; margin: 0; font-weight: 600; }
+        .genre-dropdown-header .badge { font-size: 10px; padding: 4px 8px; border-radius: 20px; background: #e8f5e9; color: #1a6e35; }
+        .genre-search-box { position: relative; margin-bottom: 12px; }
+        .genre-search-box input { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid #e9ecef; border-radius: 10px; font-size: 13px; transition: border-color 0.2s, box-shadow 0.2s; background: #f8f9fa; }
+        .genre-search-box input:focus { outline: none; border-color: #1a6e35; box-shadow: 0 0 0 3px rgba(26, 110, 53, 0.1); background: white; }
+        .genre-search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #adb5bd; font-size: 14px; }
+        .genre-dropdown-body { max-height: 50vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #c1dbc8 transparent; }
+        .genre-dropdown-body::-webkit-scrollbar { width: 6px; }
+        .genre-dropdown-body::-webkit-scrollbar-track { background: transparent; }
+        .genre-dropdown-body::-webkit-scrollbar-thumb { background: #c1dbc8; border-radius: 3px; }
+        .genre-dropdown-body::-webkit-scrollbar-thumb:hover { background: #1a6e35; }
+        .genre-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        @media (max-width: 576px) { .genre-grid { grid-template-columns: 1fr; } }
+        .genre-grid-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; font-size: 13px; color: #495057; text-decoration: none; background: #f8f9fa; border: 1px solid transparent; }
+        .genre-grid-item:hover { background: #e8f5e9; border-color: #c8e6c9; color: #1a6e35; transform: translateX(3px); }
+        .genre-grid-item.active { background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; border-color: transparent; box-shadow: 0 4px 12px rgba(26, 110, 53, 0.3); }
+        .genre-grid-item.active i { color: white; }
+        .genre-grid-item i { color: #1a6e35; font-size: 16px; width: 20px; text-align: center; }
+        .genre-dropdown-footer { padding-top: 12px; margin-top: 12px; border-top: 1px solid #e9ecef; text-align: center; }
+        .genre-dropdown-footer a { font-size: 12px; color: #6c757d; text-decoration: none; transition: color 0.2s; }
+        .genre-dropdown-footer a:hover { color: #1a6e35; }
+
+        /* Dark mode support */
+        body.dark-mode .genre-dropdown-header { border-color: #444; }
+        body.dark-mode .genre-search-box input { background: #2d2d2d; border-color: #444; color: #e0e0e0; }
+        body.dark-mode .genre-search-box input:focus { border-color: #27ae60; }
+        body.dark-mode .genre-search-box i { color: #888; }
+        body.dark-mode .genre-grid-item { background: #2d2d2d; color: #e0e0e0; }
+        body.dark-mode .genre-grid-item:hover { background: #1a3d1a; border-color: #2d5c2d; color: #4ade80; }
+        body.dark-mode .genre-dropdown-body { scrollbar-color: #444 transparent; }
+        body.dark-mode .genre-dropdown-footer { border-color: #444; }
+
+        /* Layanan dropdown */
+        .layanan-dropdown { position: absolute; top: calc(100% + 10px); left: 0; background: white; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 20px; min-width: 260px; display: none; z-index: 999; animation: fadeDown 0.2s ease; }
         .layanan-dropdown.show { display: block; }
+        .penjaga-card { display: flex; align-items: center; gap: 15px; }
+        .penjaga-card img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 3px solid #1a6e35; }
+        .penjaga-card h6 { font-size: 14px; font-weight: 600; color: #222; margin-bottom: 4px; }
+        .penjaga-card p { font-size: 12px; color: #666; margin-bottom: 0; }
+        .penjaga-card p i { color: #1a6e35; margin-right: 6px; }
 
         /* Profil Popup */
         .profil-popup {
             position: absolute;
-            top: calc(100% + 40px);
-            right: -10px;
+            top: calc(100% + 10px);
+            right: 0;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
             padding: 20px;
             min-width: 260px;
             display: none;
             z-index: 999;
+            animation: fadeDown 0.2s ease;
         }
-
         .profil-popup.show { display: block; }
-
         .profil-popup .profil-foto {
             width: 70px;
             height: 70px;
@@ -494,103 +503,133 @@ body.dark-mode .stat-card {
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-
-            <!-- Brand -->
-            <a class="navbar-brand" href="#">
-                <img src="{{ asset('images/logo.jpg') }}" alt="Logo">
-                <span>SMK Maarif<br>Walisongo Kajoran</span>
+            <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+                <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
+                <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
-
-            <!-- Menu -->
             <div class="d-flex align-items-center gap-2">
                 <ul class="navbar-nav flex-row gap-1 mb-0">
                     <li class="nav-item">
-                      <a class="nav-link active" href="#home"><i class="bi bi-house"></i> <span class="nav-text">Home</span></a>
+                       <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-house"></i> <span class="nav-text">Home</span></a>
                     </li>
                     <li class="nav-item">
-                       <a class="nav-link" href="#" onclick="toggleLayanan(event)">
-    <i class="bi bi-person-workspace"></i> <span class="nav-text">Layanan</span> <i class="bi bi-chevron-down" style="font-size:10px"></i>
-</a>
+                        <a class="nav-link" href="#" onclick="toggleLayanan(event)">
+                            <i class="bi bi-person-workspace"></i> <span class="nav-text">Layanan</span> <i class="bi bi-chevron-down" style="font-size:10px"></i>
+                        </a>
                         <div class="layanan-dropdown" id="layananDropdown">
-                            <p style="font-size:12px;color:#999;margin-bottom:15px">Penjaga Perpustakaan</p>
-                           @php
-    $adminAktif = \App\Models\User::where('role', 'admin')
-        ->where('is_on_duty', true)
-        ->first();
-
-    if (!$adminAktif) {
-        $adminAktif = \App\Models\User::where('role', 'admin')->first();
-    }
-@endphp
-<div class="penjaga-card">
-    @if($adminAktif?->foto)
-        <img src="{{ asset($adminAktif->foto) }}" alt="Penjaga" style="width:65px;height:65px;border-radius:50%;object-fit:cover;border:3px solid #1a6e35">
-    @else
-        <img src="https://ui-avatars.com/api/?name={{ urlencode($adminAktif?->name ?? 'Admin') }}&background=1a6e35&color=fff" alt="Penjaga">
-    @endif
-    <div>
-        <h6>{{ $adminAktif?->name ?? 'Nama Penjaga' }}</h6>
-      @php
-    $anggotaAdmin = \App\Models\Anggota::where('email', $adminAktif?->email)->first();
-@endphp
-@php
-    $noHpAdmin = $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '';
-    $waLink = $noHpAdmin ? 'https://wa.me/62' . ltrim(preg_replace('/[^0-9]/', '', $noHpAdmin), '0') : '#';
-@endphp
-<p><i class="bi bi-telephone"></i> {{ $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '-' }}</p>
-        <p><i class="bi bi-clock"></i> {{ now()->locale('id')->isoFormat('dddd') }}, {{ now()->format('H:i') }} WIB</p>
-    </div>
-</div>
-@if($noHpAdmin)
-<a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.2s" onmouseover="this.style.background='#1ebe57'" onmouseout="this.style.background='#25D366'">
-    <i class="bi bi-whatsapp" style="font-size:16px"></i> Chat Admin
-</a>
-@endif
+                            <p style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Penjaga Perpustakaan</p>
+                            @php
+                                $adminAktif = \App\Models\User::where('role', 'admin')->where('is_on_duty', true)->first();
+                                if (!$adminAktif) { $adminAktif = \App\Models\User::where('role', 'admin')->first(); }
+                                $anggotaAdmin = \App\Models\Anggota::where('email', $adminAktif?->email)->first();
+                                $noHpAdmin = $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '';
+                                $waLink = $noHpAdmin ? 'https://wa.me/62' . ltrim(preg_replace('/[^0-9]/', '', $noHpAdmin), '0') : '#';
+                            @endphp
+                            <div class="penjaga-card">
+                                @if($adminAktif?->foto)
+                                    <img src="{{ asset($adminAktif->foto) }}" alt="Penjaga" style="width:65px;height:65px;border-radius:50%;object-fit:cover;border:3px solid #1a6e35">
+                                @else
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($adminAktif?->name ?? 'Admin') }}&background=1a6e35&color=fff" alt="Penjaga">
+                                @endif
+                                <div>
+                                    <h6>{{ $adminAktif?->name ?? 'Nama Penjaga' }}</h6>
+                                    <p><i class="bi bi-telephone"></i> {{ $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '-' }}</p>
+                                    <p><i class="bi bi-clock"></i> {{ now()->locale('id')->isoFormat('dddd') }}, {{ now()->format('H:i') }} WIB</p>
+                                </div>
+                            </div>
+                            @if($noHpAdmin)
+                            <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.2s" onmouseover="this.style.background='#1ebe57'" onmouseout="this.style.background='#25D366'">
+                                <i class="bi bi-whatsapp" style="font-size:16px"></i> Chat Admin
+                            </a>
+                            @endif
                         </div>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="toggleGenre(event)">
+                            <i class="bi bi-collection-fill"></i> <span class="nav-text">Genre Buku</span> <i class="bi bi-chevron-down" style="font-size:10px"></i>
+                        </a>
+                        <div class="floating-dropdown genre-dropdown-wrapper" id="genreDropdown">
+                            <div class="genre-dropdown-header">
+                                <h6><i class="bi bi-collection-fill"></i> Pilih Genre</h6>
+                                <span class="badge">{{ $genreList->count() }} genre</span>
+                            </div>
+                            <div class="genre-search-box">
+                                <i class="bi bi-search"></i>
+                                <input type="text" id="genreSearchInput" placeholder="Cari genre..." autocomplete="off">
+                            </div>
+                            <div class="genre-dropdown-body">
+                                <div class="genre-grid" id="genreGrid">
+                                    <a href="{{ route('koleksi.index') }}" class="genre-grid-item {{ !$genre ? 'active' : '' }}" data-genre="">
+                                        <i class="bi bi-grid-fill"></i>
+                                        <span>Semua</span>
+                                    </a>
+                                    @foreach($genreList as $g)
+                                    <a href="{{ route('koleksi.index', ['genre' => $g->id]) }}" class="genre-grid-item" data-genre="{{ strtolower($g->nama) }}">
+                                        <i class="bi bi-tag-fill"></i>
+                                        <span>{{ $g->nama }}</span>
+                                    </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                       <a class="nav-link" href="{{ route('favorit.index', ['from' => 'koleksi']) }}"><i class="bi bi-heart-fill"></i> <span class="nav-text">Favorit</span></a>
+                    </li>
+                    <li class="nav-item">
+                       <a class="nav-link" href="#" onclick="openScanModal(event)"><i class="bi bi-qr-code-scan"></i> <span class="nav-text">Scan</span></a>
+                    </li>
                 </ul>
-
-                <!-- Dark Mode Toggle -->
-                 <button id="darkModeToggle"
-        class="btn btn-sm btn-outline-secondary rounded-circle">
-    <i class="bi bi-moon-fill"></i>
-</button>
-
-                <!-- Profil -->
+                <button id="darkModeToggle" class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-moon-fill"></i></button>
+                @php
+                    $dashUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+                @endphp
+                <a href="{{ route('notifikasi.index') }}" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
+                    <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
+                    @if($dashUnreadCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                            {{ $dashUnreadCount > 99 ? '99+' : $dashUnreadCount }}
+                        </span>
+                    @endif
+                </a>
                 <div class="nav-item">
-                    <button onclick="toggleProfil(event)" style="background:none;border:none;cursor:pointer">
-    @if(auth()->user()->foto)
-        <img src="{{ asset(auth()->user()->foto) }}"
-             class="profil-avatar"
-             style="width:38px;height:38px;border-radius:50%;border:2px solid #1a6e35;object-fit:cover">
-    @else
-        <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff"
-             class="profil-avatar"
-             style="width:38px;height:38px;border-radius:50%;border:2px solid #1a6e35">
-    @endif
-</button>
-                    <div class="profil-popup" id="profilPopup">
-    @if(auth()->user()->foto)
-        <img src="{{ asset(auth()->user()->foto) }}"
-             class="profil-avatar profil-foto" alt="Foto Profil" style="object-fit:cover">
-    @else
-        <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff&size=200"
-             class="profil-avatar profil-foto" alt="Foto Profil">
-    @endif
-    <h5>{{ auth()->user()->name }}</h5>
-    <div class="profil-info">
-        <p><i class="bi bi-person-badge"></i> NIS: {{ auth()->user()->nis }}</p>
-        <p><i class="bi bi-envelope"></i> {{ auth()->user()->email }}</p>
-    </div>
-    <a href="{{ route('profil.index') }}" class="btn-lihat-profil">
-        <i class="bi bi-person"></i> Lihat Profil
-    </a>
-    <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Yakin ingin logout?');">
-        @csrf
-        <button type="submit" class="btn-logout">
-            <i class="bi bi-box-arrow-right"></i> Logout
-        </button>
-    </form>
+                    <a href="#" onclick="toggleProfil(event)">
+                      @if(auth()->user()->foto)
+                        <img src="{{ asset(auth()->user()->foto) }}" class="profil-avatar" alt="Profil">
+                      @else
+                        <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff" class="profil-avatar" alt="Profil">
+                      @endif
+                    </a>
+                    <div class="floating-dropdown" id="profilDropdown" style="right:0;left:auto;min-width:250px">
+                        <div style="text-align:center;margin-bottom:15px">
+                           @if(auth()->user()->foto)
+                            <img src="{{ asset(auth()->user()->foto) }}" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
+                           @else
+                            <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff&size=200" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
+                           @endif
+                            <h6 style="font-weight:700;color:#222;margin:0">{{ auth()->user()->name }}</h6>
+                        </div>
+                        <div style="background:#f9f9f9;border-radius:10px;padding:12px;margin-bottom:12px">
+                            <p style="font-size:12px;color:#555;margin-bottom:6px"><i class="bi bi-person-badge" style="color:#1a6e35"></i> NIS: {{ auth()->user()->nis }}</p>
+                            <p style="font-size:12px;color:#555;margin:0"><i class="bi bi-envelope" style="color:#1a6e35"></i> {{ auth()->user()->email }}</p>
+                        </div>
+                        @php
+                            $vipAktif = auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at);
+                            $sisaHari = $vipAktif ? (int) now()->diffInDays(auth()->user()->vip_expired_at) + 1 : 0;
+                        @endphp
+                        <button onclick="document.getElementById('profilDropdown').classList.remove('show');document.getElementById('modalVip').style.display='flex'"
+                            style="width:100%;padding:10px;background:{{ $vipAktif ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#374151,#1f2937)' }};color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">
+                            {{ $vipAktif ? 'VIP Aktif · '.$sisaHari.' hari lagi' : 'Upgrade VIP' }}
+                        </button>
+                       <a href="{{ route('profil.index') }}" style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
+                       <i class="bi bi-person"></i> Lihat Profil
+                       </a>
+                          <form method="POST" action="{{ route('logout') }}" style="margin-top:8px" onsubmit="return confirm('Yakin ingin logout?');">
+                              @csrf
+                              <button type="submit" style="width:100%;padding:10px;background:#f8f9fa;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
+                                  <i class="bi bi-box-arrow-right"></i> Logout
+                              </button>
+                          </form>
                     </div>
                 </div>
             </div>
@@ -616,26 +655,33 @@ body.dark-mode .stat-card {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function toggleLayanan(e) {
-    e.preventDefault();
-    const el = document.getElementById('layananDropdown');
-    el.classList.toggle('show');
-    document.getElementById('profilPopup').classList.remove('show');
-}
+function toggleLayanan(e) { e.preventDefault(); const el = document.getElementById('layananDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('genreDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); }
 
-function toggleProfil(e) {
-    e.preventDefault();
-    const el = document.getElementById('profilPopup');
-    el.classList.toggle('show');
-    document.getElementById('layananDropdown').classList.remove('show');
-}
+function toggleGenre(e) { e.preventDefault(); const el = document.getElementById('genreDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); if (el.classList.contains('show')) { setTimeout(function() { document.getElementById('genreSearchInput').focus(); }, 100); } }
 
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('.nav-item')) {
-        document.getElementById('layananDropdown').classList.remove('show');
-        document.getElementById('profilPopup').classList.remove('show');
-    }
-});
+function toggleProfil(e) { e.preventDefault(); const el = document.getElementById('profilDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); }
+
+function positionDropdown(el) { if (window.innerWidth < 768) { el.style.left = '16px'; el.style.right = '16px'; el.style.transform = 'none'; } else { el.style.left = ''; el.style.right = '0'; el.style.transform = ''; } }
+
+document.addEventListener('click', function(e) { if (!e.target.closest('.nav-item') && !e.target.closest('.profil-avatar')) { document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); } });
+
+if (document.getElementById('genreSearchInput')) {
+    document.getElementById('genreSearchInput').addEventListener('input', function(e) {
+        const searchValue = e.target.value.toLowerCase();
+        const items = document.querySelectorAll('#genreGrid .genre-grid-item');
+        items.forEach(function(item) {
+            const genreName = item.getAttribute('data-genre') || '';
+            const textContent = item.textContent.toLowerCase();
+            if (genreName.includes(searchValue) || textContent.includes(searchValue)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    document.getElementById('genreSearchInput').addEventListener('click', function(e) { e.stopPropagation(); });
+}
 </script>
 
 <script>

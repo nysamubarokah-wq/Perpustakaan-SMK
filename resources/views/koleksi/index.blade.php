@@ -517,6 +517,17 @@
                     </li>
                 </ul>
                 <button id="darkModeToggle" class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-moon-fill"></i></button>
+                @php
+                    $userUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+                @endphp
+                <a href="{{ route('notifikasi.index') }}" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
+                    <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
+                    @if($userUnreadCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                            {{ $userUnreadCount > 99 ? '99+' : $userUnreadCount }}
+                        </span>
+                    @endif
+                </a>
                 <div class="nav-item">
                     <a href="#" onclick="toggleProfil(event)">
                       @if(auth()->user()->foto)

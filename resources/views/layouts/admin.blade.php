@@ -608,6 +608,21 @@
             <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode" id="darkModeBtn">
                 <i class="bi bi-moon-fill"></i>
             </button>
+            @php
+                $adminUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
+            @endphp
+            @auth
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('notifikasi.index') }}" class="btn btn-sm btn-light position-relative" title="Notifikasi" style="padding: 6px 10px;">
+                        <i class="bi bi-bell"></i>
+                        @if($adminUnreadCount > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
+                                {{ $adminUnreadCount > 99 ? '99+' : $adminUnreadCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endif
+            @endauth
             <div class="admin-info">
                 @if(auth()->user()->foto)
                     <img src="{{ asset(auth()->user()->foto) }}" alt="Foto"
