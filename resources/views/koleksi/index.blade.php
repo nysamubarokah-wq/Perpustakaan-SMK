@@ -116,33 +116,61 @@
         .book-grid { display: flex; flex-wrap: wrap; }
         .book-grid > [class*="col-"] { display: flex; margin-bottom: 1rem; }
 
-        /* CAROUSEL - fixed compact widths */
-        .carousel-scroll { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding: 4px 0 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
-        .carousel-scroll::-webkit-scrollbar { display: none; }
-        .carousel-scroll .book-card-wrapper { scroll-snap-align: start; flex-shrink: 0; width: 165px; }
+        /* CAROUSEL - COMPACT SLIDER */
+        .book-slider-section { position: relative; padding: 20px 0 16px; }
+        .book-slider-wrapper { position: relative; }
+        .book-slider-track { display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x mandatory; padding: 4px 0 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .book-slider-track::-webkit-scrollbar { display: none; }
+        .book-slider-track::-moz-scrollbar { display: none; }
+        .book-slider-track .book-card-wrapper { scroll-snap-align: start; flex-shrink: 0; }
 
-        .book-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1); height: 100%; display: flex; flex-direction: column; position: relative; width: 100%; }
-        .book-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
-        .book-card-cover { height: 220px; position: relative; overflow: hidden; }
+        /* Desktop: 6 cards visible */
+        @media (min-width: 992px) {
+            .book-slider-track .book-card-wrapper { width: calc((100% - 50px) / 6); }
+        }
+        /* Tablet: 4 cards visible */
+        @media (max-width: 991px) {
+            .book-slider-track .book-card-wrapper { width: calc((100% - 30px) / 4); }
+        }
+        /* Mobile: 2 cards visible */
+        @media (max-width: 576px) {
+            .book-slider-track .book-card-wrapper { width: calc((100% - 10px) / 2); }
+        }
+
+        .slider-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; width: 34px; height: 34px; border-radius: 50%; background: white; border: 1px solid #e0e0e0; color: #333; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: all 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 15px; }
+        .slider-nav-btn:hover { background: #1a6e35; color: white; border-color: #1a6e35; }
+        .slider-nav-btn:disabled { opacity: 0.3 !important; cursor: not-allowed; background: #f0f0f0; color: #999; border-color: #ddd; }
+        .book-slider-wrapper:hover .slider-nav-btn { opacity: 1; }
+        .slider-nav-prev { left: 0; }
+        .slider-nav-next { right: 0; }
+        @media (max-width: 768px) { .slider-nav-btn { display: none; } }
+
+        /* COMPACT BOOK CARD */
+        .book-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1); height: 100%; display: flex; flex-direction: column; position: relative; width: 100%; }
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
+        .book-card-cover { height: 160px; position: relative; overflow: hidden; }
+        @media (max-width: 768px) { .book-card-cover { height: 140px; } }
+        @media (max-width: 480px) { .book-card-cover { height: 130px; } }
         .book-card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
         .book-card:hover .book-card-cover img { transform: scale(1.05); }
-        .book-card-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 50px; color: rgba(255,255,255,0.5); }
-        .book-card-body { padding: 12px; display: flex; flex-direction: column; flex: 1; gap: 2px; }
-        .book-card-body h5 { font-size: 13px; font-weight: 700; color: #1a1a2e; margin-bottom: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.2em; line-height: 1.3; }
-        .book-card-meta { font-size: 12px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 5px; }
-        .book-card-genre { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; background: #f0f0f0; color: #666; margin-top: 4px; align-self: flex-start; }
+        .book-card-cover-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: rgba(255,255,255,0.5); }
+        .book-card-body { padding: 8px 10px; display: flex; flex-direction: column; flex: 1; gap: 1px; }
+        .book-card-body h5 { font-size: 12px; font-weight: 700; color: #1a1a2e; margin-bottom: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2em; line-height: 1.25; }
+        .book-card-meta { font-size: 11px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 4px; }
+        .book-card-genre { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 600; background: #f0f0f0; color: #666; margin-top: 3px; align-self: flex-start; }
 
-        /* Badges */
-        .badge-trending { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 5; box-shadow: 0 2px 8px rgba(255,87,34,0.4); }
-        .badge-vip { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; z-index: 5; }
-        .btn-favorit { position: absolute; top: 10px; right: 10px; width: 34px; height: 34px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.15); z-index: 5; transition: all 0.2s; }
-        .btn-favorit:hover { transform: scale(1.15); background: white; }
+        /* Badges - compact */
+        .badge-trending { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; box-shadow: 0 2px 8px rgba(255,87,34,0.4); }
+        .badge-vip { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; }
+        .btn-favorit { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5; transition: all 0.2s; }
+        .btn-favorit:hover { transform: scale(1.12); background: white; }
+        .btn-favorit i { font-size: 14px !important; }
 
-        /* Status & Buttons */
-        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        /* Status & Buttons - compact */
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
         .status-ada { background: #d4edda; color: #1a6e35; }
         .status-habis { background: #f8d7da; color: #721c24; }
-        .btn-detail { display: block; width: 100%; padding: 11px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; border: none; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; text-decoration: none; transition: all 0.3s; margin-top: auto; }
+        .btn-detail { display: block; width: 100%; padding: 8px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; border: none; border-radius: 10px; font-size: 12px; font-weight: 600; text-align: center; text-decoration: none; transition: all 0.3s; margin-top: auto; }
         .btn-detail:hover { opacity: 0.9; transform: scale(1.02); color: white; }
         .btn-detail-disabled { background: #e9ecef; color: #aaa; cursor: not-allowed; pointer-events: none; }
 
@@ -233,19 +261,11 @@
             .search-box { padding: 14px; margin-top: -14px; border-radius: 12px; }
             .search-input { padding: 12px 16px 12px 42px; font-size: 14px; }
 
-            .koleksi-section { padding: 20px 0 12px; }
-            .section-title { font-size: 17px; }
+            .koleksi-section { padding: 16px 0 10px; }
+            .section-title { font-size: 16px; }
             .section-link { font-size: 12px; }
 
             .penerbit-chip { padding: 8px 16px; font-size: 12px; }
-
-            .book-card-cover { height: 170px; }
-            .book-card-body { padding: 12px; }
-            .book-card-body h5 { font-size: 13px; min-height: 2.2em; }
-            .book-card-meta { font-size: 11px; }
-
-            .carousel-scroll { gap: 10px; }
-            .carousel-scroll .book-card-wrapper { width: 165px; }
 
             .penjaga-card img { width: 50px !important; height: 50px !important; }
             .penjaga-card h6 { font-size: 13px; }
@@ -295,13 +315,7 @@
 
             .search-box { padding: 10px; margin-top: -10px; }
             .search-input { padding: 10px 14px 10px 38px; font-size: 13px; }
-            .koleksi-section { padding: 14px 0 8px; }
-            .book-card-cover { height: 140px; }
-            .book-card-body { padding: 10px; }
-            .book-card-body h5 { font-size: 12px; min-height: 2em; }
-            .book-card-meta { font-size: 10px; }
-            .carousel-scroll { gap: 8px; }
-            .carousel-scroll .book-card-wrapper { width: 155px; }
+            .koleksi-section { padding: 12px 0 8px; }
             #genreDropdown, #layananDropdown, #profilDropdown { width: 96vw; max-width: none; }
         }
 
@@ -321,6 +335,8 @@
         body.dark-mode .pagination .page-link { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
         body.dark-mode .pagination .page-item.active .page-link { background: linear-gradient(135deg, #1a6e35, #27ae60); border-color: #1a6e35; }
         body.dark-mode .pagination .page-link:hover { background: #3a3a3a; }
+        body.dark-mode .slider-nav-btn { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
+        body.dark-mode .slider-nav-btn:hover { background: #1a6e35; border-color: #1a6e35; color: white; }
 
         body.dark-mode { background: #121212; color: white; transition: all .3s ease; }
         body.dark-mode .navbar, body.dark-mode .detail-card, body.dark-mode .profil-card, body.dark-mode .riwayat-card, body.dark-mode .modal-box { background: #1e1e1e; transition: all .3s ease; }
@@ -637,44 +653,51 @@
             <a href="{{ route('koleksi.populer', array_filter(['genre' => $genre, 'penerbit' => $penerbit])) }}" class="section-link">Lihat Semua <i class="bi bi-chevron-right"></i></a>
         </div>
         @if($bukuPopuler->count() > 0)
-        <div class="carousel-scroll" id="carouselPopuler">
-            @foreach($bukuPopuler as $index => $item)
-            <div class="book-card-wrapper" data-penerbit="{{ $item->penerbit }}">
-                <div class="book-card">
-                    <div class="book-card-cover cover-{{ ($index % 6) + 1 }}">
-                        @if(($item->peminjaman_count ?? 0) >= 10)
-                        <div class="badge-trending">Trending</div>
-                        @endif
-                        @if($item->sampul)
-                            <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
-                        @else
-                            <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
-                        @endif
-                        <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
-                            @if(in_array($item->id, $favoritIds ?? []))
-                                <i class="bi bi-heart-fill" style="color:#e74c3c;font-size:15px"></i>
-                            @else
-                                <i class="bi bi-heart" style="color:#999;font-size:15px"></i>
+        <div class="book-slider-wrapper" id="sliderPopulerWrapper">
+            <button class="slider-nav-btn slider-nav-prev" onclick="slideSlider('sliderPopuler', -1)" aria-label="Sebelumnya">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="book-slider-track" id="sliderPopuler">
+                @foreach($bukuPopuler as $index => $item)
+                <div class="book-card-wrapper" data-penerbit="{{ $item->penerbit }}">
+                    <div class="book-card">
+                        <div class="book-card-cover cover-{{ ($index % 6) + 1 }}">
+                            @if(($item->peminjaman_count ?? 0) >= 10)
+                            <div class="badge-trending">Trending</div>
                             @endif
-                        </button>
-                    </div>
-                    <div class="book-card-body">
-                        <h5>{{ $item->judul }}</h5>
-                        <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                        <p class="book-card-meta"><i class="bi bi-building"></i> {{ $item->penerbit }}</p>
-                        @if($item->genre)<span class="book-card-genre">{{ $item->genre }}</span>@endif
-                        <div style="margin-top:8px">
-                            <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
-                                {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
-                            </span>
+                            @if($item->sampul)
+                                <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
+                            @else
+                                <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
+                            @endif
+                            <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
+                                @if(in_array($item->id, $favoritIds ?? []))
+                                    <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
+                                @else
+                                    <i class="bi bi-heart" style="color:#999"></i>
+                                @endif
+                            </button>
                         </div>
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:10px">
-                            <i class="bi bi-eye"></i> Detail
-                        </a>
+                        <div class="book-card-body">
+                            <h5>{{ $item->judul }}</h5>
+                            <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
+                            @if($item->genre)<span class="book-card-genre">{{ $item->genre }}</span>@endif
+                            <div style="margin-top:auto;padding-top:4px">
+                                <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
+                                    {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
+                                </span>
+                            </div>
+                            <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:6px">
+                                <i class="bi bi-eye"></i> Detail
+                            </a>
+                        </div>
                     </div>
                 </div>
+                @endforeach
             </div>
-            @endforeach
+            <button class="slider-nav-btn slider-nav-next" onclick="slideSlider('sliderPopuler', 1)" aria-label="Berikutnya">
+                <i class="bi bi-chevron-right"></i>
+            </button>
         </div>
         @else
         <div class="empty-state" style="padding:30px 0">
@@ -693,44 +716,51 @@
             <a href="{{ route('koleksi.terbaru', array_filter(['genre' => $genre, 'penerbit' => $penerbit])) }}" class="section-link">Lihat Semua <i class="bi bi-chevron-right"></i></a>
         </div>
         @if($bukuTerbaru->count() > 0)
-        <div class="carousel-scroll" id="carouselTerbaru">
-            @foreach($bukuTerbaru as $index => $item)
-            <div class="book-card-wrapper" data-penerbit="{{ $item->penerbit }}">
-                <div class="book-card">
-                    <div class="book-card-cover cover-{{ (($index + 3) % 6) + 1 }}">
-                        @if($item->created_at && $item->created_at->diffInDays(now()) <= 30)
-                        <div class="badge-vip" style="background:linear-gradient(135deg,#1a6e35,#27ae60)">Baru</div>
-                        @endif
-                        @if($item->sampul)
-                            <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
-                        @else
-                            <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
-                        @endif
-                        <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
-                            @if(in_array($item->id, $favoritIds ?? []))
-                                <i class="bi bi-heart-fill" style="color:#e74c3c;font-size:15px"></i>
-                            @else
-                                <i class="bi bi-heart" style="color:#999;font-size:15px"></i>
+        <div class="book-slider-wrapper" id="sliderTerbaruWrapper">
+            <button class="slider-nav-btn slider-nav-prev" onclick="slideSlider('sliderTerbaru', -1)" aria-label="Sebelumnya">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="book-slider-track" id="sliderTerbaru">
+                @foreach($bukuTerbaru as $index => $item)
+                <div class="book-card-wrapper" data-penerbit="{{ $item->penerbit }}">
+                    <div class="book-card">
+                        <div class="book-card-cover cover-{{ (($index + 3) % 6) + 1 }}">
+                            @if($item->created_at && $item->created_at->diffInDays(now()) <= 30)
+                            <div class="badge-vip">Baru</div>
                             @endif
-                        </button>
-                    </div>
-                    <div class="book-card-body">
-                        <h5>{{ $item->judul }}</h5>
-                        <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                        <p class="book-card-meta"><i class="bi bi-building"></i> {{ $item->penerbit }}</p>
-                        @if($item->genre)<span class="book-card-genre">{{ $item->genre }}</span>@endif
-                        <div style="margin-top:8px">
-                            <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
-                                {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
-                            </span>
+                            @if($item->sampul)
+                                <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
+                            @else
+                                <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
+                            @endif
+                            <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
+                                @if(in_array($item->id, $favoritIds ?? []))
+                                    <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
+                                @else
+                                    <i class="bi bi-heart" style="color:#999"></i>
+                                @endif
+                            </button>
                         </div>
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:10px">
-                            <i class="bi bi-eye"></i> Detail
-                        </a>
+                        <div class="book-card-body">
+                            <h5>{{ $item->judul }}</h5>
+                            <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
+                            @if($item->genre)<span class="book-card-genre">{{ $item->genre }}</span>@endif
+                            <div style="margin-top:auto;padding-top:4px">
+                                <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
+                                    {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
+                                </span>
+                            </div>
+                            <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:6px">
+                                <i class="bi bi-eye"></i> Detail
+                            </a>
+                        </div>
                     </div>
                 </div>
+                @endforeach
             </div>
-            @endforeach
+            <button class="slider-nav-btn slider-nav-next" onclick="slideSlider('sliderTerbaru', 1)" aria-label="Berikutnya">
+                <i class="bi bi-chevron-right"></i>
+            </button>
         </div>
         @else
         <div class="empty-state" style="padding:30px 0">
@@ -773,28 +803,27 @@
                         @endif
                         <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
                             @if(in_array($item->id, $favoritIds ?? []))
-                                <i class="bi bi-heart-fill" style="color:#e74c3c;font-size:15px"></i>
+                                <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
                             @else
-                                <i class="bi bi-heart" style="color:#999;font-size:15px"></i>
+                                <i class="bi bi-heart" style="color:#999"></i>
                             @endif
                         </button>
                     </div>
                     <div class="book-card-body">
                         <h5>{{ $item->judul }}</h5>
                         <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                        <p class="book-card-meta"><i class="bi bi-building"></i> {{ $item->penerbit }}</p>
                         @if($item->genre)<span class="book-card-genre">{{ $item->genre }}</span>@endif
-                        <div style="margin-top:auto;margin-bottom:10px">
+                        <div style="margin-top:auto;padding-top:4px">
                             <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
                                 {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
                             </span>
                         </div>
                         @if($item->stok > 0)
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail">
+                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:6px">
                             <i class="bi bi-eye"></i> Detail
                         </a>
                         @else
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail btn-detail-disabled">
+                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail btn-detail-disabled" style="margin-top:6px">
                             <i class="bi bi-eye"></i> Detail
                         </a>
                         @endif
@@ -1103,6 +1132,43 @@ document.addEventListener('click', function(e) {
         sessionStorage.setItem('koleksiScrollY', window.scrollY);
         sessionStorage.setItem('koleksiFilterUrl', window.location.href);
     }
+});
+
+// ===== BOOK SLIDER FUNCTIONS =====
+function slideSlider(sliderId, direction) {
+    var slider = document.getElementById(sliderId);
+    if (!slider) return;
+    var scrollAmount = slider.offsetWidth * 0.8;
+    slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+}
+
+function updateSliderButtons(sliderId) {
+    var slider = document.getElementById(sliderId);
+    var wrapper = slider ? slider.closest('.book-slider-wrapper') : null;
+    if (!wrapper) return;
+    var prevBtn = wrapper.querySelector('.slider-nav-prev');
+    var nextBtn = wrapper.querySelector('.slider-nav-next');
+    if (!prevBtn || !nextBtn) return;
+    requestAnimationFrame(function() {
+        prevBtn.disabled = slider.scrollLeft <= 5;
+        nextBtn.disabled = slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 5;
+    });
+}
+
+document.querySelectorAll('.book-slider-track').forEach(function(slider) {
+    updateSliderButtons(slider.id);
+    slider.addEventListener('scroll', function() { updateSliderButtons(slider.id); });
+    window.addEventListener('resize', function() { updateSliderButtons(slider.id); });
+});
+
+// Horizontal scroll with mouse wheel
+document.querySelectorAll('.book-slider-track').forEach(function(slider) {
+    slider.addEventListener('wheel', function(e) {
+        if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+            e.preventDefault();
+            slider.scrollLeft += e.deltaY;
+        }
+    }, { passive: false });
 });
 window.addEventListener('load', function() {
     var savedScroll = sessionStorage.getItem('koleksiScrollY');
