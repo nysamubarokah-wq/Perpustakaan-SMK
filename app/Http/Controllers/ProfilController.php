@@ -31,7 +31,7 @@ class ProfilController extends Controller
 
         $anggotaId = $anggota ? $anggota->id : 0;
 
-        $riwayat = Peminjaman::with(['buku', 'eksemplar'])
+        $riwayat = Peminjaman::with(['buku', 'eksemplar', 'denda'])
             ->where('anggota_id', $anggotaId)
             ->latest()
             ->take(3)

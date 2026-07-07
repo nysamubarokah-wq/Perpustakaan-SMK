@@ -1,37 +1,35 @@
-@extends('layouts.admin')
+<?php $__env->startSection('title', 'Kelola Denda'); ?>
 
-@section('title', 'Kelola Denda')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-3">
         <h5 class="mb-0">Total Denda:</h5>
     </div>
     <div class="d-flex align-items-center gap-2 flex-wrap">
-        <form action="{{ route('admin.denda.index') }}" method="GET" class="d-flex align-items-center gap-2">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari anggota/buku..."
+        <form action="<?php echo e(route('admin.denda.index')); ?>" method="GET" class="d-flex align-items-center gap-2">
+            <input type="text" name="search" value="<?php echo e(request('search')); ?>" placeholder="Cari anggota/buku..."
                    style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;width:180px">
             <select name="filter_pengembalian" onchange="this.form.submit()"
                     style="padding:8px 14px;border:1px solid #ddd;border-radius:10px;font-size:13px;background:white">
                 <option value="">Semua Status</option>
-                <option value="belum" {{ request('filter_pengembalian') === 'belum' ? 'selected' : '' }}>Belum Kembali</option>
-                <option value="sudah" {{ request('filter_pengembalian') === 'sudah' ? 'selected' : '' }}>Sudah Kembali</option>
+                <option value="belum" <?php echo e(request('filter_pengembalian') === 'belum' ? 'selected' : ''); ?>>Belum Kembali</option>
+                <option value="sudah" <?php echo e(request('filter_pengembalian') === 'sudah' ? 'selected' : ''); ?>>Sudah Kembali</option>
             </select>
             <button type="submit"
                     style="padding:8px 14px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;cursor:pointer">
                 <i class="bi bi-search"></i>
             </button>
         </form>
-        @if($dendas->where('status', 'belum_dibayar')->count() > 0)
-        <form action="{{ route('admin.denda.lunasi-semua') }}" method="POST">
-            @csrf
+        <?php if($dendas->where('status', 'belum_dibayar')->count() > 0): ?>
+        <form action="<?php echo e(route('admin.denda.lunasi-semua')); ?>" method="POST">
+            <?php echo csrf_field(); ?>
             <button type="submit"
                     style="padding:8px 18px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer"
                     onclick="return confirm('Lunasi semua denda?')">
                 <i class="bi bi-check-all"></i> Lunasi Semua
             </button>
         </form>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
@@ -41,7 +39,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1" style="font-size:13px">Total Belum Bayar</p>
-                        <h3 class="mb-0" style="color:#e74c3c">Rp {{ number_format($totalBelumBayar, 0, ',', '.') }}</h3>
+                        <h3 class="mb-0" style="color:#e74c3c">Rp <?php echo e(number_format($totalBelumBayar, 0, ',', '.')); ?></h3>
                     </div>
                     <div class="icon-stat" style="background:#fce4e4;color:#e74c3c">
                         <i class="bi bi-exclamation-circle-fill"></i>
@@ -54,7 +52,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <p class="text-muted mb-1" style="font-size:13px">Total Sudah Bayar</p>
-                        <h3 class="mb-0" style="color:#27ae60">Rp {{ number_format($totalSudahBayar, 0, ',', '.') }}</h3>
+                        <h3 class="mb-0" style="color:#27ae60">Rp <?php echo e(number_format($totalSudahBayar, 0, ',', '.')); ?></h3>
                     </div>
                     <div class="icon-stat" style="background:#e8f5e9;color:#27ae60">
                         <i class="bi bi-check-circle-fill"></i>
@@ -64,12 +62,13 @@
         </div>
     </div>
 
-    @if(session('success'))
+    <?php if(session('success')): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
+            <?php echo e(session('success')); ?>
+
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    @endif
+    <?php endif; ?>
 
     <div class="card border-0 shadow-sm" style="border-radius:15px">
         <div class="card-body p-3 p-md-4">
@@ -89,17 +88,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($dendas as $i => $d)
+                        <?php $__empty_1 = true; $__currentLoopData = $dendas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $d): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                         <tr>
-                            <td class="text-muted">{{ $i + 1 }}</td>
+                            <td class="text-muted"><?php echo e($i + 1); ?></td>
                             <td>
-                                <div class="fw-semibold">{{ $d->peminjaman->anggota->nama ?? '-' }}</div>
+                                <div class="fw-semibold"><?php echo e($d->peminjaman->anggota->nama ?? '-'); ?></div>
                             </td>
                             <td>
-                                <div style="max-width:150px" class="text-truncate" title="{{ $d->peminjaman->buku->judul ?? '-' }}">{{ $d->peminjaman->buku->judul ?? '-' }}</div>
+                                <div style="max-width:150px" class="text-truncate" title="<?php echo e($d->peminjaman->buku->judul ?? '-'); ?>"><?php echo e($d->peminjaman->buku->judul ?? '-'); ?></div>
                             </td>
                             <td>
-                                @php
+                                <?php
                                     $tglKembali = \Carbon\Carbon::parse($d->peminjaman->tanggal_kembali)->startOfDay();
                                     if ($d->peminjaman->tanggal_dikembalikan) {
                                         $tglDikembalikan = \Carbon\Carbon::parse($d->peminjaman->tanggal_dikembalikan)->startOfDay();
@@ -109,51 +108,52 @@
                                         $tglDikembalikan = \Carbon\Carbon::now('Asia/Jakarta')->startOfDay();
                                     }
                                     $hariTerlambat = $tglDikembalikan->gt($tglKembali) ? (int) $tglKembali->diffInDays($tglDikembalikan) : 0;
-                                @endphp
-                                <span class="badge rounded-pill bg-warning text-dark px-3">{{ $hariTerlambat }} hari</span>
+                                ?>
+                                <span class="badge rounded-pill bg-warning text-dark px-3"><?php echo e($hariTerlambat); ?> hari</span>
                             </td>
 <td>
-    <span class="fw-bold text-danger d-none d-md-inline">Rp {{ number_format($d->jumlah_denda, 0, ',', '.') }}</span>
+    <span class="fw-bold text-danger d-none d-md-inline">Rp <?php echo e(number_format($d->jumlah_denda, 0, ',', '.')); ?></span>
     <div class="d-inline d-md-none">
         <div class="fw-bold text-danger" style="font-size:11px">Rp</div>
-        <div class="fw-bold text-danger" style="font-size:13px">{{ number_format($d->jumlah_denda, 0, ',', '.') }}</div>
+        <div class="fw-bold text-danger" style="font-size:13px"><?php echo e(number_format($d->jumlah_denda, 0, ',', '.')); ?></div>
     </div>
 </td>
                             <td>
-                                @if($d->status === 'belum_dibayar')
+                                <?php if($d->status === 'belum_dibayar'): ?>
                                     <span class="badge rounded-pill bg-danger px-3">Belum Bayar</span>
-                                @else
+                                <?php else: ?>
                                     <span class="badge rounded-pill bg-success px-3">Lunas</span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                             <td>
-                                @if($d->peminjaman->status === 'dikembalikan')
+                                <?php if($d->peminjaman->status === 'dikembalikan'): ?>
                                     <span class="badge rounded-pill bg-info px-3">Sudah Kembali</span>
-                                @else
+                                <?php else: ?>
                                     <span class="badge rounded-pill bg-secondary px-3">Belum Kembali</span>
-                                @endif
+                                <?php endif; ?>
                             </td>
                             <td class="text-center">
-                                @if($d->status === 'belum_dibayar' && $d->peminjaman->status === 'dikembalikan')
-                                <form action="{{ route('admin.denda.lunasi', $d->id) }}" method="POST" class="d-inline">
-                                    @csrf
+                                <?php if($d->status === 'belum_dibayar' && $d->peminjaman->status === 'dikembalikan'): ?>
+                                <form action="<?php echo e(route('admin.denda.lunasi', $d->id)); ?>" method="POST" class="d-inline">
+                                    <?php echo csrf_field(); ?>
                                     <button type="submit"
                                             style="padding:6px 14px;background:#d4edda;color:#1a6e35;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">
                                         <i class="bi bi-check-lg"></i> <span class="d-none d-md-inline">Lunasi</span>
                                     </button>
                                 </form>
-                                @elseif($d->status === 'sudah_dibayar')
+                                <?php elseif($d->status === 'sudah_dibayar'): ?>
                                 <small class="text-muted">
-                                    <i class="bi bi-calendar-check me-1"></i>{{ \Carbon\Carbon::parse($d->tanggal_bayar)->format('d M Y') }}
+                                    <i class="bi bi-calendar-check me-1"></i><?php echo e(\Carbon\Carbon::parse($d->tanggal_bayar)->format('d M Y')); ?>
+
                                 </small>
-                                @else
+                                <?php else: ?>
                                 <small class="text-secondary">
                                     <i class="bi bi-hourglass-split me-1"></i>Menunggu
                                 </small>
-                                @endif
+                                <?php endif; ?>
                             </td>
                         </tr>
-                        @empty
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <tr>
                             <td colspan="8" class="text-center py-5">
                                 <div class="empty-state">
@@ -163,15 +163,15 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforelse
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('style')
+<?php $__env->startSection('style'); ?>
 <style>
 .card-stat {
     background: white;
@@ -225,9 +225,9 @@
     }
 }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('script')
+<?php $__env->startSection('script'); ?>
 <script>
 document.querySelectorAll('form[action*="lunasi"]').forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -237,4 +237,5 @@ document.querySelectorAll('form[action*="lunasi"]').forEach(form => {
     });
 });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\laragon\www\PerpustakaanDigital\resources\views/admin/denda/index.blade.php ENDPATH**/ ?>
