@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Cetak Semua QR Code</title>
+    <title>Cetak Semua QR Code Buku</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; padding: 20px; }
@@ -11,9 +11,9 @@
         .header p { font-size: 12px; color: #888; }
         .grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
         .card { background: white; border: 2px solid #1a6e35; border-radius: 12px; padding: 15px; text-align: center; width: 200px; break-inside: avoid; }
-        .card h3 { font-size: 12px; color: #222; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
-        .card .kode { font-size: 11px; color: #1a6e35; font-weight: 700; font-family: monospace; margin-bottom: 5px; }
-        .card .isbn { font-size: 9px; color: #888; margin-bottom: 8px; }
+        .card h3 { font-size: 11px; color: #888; margin-bottom: 2px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card .kode { font-size: 14px; color: #1a6e35; font-weight: 700; font-family: monospace; margin-bottom: 5px; }
+        .card .isbn { font-size: 9px; color: #aaa; margin-bottom: 8px; }
         .qr-wrap svg { width: 140px; height: 140px; }
         @media print {
             body { background: white; padding: 10px; }
@@ -32,7 +32,7 @@
         </a>
     </div>
     <div class="header">
-        <h1>Seluruh QR Code Buku</h1>
+        <h1>QR Code Buku</h1>
         <p>Total: {{ count($items) }} buku &mdash; Dicetak: {{ date('d M Y H:i') }}</p>
     </div>
     <div class="grid">
@@ -40,7 +40,6 @@
         <div class="card">
             <h3>{{ $item['buku']->judul }}</h3>
             <div class="kode">{{ $item['buku']->kode_buku }}</div>
-            <div class="isbn">ISBN: {{ $item['buku']->isbn ?? '-' }}</div>
             <div class="qr-wrap">{!! $item['svg'] !!}</div>
         </div>
         @endforeach

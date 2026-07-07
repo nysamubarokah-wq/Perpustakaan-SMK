@@ -3,36 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class EksemplarBuku extends Model
 {
     protected $table = 'eksemplar_buku';
 
-    protected $fillable = ['buku_id', 'kode_buku', 'qrcode_path', 'status', 'kondisi'];
-
-    protected static function booted()
-    {
-        static::created(function ($eksemplar) {
-            $eksemplar->generateQr();
-        });
-
-        static::updating(function ($eksemplar) {
-            if ($eksemplar->isDirty('kode_buku')) {
-                $eksemplar->hapusQrFile();
-            }
-        });
-
-        static::updated(function ($eksemplar) {
-            if ($eksemplar->wasChanged('kode_buku')) {
-                $eksemplar->generateQr();
-            }
-        });
-
-        static::deleting(function ($eksemplar) {
-            $eksemplar->hapusQrFile();
-        });
-    }
+    protected $fillable = ['buku_id', 'kode_buku', 'status', 'kondisi'];
 
     public static function generateKodeEksemplar(): string
     {
@@ -48,36 +24,6 @@ class EksemplarBuku extends Model
         }
 
         return 'BK' . str_pad($next, 6, '0', STR_PAD_LEFT);
-    }
-
-    public function generateQr(): void
-    {
-        if (empty($this->kode_buku)) return;
-
-        $dir = public_path('qrcode/eksemplar');
-        if (!file_exists($dir)) {
-            mkdir($dir, 0755, true);
-        }
-
-        $filename = $this->kode_buku . '.svg';
-        $path = $dir . '/' . $filename;
-
-        $svg = QrCode::size(300)->generate($this->kode_buku);
-        file_put_contents($path, $svg);
-
-        $this->updateQuietly(['qrcode_path' => 'qrcode/eksemplar/' . $filename]);
-    }
-
-    public function hapusQrFile(): void
-    {
-        if ($this->qrcode_path && file_exists(public_path($this->qrcode_path))) {
-            unlink(public_path($this->qrcode_path));
-        }
-    }
-
-    public function getQrExistsAttribute(): bool
-    {
-        return !empty($this->qrcode_path) && file_exists(public_path($this->qrcode_path));
     }
 
     public function buku()

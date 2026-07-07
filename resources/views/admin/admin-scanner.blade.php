@@ -62,6 +62,8 @@
     .anggota-clear.show { display: block; }
 
     .scanner-section { max-width: 500px; margin: 0 auto; }
+    .selected-anggota-card { background: #f0fdf4; border: 2px solid #27ae60; border-radius: 10px; padding: 12px; margin-bottom: 16px; display: none; }
+    .selected-anggota-card.show { display: block; }
 </style>
 
 <div class="scanner-section">
@@ -72,6 +74,17 @@
     </div>
 
     <div id="alert-box"></div>
+
+    <div class="selected-anggota-card" id="selected-anggota-card">
+        <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;border-radius:50%;background:#1a6e35;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700" id="selected-anggota-avatar">-</div>
+            <div style="flex:1">
+                <div style="font-weight:700;color:#166534" id="selected-anggota-nama">-</div>
+                <div style="font-size:12px;color:#666" id="selected-anggota-info">-</div>
+            </div>
+            <button type="button" onclick="clearAnggota()" style="background:none;border:none;color:#999;cursor:pointer;font-size:18px">&times;</button>
+        </div>
+    </div>
 
     <div id="reader" class="mb-3"></div>
 
@@ -100,9 +113,9 @@
     var CEK_URL = '{{ route("admin.scanner.cek") }}'.replace(/^https?:\/\/[^/]+/, '');
 
     var bukuData = null;
-    var peminjamanData = null;
     var anggotaList = [];
-    var dataGlobal = null;
+    var selectedAnggota = null;
+
     var scanner = null;
     var scannerAktif = false;
     var sedangMemproses = false;
@@ -175,10 +188,8 @@
             return res.json().then(function(data) {
                 if (res.ok && data.status === 'found') {
                     bukuData = data.buku;
-                    peminjamanData = data.peminjaman_aktif;
                     anggotaList = data.anggota || [];
-                    dataGlobal = data;
-                    showAlert('success', 'Buku ditemukan: ' + data.buku.judul + (data.eksemplar ? ' (' + data.eksemplar.kode_buku + ')' : ''));
+                    showAlert('success', 'Buku ditemukan: ' + data.buku.judul);
                     return hentikanScanner().then(function() {
                         document.getElementById('reader').style.display = 'none';
                         tampilkanHasil();
@@ -197,9 +208,7 @@
     function tampilkanHasil() {
         var area = document.getElementById('hasil-area');
         var b = bukuData;
-        var p = peminjamanData;
         var stokHabis = b.stok < 1;
-        var eksemplarInfo = dataGlobal && dataGlobal.eksemplar;
 
         var sampulHtml = b.sampul
             ? '<img src="' + b.sampul + '" class="sampul-img" alt="">'
@@ -208,10 +217,6 @@
         var stokBadge = stokHabis
             ? '<span class="badge-stok habis">✕ Stok habis</span>'
             : '<span class="badge-stok ada">✓ Tersedia (' + b.stok + ')</span>';
-
-        var eksemplarBadge = eksemplarInfo
-            ? '<div style="margin-top:5px"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#e8f5e9;color:#1a6e35;font-family:monospace">Eksemplar: ' + esc(eksemplarInfo.kode_buku) + ' (' + esc(eksemplarInfo.status) + ')</span></div>'
-            : '';
 
         var infoHtml = '<div class="row" style="font-size:13px">'
             + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">Kode Buku</span><p class="fw-bold mb-0">' + esc(b.kode_buku) + '</p></div>'
@@ -222,67 +227,43 @@
 
         var aksiHtml = '';
 
-        if (p) {
-            var tglPinjam = fmtDate(p.tanggal_pinjam);
-            var tglKembali = fmtDate(p.tanggal_kembali);
-            var statusLabel = p.status === 'dipinjam' ? 'Sedang dipinjam' : 'Menunggu pengembalian';
-            var statusColor = p.status === 'dipinjam' ? '#1d4ed8' : '#6d28d9';
-
-            aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                + '<h5 class="fw-bold mb-3" style="font-size:15px"><i class="bi bi-arrow-counterclockwise text-primary"></i> Form Pengembalian</h5>'
-                + '<div class="info-box blue mb-3">'
-                + '<p class="mb-1"><i class="bi bi-person"></i> Peminjam: <strong>' + esc(p.anggota_nama) + '</strong></p>'
-                + '<p class="mb-1"><i class="bi bi-calendar"></i> Tanggal Pinjam: <strong>' + tglPinjam + '</strong></p>'
-                + '<p class="mb-1"><i class="bi bi-calendar-check"></i> Tanggal Kembali: <strong>' + tglKembali + '</strong></p>'
-                + '<p class="mb-0"><i class="bi bi-info-circle"></i> Status: <strong style="color:' + statusColor + '">' + statusLabel + '</strong></p>'
-                + '</div>'
-                + '<form method="POST" action="{{ route("admin.scanner.kembali") }}">'
-                + '@csrf'
-                + '<input type="hidden" name="buku_id" value="' + b.id + '">'
-                + '<button type="submit" class="btn-aksi btn-kembali" onclick="return confirm(\'Kembalikan buku ini?\')"><i class="bi bi-arrow-return-left"></i> Kembalikan Buku</button>'
-                + '</form>'
-                + '<button class="btn-scan-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                + '</div>';
-
-        } else if (stokHabis) {
-            aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                + '<div class="info-box red text-center"><i class="bi bi-x-circle"></i> Stok buku habis. Tidak bisa dipinjamkan.</div>'
-                + '<button class="btn-scan-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                + '</div>';
-
-        } else {
+        if (!selectedAnggota) {
             var itemHtml = '';
             for (var i = 0; i < anggotaList.length; i++) {
                 var a = anggotaList[i];
                 var initials = a.nama.substring(0, 2).toUpperCase();
                 var nisLabel = a.nis ? 'NIS: ' + a.nis : '';
-                itemHtml += '<div class="anggota-item" data-id="' + a.id + '" data-nama="' + esc(a.nama) + '" onclick="pilihAnggota(this)">'
+                var extraInfo = (a.kelas ? a.kelas : '') + (a.jurusan ? ' ' + a.jurusan : '');
+                itemHtml += '<div class="anggota-item" data-id="' + a.id + '" data-nama="' + esc(a.nama) + '" data-info="' + esc(extraInfo) + '" onclick="pilihAnggota(this)">'
                     + '<div class="anggota-avatar">' + esc(initials) + '</div>'
                     + '<div class="anggota-info">'
                     + '<div class="anggota-nama">' + esc(a.nama) + '</div>'
-                    + (nisLabel ? '<div class="anggota-nis">' + esc(nisLabel) + '</div>' : '')
+                    + '<div class="anggota-nis">' + esc(nisLabel + (extraInfo ? ' - ' + extraInfo : '')) + '</div>'
                     + '</div></div>';
             }
 
-            var today = new Date().toISOString().split('T')[0];
-            var nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
-
             aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                + '<h5 class="fw-bold mb-3" style="font-size:15px"><i class="bi bi-bookmark-plus text-success"></i> Form Peminjaman</h5>'
-                + '<form method="POST" action="{{ route("admin.scanner.pinjam") }}" onsubmit="return validateAnggota()">'
-                + '@csrf'
-                + '<input type="hidden" name="buku_id" value="' + b.id + '">'
-                + '<input type="hidden" name="anggota_id" id="anggota-id-hidden" value="">'
-                + '<div class="mb-3">'
-                + '<label class="form-label fw-semibold" style="font-size:13px">Pilih Anggota</label>'
-                + '<div class="anggota-wrap" id="anggota-wrap">'
+                + '<h5 class="fw-bold mb-3" style="font-size:15px"><i class="bi bi-person-check text-success"></i> Pilih Anggota</h5>'
+                + '<div class="info-box amber mb-3"><i class="bi bi-info-circle"></i> Silakan pilih anggota terlebih dahulu sebelum memindai QR Code buku.</div>'
+                + '<div class="anggota-wrap mb-3" id="anggota-wrap">'
                 + '<input type="text" class="anggota-input" id="anggota-search" placeholder="Ketik untuk cari, lalu klik nama..." autocomplete="off">'
                 + '<button type="button" class="anggota-clear" id="anggota-clear" onclick="clearAnggota()">&times;</button>'
                 + '<div class="anggota-dropdown" id="anggota-dropdown">'
                 + itemHtml
                 + '<div class="anggota-empty" id="anggota-empty" style="display:none">Anggota tidak ditemukan</div>'
                 + '</div></div>'
-                + '</div>'
+                + '</div>';
+
+        } else {
+            var today = new Date().toISOString().split('T')[0];
+            var nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+
+            aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
+                + '<div class="info-box green mb-3"><i class="bi bi-check-circle"></i> Anggota dipilih: <strong>' + esc(selectedAnggota.nama) + '</strong></div>'
+                + '<form method="POST" action="{{ route("admin.scanner.pinjam") }}">'
+                + '@csrf'
+                + '<input type="hidden" name="buku_id" value="' + b.id + '">'
+                + '<input type="hidden" name="anggota_id" id="anggota-id-hidden" value="' + selectedAnggota.id + '">'
                 + '<div class="mb-3">'
                 + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Pinjam</label>'
                 + '<input type="date" name="tanggal_pinjam" class="form-input" required value="' + today + '">'
@@ -296,6 +277,13 @@
                 + '<input type="text" name="catatan" class="form-input" placeholder="Contoh: Sudah diperiksa kondisinya">'
                 + '</div>'
                 + '<button type="submit" class="btn-aksi btn-pinjam" onclick="return confirm(\'Pinjamkan buku ini?\')"><i class="bi bi-check-circle"></i> Pinjamkan Buku</button>'
+                + '</form>'
+                + '<hr style="margin:16px 0">'
+                + '<form method="POST" action="{{ route("admin.scanner.kembali") }}" id="form-kembali">'
+                + '@csrf'
+                + '<input type="hidden" name="buku_id" value="' + b.id + '">'
+                + '<input type="hidden" name="anggota_id" id="anggota-id-kembali" value="' + selectedAnggota.id + '">'
+                + '<button type="button" class="btn-aksi btn-kembali" onclick="submitKembali()"><i class="bi bi-arrow-return-left"></i> Kembalikan Buku</button>'
                 + '</form>'
                 + '<button class="btn-scan-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
                 + '</div>';
@@ -319,32 +307,28 @@
     window.pilihAnggota = function(el) {
         var id = el.getAttribute('data-id');
         var nama = el.getAttribute('data-nama');
-        document.getElementById('anggota-id-hidden').value = id;
-        var inp = document.getElementById('anggota-search');
-        inp.value = nama;
-        inp.classList.add('has-value', 'selected');
-        document.getElementById('anggota-clear').classList.add('show');
+        var info = el.getAttribute('data-info');
+
+        selectedAnggota = { id: id, nama: nama, info: info };
+
+        document.getElementById('selected-anggota-card').classList.add('show');
+        document.getElementById('selected-anggota-avatar').textContent = nama.substring(0, 2).toUpperCase();
+        document.getElementById('selected-anggota-nama').textContent = nama;
+        document.getElementById('selected-anggota-info').textContent = info || '-';
+
         document.getElementById('anggota-dropdown').classList.remove('show');
+        tampilkanHasil();
     };
 
     window.clearAnggota = function() {
-        document.getElementById('anggota-id-hidden').value = '';
-        var inp = document.getElementById('anggota-search');
-        inp.value = '';
-        inp.classList.remove('has-value', 'selected');
-        inp.focus();
-        document.getElementById('anggota-clear').classList.remove('show');
-        var items = document.querySelectorAll('#anggota-dropdown .anggota-item');
-        for (var i = 0; i < items.length; i++) items[i].style.display = '';
-        document.getElementById('anggota-empty').style.display = 'none';
+        selectedAnggota = null;
+        document.getElementById('selected-anggota-card').classList.remove('show');
+        tampilkanHasil();
     };
 
-    window.validateAnggota = function() {
-        if (!document.getElementById('anggota-id-hidden').value) {
-            alert('Pilih anggota terlebih dahulu.');
-            return false;
-        }
-        return true;
+    window.submitKembali = function() {
+        if (!confirm('Kembalikan buku ini?')) return;
+        document.getElementById('form-kembali').submit();
     };
 
     document.addEventListener('click', function(e) {
@@ -368,27 +352,16 @@
             }
             document.getElementById('anggota-empty').style.display = any ? 'none' : 'block';
             document.getElementById('anggota-dropdown').classList.add('show');
-            if (document.getElementById('anggota-id-hidden').value) {
-                document.getElementById('anggota-id-hidden').value = '';
-                document.getElementById('anggota-search').classList.remove('has-value', 'selected');
-                document.getElementById('anggota-clear').classList.remove('show');
-            }
         }
     });
 
-    document.addEventListener('focus', function(e) {
-        if (e.target && e.target.id === 'anggota-search') {
-            document.getElementById('anggota-dropdown').classList.add('show');
-        }
-    }, true);
-
     window.resetScanner = function() {
         bukuData = null;
-        peminjamanData = null;
         anggotaList = [];
-        dataGlobal = null;
+        selectedAnggota = null;
         lastScanned = null;
         sedangMemproses = false;
+        document.getElementById('selected-anggota-card').classList.remove('show');
         document.getElementById('hasil-area').style.display = 'none';
         document.getElementById('hasil-area').innerHTML = '';
         hideAlert();
@@ -407,13 +380,6 @@
 
     function hideAlert() {
         document.getElementById('alert-box').className = '';
-    }
-
-    function fmtDate(str) {
-        if (!str) return '-';
-        var d = new Date(str);
-        var bln = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-        return d.getDate() + ' ' + bln[d.getMonth()] + ' ' + d.getFullYear();
     }
 
     function esc(s) {

@@ -611,8 +611,8 @@
     </div>
 </div>
 
-<!-- MAIN SECTIONS (hidden when searching) -->
-<div id="mainSections" @if($search) class="hidden" @endif>
+<!-- MAIN SECTIONS -->
+<div id="mainSections">
 
     <!-- PENERBIT -->
     @if($penerbitList->count() > 0)
@@ -629,7 +629,8 @@
     </div>
     @endif
 
-    <!-- BUKU POPULER -->
+    <!-- BUKU POPULER (only show when no filter) -->
+    @if(!$search && !$genre && !$penerbit)
     <div class="container koleksi-section" id="sectionPopuler">
         <div class="section-header">
             <h3 class="section-title"><i class="bi bi-fire"></i> Buku Populer</h3>
@@ -678,12 +679,14 @@
         @else
         <div class="empty-state" style="padding:30px 0">
             <i class="bi bi-inbox" style="font-size:40px"></i>
-            <p>Buku populer tidak ditemukan{{ $genre ? ' untuk genre '.$genre : '' }}{{ $penerbit ? ' dari penerbit '.$penerbit : '' }}</p>
+            <p>Buku populer tidak ditemukan</p>
         </div>
         @endif
     </div>
+    @endif
 
-    <!-- BUKU TERBARU -->
+    <!-- BUKU TERBARU (only show when no filter) -->
+    @if(!$search && !$genre && !$penerbit)
     <div class="container koleksi-section" id="sectionTerbaru">
         <div class="section-header">
             <h3 class="section-title"><i class="bi bi-clock-history"></i> Buku Terbaru</h3>
@@ -732,17 +735,26 @@
         @else
         <div class="empty-state" style="padding:30px 0">
             <i class="bi bi-inbox" style="font-size:40px"></i>
-            <p>Buku terbaru tidak ditemukan{{ $genre ? ' untuk genre '.$genre : '' }}{{ $penerbit ? ' dari penerbit '.$penerbit : '' }}</p>
+            <p>Buku terbaru tidak ditemukan</p>
         </div>
         @endif
     </div>
+    @endif
 
-    <!-- SEMUA BUKU -->
+    <!-- SEMUA BUKU (tampil saat no filter, atau hasil filter) -->
     <div class="container koleksi-section" id="sectionSemuaBuku">
         <div class="section-header">
+            @if($search || $genre || $penerbit)
+            <h3 class="section-title"><i class="bi bi-grid-3x3-gap"></i> Hasil Filter</h3>
+            @else
             <h3 class="section-title"><i class="bi bi-grid-3x3-gap"></i> Semua Buku</h3>
+            @endif
             <span style="font-size:13px;color:#888">{{ $buku->count() }} buku</span>
-
+            @if($search || $genre || $penerbit)
+            <a href="{{ route('koleksi.index') }}" style="padding:5px 12px;background:#f0f0f0;color:#555;border:none;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;margin-left:auto">
+                <i class="bi bi-x"></i> Reset Filter
+            </a>
+            @endif
         </div>
 
         @if($buku->count() > 0)
@@ -801,8 +813,8 @@
     </div>
 </div>
 
-<!-- SEARCH RESULTS (shown only when searching) -->
-<div id="searchResults" class="container koleksi-section" @if($search) style="display:block" @endif>
+<!-- SEARCH RESULTS (shown only when searching, hidden if filter active) -->
+<div id="searchResults" class="container koleksi-section" @if($search) style="display:block" @elseif($genre || $penerbit) style="display:none" @endif>
     <div class="section-header">
         <h3 class="section-title"><i class="bi bi-search"></i> Hasil Pencarian</h3>
         <span id="searchCount" style="font-size:13px;color:#888"></span>

@@ -410,12 +410,12 @@
                     </div>
                 @endif
 
-                @if($eksemplar && $eksemplar->qrcode_path && file_exists(public_path($eksemplar->qrcode_path)))
+                @if($buku && $buku->qrcode_path && file_exists(public_path($buku->qrcode_path)))
                     <div class="qr-section">
-                        <div class="section-title">QR Code Eksemplar</div>
+                        <div class="section-title">QR Code Buku</div>
                         <div class="qr-wrapper">
-                            <img src="{{ asset($eksemplar->qrcode_path) }}" alt="QR Code">
-                            <div class="qr-label">{{ $eksemplar->kode_buku }}</div>
+                            <img src="{{ asset($buku->qrcode_path) }}" alt="QR Code">
+                            <div class="qr-label">{{ $buku->kode_buku }}</div>
                         </div>
                     </div>
                 @endif

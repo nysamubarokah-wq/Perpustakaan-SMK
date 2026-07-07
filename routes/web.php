@@ -38,15 +38,12 @@ Route::get('/', function () {
 // ============================================================
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Profile Laravel default
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Koleksi & Detail Buku
     Route::get('/koleksi', [App\Http\Controllers\KoleksiController::class, 'index'])->name('koleksi.index');
     Route::get('/koleksi/populer', [App\Http\Controllers\KoleksiController::class, 'populer'])->name('koleksi.populer');
     Route::get('/koleksi/terbaru', [App\Http\Controllers\KoleksiController::class, 'terbaru'])->name('koleksi.terbaru');
@@ -54,7 +51,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/buku/{buku}/pinjam', [PinjamController::class, 'store'])->name('buku.pinjam');
     Route::post('/buku/{buku}/favorit', [FavoritController::class, 'toggle'])->name('buku.favorit');
 
-    // Profil Siswa
     Route::get('/profil', [App\Http\Controllers\ProfilController::class, 'index'])->name('profil.index');
     Route::get('/profil/riwayat', [App\Http\Controllers\ProfilController::class, 'riwayat'])->name('profil.riwayat');
     Route::get('/profil/riwayat/{id}', [App\Http\Controllers\ProfilController::class, 'detailRiwayat'])->name('profil.riwayat.detail');
@@ -62,30 +58,24 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profil/foto', [App\Http\Controllers\ProfilController::class, 'uploadFoto'])->name('profil.foto');
     Route::post('/profil/background/{key}', [App\Http\Controllers\ProfilController::class, 'beliBackground'])->name('profil.background');
 
-    // Favorit
     Route::get('/favorit', [FavoritController::class, 'index'])->name('favorit.index');
 
-    // Ulasan
     Route::post('/buku/{buku}/ulasan', [UlasanController::class, 'store'])->name('ulasan.store');
     Route::delete('/ulasan/{ulasan}', [UlasanController::class, 'destroy'])->name('ulasan.destroy');
 
-    // Barcode Scanner
     Route::get('/barcode/scanner', [BarcodeController::class, 'scanner'])->name('barcode.scanner');
     Route::post('/barcode/cek-buku', [BarcodeController::class, 'cekBuku'])->name('barcode.cekBuku');
     Route::post('/barcode/pinjam', [BarcodeController::class, 'pinjamViaScan'])->name('barcode.pinjam');
     Route::post('/barcode/kembali', [BarcodeController::class, 'kembaliViaScan'])->name('barcode.kembali');
 
-    // E-book
     Route::get('/ebook', [App\Http\Controllers\EbookController::class, 'index'])->name('ebook.index');
     Route::get('/ebook/{id}', [App\Http\Controllers\EbookController::class, 'show'])->name('ebook.show');
     Route::get('/ebook/{id}/baca', [App\Http\Controllers\EbookController::class, 'baca'])->name('ebook.baca');
     Route::post('/ebook/{id}/beli', [App\Http\Controllers\EbookController::class, 'beliDenganKoin'])->name('ebook.beli');
 
-    // VIP
     Route::get('/vip', [App\Http\Controllers\VipController::class, 'index'])->name('vip.index');
     Route::post('/vip/beli', [App\Http\Controllers\VipController::class, 'beliVip'])->name('vip.beli');
 
-    // Setuju peraturan
     Route::post('/setuju-peraturan', function () {
         auth()->user()->update(['agreed_rules' => true]);
         return response()->json(['ok' => true]);
@@ -99,10 +89,8 @@ Route::middleware(['auth'])->group(function () {
 // ============================================================
 Route::middleware(['auth', 'admin'])->group(function () {
 
-    // Dashboard
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
-    // Anggota
     Route::get('/admin/anggota', [AnggotaController::class, 'adminIndex'])->name('anggota.admin');
     Route::put('/admin/anggota/{id}/role/{role}', [AnggotaController::class, 'updateRole'])->name('admin.anggota.role');
     Route::post('/admin/anggota/import', [AnggotaController::class, 'import'])->name('admin.anggota.import');
@@ -111,52 +99,35 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/anggota/{userId}/duty', [App\Http\Controllers\AnggotaController::class, 'setDuty'])->name('admin.anggota.duty');
     Route::post('/admin/anggota/{userId}/cabut-duty', [App\Http\Controllers\AnggotaController::class, 'cabutDuty'])->name('admin.anggota.cabutDuty');
 
-    // Buku
     Route::post('/buku/hapus-banyak', [BukuController::class, 'hapusBanyak'])->name('buku.hapusBanyak');
     Route::post('/buku/import', [BukuController::class, 'import'])->name('buku.import');
     Route::get('/download-template/{type}', [ImportTemplateController::class, 'download'])->name('import.template')->where('type', 'buku|anggota');
-    Route::post('/buku/generate-qr', [BukuController::class, 'generateAllEksemplarQr'])->name('buku.generateAllQr');
-    Route::get('/buku/download-all-qr', [BukuController::class, 'downloadAllEksemplarQr'])->name('buku.downloadAllQr');
+    Route::post('/buku/generate-qr', [BukuController::class, 'generateAllQr'])->name('buku.generateAllQr');
+    Route::get('/buku/download-all-qr', [BukuController::class, 'downloadAllQr'])->name('buku.downloadAllQr');
     Route::get('/buku/cetak-semua-qr', [BukuController::class, 'cetakSemuaQr'])->name('buku.cetakSemuaQr');
     Route::resource('buku', BukuController::class);
 
-    // Legacy QR routes (backward compat - redirect to eksemplar)
     Route::get('/buku/{buku}/qrcode', [BukuController::class, 'qrcode'])->name('buku.qrcode');
     Route::get('/buku/{buku}/qrcode/download', [BukuController::class, 'qrcodeDownload'])->name('buku.qrcodeDownload');
     Route::get('/buku/{buku}/qrcode/print', [BukuController::class, 'qrcodePrint'])->name('buku.qrcodePrint');
 
-    // Eksemplar Management
     Route::post('/buku/{buku}/eksemplar/tambah', [BukuController::class, 'tambahEksemplar'])->name('buku.eksemplar.tambah');
     Route::put('/eksemplar/{eksemplar}/status', [BukuController::class, 'updateEksemplarStatus'])->name('eksemplar.updateStatus');
     Route::delete('/eksemplar/{eksemplar}', [BukuController::class, 'hapusEksemplar'])->name('eksemplar.hapus');
-    Route::get('/eksemplar/{eksemplar}/qrcode', [BukuController::class, 'eksemplarQrcode'])->name('eksemplar.qrcode');
-    Route::get('/eksemplar/{eksemplar}/qrcode/download', [BukuController::class, 'eksemplarQrcodeDownload'])->name('eksemplar.qrcodeDownload');
-    Route::get('/eksemplar/{eksemplar}/qrcode/print', [BukuController::class, 'eksemplarQrcodePrint'])->name('eksemplar.qrcodePrint');
-    Route::get('/buku/{buku}/eksemplar/cetak-qr', [BukuController::class, 'cetakSemuaEksemplarQr'])->name('buku.eksemplar.cetakQr');
 
-    // Background
     Route::resource('background', BackgroundController::class);
 
-    // Peminjaman
     Route::resource('peminjaman', PeminjamanController::class);
 
-    // Konfirmasi Pinjam
     Route::get('/admin/konfirmasi-pinjam', [PinjamController::class, 'konfirmasiIndex'])->name('admin.pinjam.index');
     Route::post('/admin/pinjam/{id}/konfirmasi', [PinjamController::class, 'konfirmasiPinjam'])->name('admin.pinjam.konfirmasi');
     Route::delete('/admin/pinjam/{id}/tolak', [PinjamController::class, 'tolakPinjam'])->name('admin.pinjam.tolak');
-    Route::post(
-    '/admin/pinjam/konfirmasi-semua',
-    [PeminjamanController::class, 'konfirmasiSemua']
-)->name('admin.pinjam.konfirmasiSemua');
+    Route::post('/admin/pinjam/konfirmasi-semua', [PeminjamanController::class, 'konfirmasiSemua'])->name('admin.pinjam.konfirmasiSemua');
 
-    // Persetujuan Kembali
     Route::get('/admin/pengembalian', [PinjamController::class, 'persetujuanIndex'])->name('admin.pengembalian.index');
     Route::put('/admin/pengembalian/{id}/setujui', [PinjamController::class, 'setujuiKembali'])->name('admin.pengembalian.setujui');
-   Route::post(
-    '/admin/pengembalian/setujui-semua',
-    [PinjamController::class, 'setujuiSemuaKembali']
-)->name('admin.pengembalian.setujuiSemua');
-    // Ulasan
+    Route::post('/admin/pengembalian/setujui-semua', [PinjamController::class, 'setujuiSemuaKembali'])->name('admin.pengembalian.setujuiSemua');
+
     Route::get('/admin/ulasan', [UlasanController::class, 'index'])->name('admin.ulasan.index');
     Route::delete('/admin/ulasan/{ulasan}', [UlasanController::class, 'destroy'])->name('admin.ulasan.destroy');
     Route::post('/admin/ulasan/{ulasan}/balas', [UlasanController::class, 'balas'])->name('admin.ulasan.balas');
@@ -165,13 +136,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/ulasan/bulk-delete', [UlasanController::class, 'bulkDelete'])->name('admin.ulasan.bulkDelete');
     Route::get('/admin/ulasan/export', [UlasanController::class, 'export'])->name('admin.ulasan.export');
 
-    // VIP Admin
     Route::get('/admin/vip', [App\Http\Controllers\VipController::class, 'adminIndex'])->name('admin.vip.index');
     Route::post('/admin/vip/{userId}/upgrade', [App\Http\Controllers\VipController::class, 'adminUpgrade'])->name('admin.vip.upgrade');
-   Route::post('/admin/vip/{userId}/cabut',
-    [App\Http\Controllers\VipController::class, 'adminCabut'])
-    ->name('admin.vip.cabut');
-    // E-book Admin
+    Route::post('/admin/vip/{userId}/cabut', [App\Http\Controllers\VipController::class, 'adminCabut'])->name('admin.vip.cabut');
+
     Route::get('/admin/ebook', [App\Http\Controllers\EbookController::class, 'adminIndex'])->name('admin.ebook.index');
     Route::get('/admin/ebook/tambah', [App\Http\Controllers\EbookController::class, 'adminCreate'])->name('admin.ebook.create');
     Route::post('/admin/ebook', [App\Http\Controllers\EbookController::class, 'adminStore'])->name('admin.ebook.store');
@@ -179,20 +147,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/ebook/{id}/edit', [App\Http\Controllers\EbookController::class, 'adminEdit'])->name('admin.ebook.edit');
     Route::put('/admin/ebook/{id}', [App\Http\Controllers\EbookController::class, 'adminUpdate'])->name('admin.ebook.update');
 
-    // User Management
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::put('/admin/users/{id}/role', [UserController::class, 'updateRole'])->name('admin.users.role');
     Route::post('/admin/users/{id}/duty', [UserController::class, 'toggleDuty'])->name('admin.users.duty');
 
-    // Laporan
     Route::get('/admin/laporan/pdf', [LaporanController::class, 'exportPdf'])->name('admin.laporan.pdf');
 
-    // Denda
     Route::get('/admin/denda', [App\Http\Controllers\Admin\DendaController::class, 'index'])->name('admin.denda.index');
     Route::post('/admin/denda/{id}/lunasi', [App\Http\Controllers\Admin\DendaController::class, 'lunasi'])->name('admin.denda.lunasi');
     Route::post('/admin/denda/lunasi-semua', [App\Http\Controllers\Admin\DendaController::class, 'lunasiSemua'])->name('admin.denda.lunasi-semua');
 
-    // Admin Scanner (Scan Buku)
     Route::get('/admin/scan-buku', [BarcodeController::class, 'adminScanner'])->name('admin.scanner');
     Route::post('/admin/scan-buku/cek', [BarcodeController::class, 'adminCekBuku'])->name('admin.scanner.cek');
     Route::post('/admin/scan-buku/pinjam', [BarcodeController::class, 'adminPinjam'])->name('admin.scanner.pinjam');

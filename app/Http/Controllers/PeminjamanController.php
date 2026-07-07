@@ -143,7 +143,7 @@ class PeminjamanController extends Controller
 
             $user = \App\Models\User::where('email', $peminjaman->anggota->email)->first();
             if ($user) {
-                $user->increment('coin', 10000);
+                $user->increment('coin', 10);
             }
         }
 

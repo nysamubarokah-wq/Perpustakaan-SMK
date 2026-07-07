@@ -86,10 +86,6 @@ class Buku extends Model
         return !empty($this->qrcode_path) && file_exists(public_path($this->qrcode_path));
     }
 
-    // ============================================================
-    // RELATIONS
-    // ============================================================
-
     public function eksemplar()
     {
         return $this->hasMany(EksemplarBuku::class, 'buku_id');
@@ -124,10 +120,6 @@ class Buku extends Model
     {
         return $this->belongsTo(\App\Models\Penerbit::class, 'penerbit_id');
     }
-
-    // ============================================================
-    // ACCESSORS
-    // ============================================================
 
     public function getStokTersediaAttribute(): int
     {

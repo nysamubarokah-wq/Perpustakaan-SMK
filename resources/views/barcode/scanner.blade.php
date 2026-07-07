@@ -238,7 +238,6 @@
     var lastScanned = null;
     var bukuData = null;
     var pinjamData = null;
-    var eksemplarDataGlobal = null;
     var scanner = null;
     var scannerAktif = false;
     var sedangMemproses = false;
@@ -254,7 +253,6 @@
         readerEl.innerHTML = '';
         readerEl.style.display = 'block';
 
-        // Cek secure context (HTTPS/localhost)
         if (!window.isSecureContext) {
             readerEl.innerHTML = '<div style="text-align:center;padding:30px 16px">'
                 + '<div style="font-size:40px;margin-bottom:12px">🔒</div>'
@@ -265,7 +263,6 @@
             return;
         }
 
-        // Cek apakah browser support getUserMedia
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             readerEl.innerHTML = '<div style="text-align:center;padding:30px 16px">'
                 + '<div style="font-size:40px;margin-bottom:12px">📷</div>'
@@ -367,9 +364,8 @@
 
                 bukuData = data.buku;
                 pinjamData = data.peminjaman_aktif;
-                eksemplarDataGlobal = data.eksemplar;
 
-                showAlert('success', 'Buku ditemukan: ' + data.buku.judul + (data.eksemplar ? ' (' + data.eksemplar.kode_buku + ')' : ''));
+                showAlert('success', 'Buku ditemukan: ' + data.buku.judul);
 
                 return hentikanScanner().then(function() {
                     var readerEl = document.getElementById('reader');
@@ -389,7 +385,6 @@
         var buku = data.buku;
         var pinjam = data.peminjaman_aktif;
         var stokHabis = buku.stok < 1;
-        var dipinjamOrangLain = data.dipinjam_orang_lain;
 
         var sampulHtml = buku.sampul
             ? '<img src="' + buku.sampul + '" class="sampul-img" alt="' + escHtml(buku.judul) + '">'
@@ -407,7 +402,6 @@
         }
 
         var genreBadge = buku.genre ? '<span class="badge-status" style="background:#f3f4f6;color:#666">' + escHtml(buku.genre) + '</span>' : '';
-        var eksemplarBadge = eksemplarDataGlobal ? '<span class="badge-status" style="background:#e8f5e9;color:#1a6e35;font-family:monospace">Eksemplar: ' + escHtml(eksemplarDataGlobal.kode_buku) + '</span>' : '';
 
         var infoHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">';
         if (buku.kode_buku) infoHtml += '<div><span style="color:#999;font-size:11px">Kode Buku</span><p style="font-weight:600;color:#333;margin:2px 0 0">' + escHtml(buku.kode_buku) + '</p></div>';
@@ -421,6 +415,7 @@
         if (pinjam && pinjam.status === 'dipinjam') {
             var tglPinjam = formatDate(pinjam.tanggal_pinjam);
             var tglKembali = formatDate(pinjam.tanggal_kembali);
+            var eksKode = pinjam.eksemplar_kode ? ' (' + pinjam.eksemplar_kode + ')' : '';
             aksiHtml = ''
                 + '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
                 + '<h3 style="font-size:15px;font-weight:700;color:#222;margin-bottom:12px"><i class="bi bi-arrow-counterclockwise" style="color:#2563eb"></i> Konfirmasi Pengembalian</h3>'
@@ -439,11 +434,10 @@
                 + '<div class="info-box amber" style="text-align:center"><i class="bi bi-hourglass-split"></i> ' + msg + '</div>'
                 + '<button class="btn-scan-lain" onclick="resetDanMulaiLagi()" style="margin-top:12px">Scan Buku Lain</button>'
                 + '</div>';
-        } else if (stokHabis || dipinjamOrangLain) {
-            var errMsg = dipinjamOrangLain ? 'Buku ini sedang dipinjam oleh anggota lain.' : 'Stok buku habis.';
+        } else if (stokHabis) {
             aksiHtml = ''
                 + '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                + '<div class="info-box red" style="text-align:center"><i class="bi bi-x-circle"></i> ' + errMsg + '</div>'
+                + '<div class="info-box red" style="text-align:center"><i class="bi bi-x-circle"></i> Stok buku habis.</div>'
                 + '<button class="btn-scan-lain" onclick="resetDanMulaiLagi()" style="margin-top:12px">Scan Buku Lain</button>'
                 + '</div>';
         } else {
@@ -483,7 +477,7 @@
             + '<div style="flex:1;min-width:0">'
             + '<h2 style="font-size:16px;font-weight:700;color:#222;line-height:1.3">' + escHtml(buku.judul) + '</h2>'
             + '<p style="font-size:13px;color:#888;margin-top:3px">' + escHtml(buku.pengarang) + '</p>'
-            + '<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">' + stokBadge + ' ' + statusBadge + ' ' + genreBadge + ' ' + eksemplarBadge + '</div>'
+            + '<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">' + stokBadge + ' ' + statusBadge + ' ' + genreBadge + '</div>'
             + '</div>'
             + '</div>'
             + '<div style="margin-top:16px">' + infoHtml + '</div>'
@@ -581,7 +575,6 @@
     window.resetDanMulaiLagi = function() {
         bukuData = null;
         pinjamData = null;
-        eksemplarDataGlobal = null;
         lastScanned = null;
         sedangMemproses = false;
         document.getElementById('hasil-area').style.display = 'none';
