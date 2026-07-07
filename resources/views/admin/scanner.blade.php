@@ -39,13 +39,184 @@
     .scan-info-box { border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.7; }
     .scan-info-box.amber { background: #fffbeb; color: #92400e; }
 
-    .scan-hasil-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); animation: fadeUp 0.3s ease; }
+    .scan-hasil-card { background: white; border-radius: 16px; overflow: visible; box-shadow: 0 4px 20px rgba(0,0,0,0.08); animation: fadeUp 0.3s ease; position: relative; z-index: 1; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .scan-btn-lain { width: 100%; padding: 11px; background: #f3f4f6; color: #555; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
     .scan-btn-lain:hover { background: #e5e7eb; }
 
     .scan-section { max-width: 500px; margin: 0 auto; }
+
+    @media (max-width: 576px) {
+        .scan-section { padding: 0 12px; }
+        .scan-hasil-card { padding: 16px !important; overflow: visible !important; }
+        .scan-header-card { flex-direction: column; align-items: center !important; text-align: center; gap: 12px !important; }
+        .scan-header-card .flex-shrink-0 { margin-bottom: 0 !important; }
+        .scan-header-card .flex-grow-1 { width: 100% !important; }
+        .scan-sampul, .scan-sampul-ph { width: 80px !important; height: 110px !important; }
+        .scan-sampul-ph { font-size: 32px !important; }
+        .scan-judul { font-size: 15px !important; text-align: center; }
+        .scan-pengarang { text-align: center !important; }
+        .scan-info-grid { gap: 8px !important; }
+        .scan-info-item { padding: 10px !important; }
+        .scan-aksi-form .mb-3 { margin-bottom: 12px !important; }
+        .scan-form-input { font-size: 14px !important; padding: 12px !important; }
+        .scan-aksi-btn { padding: 14px !important; font-size: 15px !important; }
+        .scan-btn-lain { padding: 12px !important; font-size: 13px !important; }
+        .scan-eksemplar-badge { font-size: 10px !important; }
+    }
+
+    .scan-header-card { display: flex; gap: 16px; align-items: flex-start; }
+    .scan-judul { font-size: 18px; line-height: 1.3; }
+    .scan-pengarang { font-size: 13px; }
+    .scan-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .scan-info-item { background: #f8f9fa; border-radius: 8px; padding: 12px; }
+    .scan-info-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .scan-info-value { font-size: 13px; font-weight: 600; color: #333; }
+    .scan-eksemplar-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: #e8f5e9; color: #1a6e35; margin-top: 8px; font-family: monospace; }
+    .scan-aksi-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; }
+    .scan-aksi-section h5 { font-size: 15px; margin-bottom: 12px; }
+    .scan-anggota-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1a6e35; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .anggota-item { padding: 10px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 10px; transition: background 0.15s; }
+    .anggota-item:hover { background: #f0fdf4; }
+    .scan-badge-stok { display: inline-flex; align-items: center; gap: 4px; }
+
+    .scan-anggota-wrap { position: relative; }
+    .scan-anggota-input-wrap { position: relative; }
+    .scan-anggota-input {
+        width: 100%;
+        padding: 10px 36px 10px 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        background: #fff;
+    }
+    .scan-anggota-input:focus { border-color: #27ae60; }
+    .scan-anggota-input.selected { border-color: #27ae60; font-weight: 600; }
+    .scan-anggota-clear {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 4px;
+        line-height: 1;
+        display: none;
+    }
+    .scan-anggota-clear:hover { color: #666; }
+    .scan-anggota-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        max-height: 280px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        z-index: 1000;
+        display: none;
+        scrollbar-width: thin;
+        scrollbar-color: #ccc #f9fafb;
+    }
+    .scan-anggota-dropdown::-webkit-scrollbar { width: 6px; }
+    .scan-anggota-dropdown::-webkit-scrollbar-track { background: #f9fafb; border-radius: 3px; }
+    .scan-anggota-dropdown::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .scan-anggota-dropdown::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .scan-anggota-dropdown.show { display: block; }
+    .scan-anggota-item {
+        padding: 12px 14px;
+        cursor: pointer;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: background 0.15s ease;
+    }
+    .scan-anggota-item:last-child { border-bottom: none; }
+    .scan-anggota-item:hover, .scan-anggota-item.active { background: #f0fdf4; }
+    .scan-anggota-item.active { outline: 2px solid #27ae60; outline-offset: -2px; }
+    .scan-anggota-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a6e35, #27ae60);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .scan-anggota-info { flex: 1; min-width: 0; }
+    .scan-anggota-nama { font-weight: 600; color: #1a1a1a; font-size: 14px; }
+    .scan-anggota-meta { font-size: 12px; color: #888; margin-top: 2px; }
+    .scan-anggota-empty {
+        padding: 20px 14px;
+        text-align: center;
+        color: #999;
+        font-size: 13px;
+    }
+
+    .scan-loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-size: 14px;
+    }
+    .scan-loading .spin {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .scan-status-info {
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .scan-status-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .scan-status-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .scan-status-info-blue { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+
+    @media (max-width: 576px) {
+        .scan-aksi-section { padding-top: 12px !important; }
+        #reader { border-radius: 8px !important; }
+        .scan-mode-wrap { margin-bottom: 12px !important; }
+        .scan-anggota-dropdown {
+            position: fixed !important;
+            top: auto !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            max-height: 60vh;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+        }
+        .scan-anggota-dropdown::before {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 10px auto;
+        }
+    }
 </style>
 
 <div class="scan-section">
@@ -56,16 +227,6 @@
     </div>
 
     <div id="alert-box"></div>
-
-    {{-- Mode toggle --}}
-    <div class="scan-mode-wrap">
-        <button id="btn-mode-pinjam" class="scan-mode-btn active" onclick="setMode('pinjam')">
-            📥 Pinjam Buku
-        </button>
-        <button id="btn-mode-kembali" class="scan-mode-btn" onclick="setMode('kembali')">
-            📤 Kembalikan Buku
-        </button>
-    </div>
 
     <div id="reader" class="mb-3"></div>
 
@@ -92,18 +253,19 @@
 (function() {
     var CSRF = '{{ csrf_token() }}';
     var CEK_URL = '{{ route("admin.scanner.cek") }}';
+    var CEK_PEMINJAMAN_URL = '{{ route("admin.scanner.cek-peminjaman") }}';
     var PINJAM_URL = '{{ route("admin.scanner.pinjam") }}';
     var KEMBALI_URL = '{{ route("admin.scanner.kembali") }}';
 
     var mode = 'pinjam';
     var bukuData = null;
-    var peminjamanData = null;
     var anggotaList = [];
     var dataGlobal = null;
     var scanner = null;
     var scannerAktif = false;
     var sedangMemproses = false;
     var lastScanned = null;
+    var selectedAnggotaId = null;
 
     document.addEventListener('DOMContentLoaded', mulaiScanner);
 
@@ -194,10 +356,10 @@
             return res.json().then(function(data) {
                 if (res.ok && data.status === 'found') {
                     bukuData = data.buku;
-                    peminjamanData = data.peminjaman_aktif;
                     anggotaList = data.anggota || [];
                     dataGlobal = data;
-                    showAlert('success', 'Buku ditemukan: ' + data.buku.judul + (data.eksemplar ? ' (' + data.eksemplar.kode_buku + ')' : ''));
+                    selectedAnggotaId = null;
+                    showAlert('success', 'Buku ditemukan: ' + data.buku.judul);
                     return hentikanScanner().then(function() {
                         document.getElementById('reader').style.display = 'none';
                         tampilkanHasil();
@@ -216,9 +378,7 @@
     function tampilkanHasil() {
         var area = document.getElementById('hasil-area');
         var b = bukuData;
-        var p = peminjamanData;
         var stokHabis = b.stok < 1;
-        var eksemplarInfo = dataGlobal && dataGlobal.eksemplar;
 
         var sampulHtml = b.sampul
             ? '<img src="' + b.sampul + '" class="scan-sampul" alt="">'
@@ -228,178 +388,180 @@
             ? '<span class="scan-badge-stok habis">✕ Stok habis</span>'
             : '<span class="scan-badge-stok ada">✓ Tersedia (' + b.stok + ')</span>';
 
-        var eksemplarBadge = eksemplarInfo
-            ? '<div style="margin-top:5px"><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#e8f5e9;color:#1a6e35;font-family:monospace">Eksemplar: ' + esc(eksemplarInfo.kode_buku) + ' (' + esc(eksemplarInfo.status) + ')</span></div>'
-            : '';
-
-        var infoHtml = '<div class="row" style="font-size:13px">'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">Kode Buku</span><p class="fw-bold mb-0">' + esc(b.kode_buku) + '</p></div>'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">ISBN</span><p class="fw-bold mb-0">' + esc(b.isbn || '-') + '</p></div>'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">Lokasi Rak</span><p class="fw-bold mb-0">📍 ' + esc(b.lokasi || '-') + '</p></div>'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">Status</span><p class="mb-0">' + stokBadge + '</p></div>'
-            + '</div>';
-
-        var aksiHtml = '';
-
-        if (mode === 'kembali') {
-            // ── Mode kembali ──
-            if (!p) {
-                aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                    + '<div class="scan-info-box amber text-center"><i class="bi bi-info-circle"></i> Buku ini tidak sedang dipinjam.</div>'
-                    + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                    + '</div>';
-            } else if (p.status === 'menunggu_konfirmasi') {
-                aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                    + '<div class="scan-info-box amber text-center"><i class="bi bi-hourglass-split"></i> Peminjaman sedang menunggu konfirmasi admin.</div>'
-                    + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                    + '</div>';
-            } else if (p.status === 'menunggu_pengembalian') {
-                aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                    + '<div class="scan-info-box amber text-center"><i class="bi bi-hourglass-split"></i> Permintaan pengembalian sudah dikirim, tunggu konfirmasi admin.</div>'
-                    + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                    + '</div>';
-            } else if (p.status === 'dipinjam') {
-                aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                    + '<h5 class="fw-bold mb-3" style="font-size:15px"><i class="bi bi-arrow-counterclockwise text-primary"></i> Konfirmasi Pengembalian</h5>'
-                    + '<div class="scan-info-box" style="background:#eff6ff;color:#1e40af;margin-bottom:12px">'
-                    + '<p class="mb-1"><i class="bi bi-person"></i> Peminjam: <strong>' + esc(p.anggota_nama) + '</strong></p>'
-                    + '<p class="mb-1"><i class="bi bi-calendar"></i> Pinjam: <strong>' + fmtDate(p.tanggal_pinjam) + '</strong></p>'
-                    + '<p class="mb-0"><i class="bi bi-calendar-check"></i> Kembali: <strong>' + fmtDate(p.tanggal_kembali) + '</strong></p>'
-                    + '</div>'
-                    + '<form method="POST" action="' + KEMBALI_URL + '">'
-                    + '<input type="hidden" name="_token" value="' + CSRF + '">'
-                    + '<input type="hidden" name="buku_id" value="' + b.id + '">'
-                    + '<button type="submit" class="scan-aksi-btn scan-btn-kembali" onclick="return confirm(\'Kembalikan buku ini?\')"><i class="bi bi-arrow-return-left"></i> Kembalikan Buku</button>'
-                    + '</form>'
-                    + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                    + '</div>';
-            }
-        } else {
-            // ── Mode pinjam ──
-            if (p) {
-                aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                    + '<p style="font-size:14px;color:#d97706;text-align:center;font-weight:600;padding:8px 0"><i class="bi bi-exclamation-triangle"></i> Buku ini sudah dipinjam oleh: <strong>' + esc(p.anggota_nama) + '</strong></p>'
-                    + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                    + '</div>';
-            } else if (stokHabis) {
-                aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                    + '<div class="scan-info-box" style="background:#fef2f2;color:#991b1b;text-align:center"><i class="bi bi-x-circle"></i> Stok buku habis. Tidak bisa dipinjamkan.</div>'
-                    + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                    + '</div>';
-            } else {
-                var itemHtml = '';
-                for (var i = 0; i < anggotaList.length; i++) {
-                    var a = anggotaList[i];
-                    var initials = a.nama.substring(0, 2).toUpperCase();
-                    var nisLabel = a.nis ? 'NIS: ' + a.nis : '';
-                    itemHtml += '<div class="anggota-item" data-id="' + a.id + '" data-nama="' + esc(a.nama) + '" onclick="pilihAnggota(this)" style="padding:10px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;transition:background 0.15s">'
-                        + '<div style="width:32px;height:32px;border-radius:50%;background:#1a6e35;color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">' + esc(initials) + '</div>'
-                        + '<div style="flex:1;min-width:0">'
-                        + '<div style="font-weight:600;color:#222">' + esc(a.nama) + '</div>'
-                        + (nisLabel ? '<div style="font-size:11px;color:#999">' + esc(nisLabel) + '</div>' : '')
-                        + '</div></div>';
-                }
-
-                var today = new Date().toISOString().split('T')[0];
-                var nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
-
-                aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                    + '<h5 class="fw-bold mb-3" style="font-size:15px"><i class="bi bi-bookmark-plus text-success"></i> Form Peminjaman</h5>'
-                    + '<form method="POST" action="' + PINJAM_URL + '" onsubmit="return validateAnggota()">'
-                    + '<input type="hidden" name="_token" value="' + CSRF + '">'
-                    + '<input type="hidden" name="buku_id" value="' + b.id + '">'
-                    + '<input type="hidden" name="anggota_id" id="anggota-id-hidden" value="">'
-                    + '<div class="mb-3">'
-                    + '<label class="form-label fw-semibold" style="font-size:13px">Pilih Anggota</label>'
-                    + '<div style="position:relative" id="anggota-wrap">'
-                    + '<input type="text" class="scan-form-input" id="anggota-search" placeholder="Ketik untuk cari, lalu klik nama..." autocomplete="off">'
-                    + '<button type="button" id="anggota-clear" onclick="clearAnggota()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#999;cursor:pointer;font-size:16px;padding:4px;display:none">&times;</button>'
-                    + '<div id="anggota-dropdown" style="position:absolute;top:100%;left:0;right:0;max-height:220px;overflow-y:auto;background:white;border:2px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;z-index:100;display:none;box-shadow:0 8px 16px rgba(0,0,0,0.1)">'
-                    + itemHtml
-                    + '<div id="anggota-empty" style="padding:14px;text-align:center;color:#999;font-size:13px;display:none">Anggota tidak ditemukan</div>'
-                    + '</div></div>'
-                    + '</div>'
-                    + '<div class="mb-3">'
-                    + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Pinjam</label>'
-                    + '<input type="date" name="tanggal_pinjam" class="scan-form-input" required value="' + today + '">'
-                    + '</div>'
-                    + '<div class="mb-3">'
-                    + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Kembali</label>'
-                    + '<input type="date" name="tanggal_kembali" class="scan-form-input" required value="' + nextWeek + '">'
-                    + '</div>'
-                    + '<div class="mb-3">'
-                    + '<label class="form-label fw-semibold" style="font-size:13px">Catatan <span class="text-muted fw-normal">(opsional)</span></label>'
-                    + '<input type="text" name="catatan" class="scan-form-input" placeholder="Contoh: Sudah diperiksa kondisinya">'
-                    + '</div>'
-                    + '<button type="submit" class="scan-aksi-btn scan-btn-pinjam" onclick="return confirm(\'Pinjamkan buku ini?\')"><i class="bi bi-check-circle"></i> Pinjamkan Buku</button>'
-                    + '</form>'
-                    + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                    + '</div>';
-            }
+        var itemHtml = '';
+        for (var i = 0; i < anggotaList.length; i++) {
+            var a = anggotaList[i];
+            var initials = a.nama.substring(0, 2).toUpperCase();
+            var nisLabel = a.nis ? 'NIS: ' + a.nis : '';
+            var kelasLabel = a.kelas ? ' • ' + a.kelas : '';
+            itemHtml += '<div class="scan-anggota-item" data-id="' + a.id + '" data-nama="' + esc(a.nama) + '" data-index="' + i + '" role="option">'
+                + '<div class="scan-anggota-avatar">' + esc(initials) + '</div>'
+                + '<div class="scan-anggota-info">'
+                + '<div class="scan-anggota-nama">' + esc(a.nama) + '</div>'
+                + '<div class="scan-anggota-meta">' + esc(nisLabel) + esc(kelasLabel) + '</div>'
+                + '</div></div>';
         }
 
+        var today = new Date().toISOString().split('T')[0];
+        var nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+
+        var aksiHtml = '<div class="scan-aksi-section scan-aksi-form" id="scan-form-section">'
+            + '<h5 class="fw-bold mb-3"><i class="bi bi-person-plus text-success"></i> Pilih Anggota</h5>'
+            + '<div class="mb-3">'
+            + '<div class="scan-anggota-wrap" id="anggota-wrap">'
+            + '<div class="scan-anggota-input-wrap">'
+            + '<input type="text" class="scan-anggota-input" id="anggota-search" placeholder="Ketik nama anggota..." autocomplete="off" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false">'
+            + '<button type="button" class="scan-anggota-clear" id="anggota-clear" aria-label="Hapus pilihan">&times;</button>'
+            + '</div>'
+            + '<div class="scan-anggota-dropdown" id="anggota-dropdown" role="listbox">'
+            + itemHtml
+            + '<div class="scan-anggota-empty" id="anggota-empty">Tidak ada anggota ditemukan</div>'
+            + '</div></div>'
+            + '</div>'
+            + '<div id="scan-aksi-container"></div>'
+            + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
+            + '</div>';
+
         area.innerHTML = '<div class="scan-hasil-card p-4">'
-            + '<div class="d-flex gap-3 align-items-start">'
-            + '<div class="flex-shrink-0">' + sampulHtml + '</div>'
+            + '<div class="scan-header-card">'
+            + '<div class="flex-shrink-0 mb-2">' + sampulHtml + '</div>'
             + '<div class="flex-grow-1" style="min-width:0">'
-            + '<h5 class="fw-bold mb-1" style="font-size:16px">' + esc(b.judul) + '</h5>'
-            + '<p class="text-muted mb-0" style="font-size:13px">' + esc(b.pengarang) + '</p>'
-            + eksemplarBadge
+            + '<h5 class="fw-bold mb-1 scan-judul">' + esc(b.judul) + '</h5>'
+            + '<p class="text-muted mb-0 scan-pengarang" style="font-size:13px">' + esc(b.pengarang) + '</p>'
             + '</div>'
             + '</div>'
-            + '<div class="mt-3">' + infoHtml + '</div>'
+            + '<div class="scan-info-grid">'
+            + '<div class="scan-info-item"><div class="scan-info-label">Kode Buku</div><div class="scan-info-value">' + esc(b.kode_buku) + '</div></div>'
+            + '<div class="scan-info-item"><div class="scan-info-label">ISBN</div><div class="scan-info-value">' + esc(b.isbn || '-') + '</div></div>'
+            + '<div class="scan-info-item"><div class="scan-info-label">Lokasi Rak</div><div class="scan-info-value">📍 ' + esc(b.lokasi || '-') + '</div></div>'
+            + '<div class="scan-info-item"><div class="scan-info-label">Status</div><div class="scan-info-value">' + stokBadge + '</div></div>'
+            + '</div>'
             + aksiHtml
             + '</div>';
 
         area.style.display = 'block';
     }
 
-    // ── Anggota search ──
+    // ── Pilih anggota & cek peminjaman ──
     window.pilihAnggota = function(el) {
         var id = el.getAttribute('data-id');
         var nama = el.getAttribute('data-nama');
-        document.getElementById('anggota-id-hidden').value = id;
+        selectedAnggotaId = id;
+
         var inp = document.getElementById('anggota-search');
         inp.value = nama;
-        inp.style.borderColor = '#27ae60';
-        inp.style.fontWeight = '600';
+        inp.classList.add('selected');
         document.getElementById('anggota-clear').style.display = 'block';
-        document.getElementById('anggota-dropdown').style.display = 'none';
+        document.getElementById('anggota-dropdown').classList.remove('show');
+        inp.setAttribute('aria-expanded', 'false');
+        activeIndex = -1;
+        document.querySelectorAll('.scan-anggota-item').forEach(function(item) { item.classList.remove('active'); });
+
+        var aksiContainer = document.getElementById('scan-aksi-container');
+        aksiContainer.innerHTML = '<div class="scan-loading"><i class="bi bi-arrow-repeat spin"></i> Memeriksa transaksi...</div>';
+
+        fetch(CEK_PEMINJAMAN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+            body: JSON.stringify({ buku_id: bukuData.id, anggota_id: id }),
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var html = '';
+            if (data.status === 'tidak_memiliki') {
+                if (data.stok < 1) {
+                    html = '<div class="scan-status-info scan-status-warning">'
+                        + '<i class="bi bi-info-circle"></i> Semua eksemplar buku sedang dipinjam.'
+                        + '</div>'
+                        + '<button type="button" class="scan-aksi-btn scan-btn-pinjam" disabled>'
+                        + '<i class="bi bi-book-x"></i> Pinjamkan Buku'
+                        + '</button>';
+                } else {
+                    var nextWeekPinjam = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+                    html = '<div class="scan-status-info scan-status-success">'
+                        + '<i class="bi bi-check-circle"></i> Belum meminjam buku ini.'
+                        + '</div>'
+                        + '<form method="POST" action="' + PINJAM_URL + '">'
+                        + '<input type="hidden" name="_token" value="' + CSRF + '">'
+                        + '<input type="hidden" name="buku_id" value="' + bukuData.id + '">'
+                        + '<input type="hidden" name="anggota_id" value="' + id + '">'
+                        + '<div class="mb-3 mt-3">'
+                        + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Pinjam</label>'
+                        + '<input type="date" name="tanggal_pinjam" class="scan-form-input" required value="' + today() + '">'
+                        + '</div>'
+                        + '<div class="mb-3">'
+                        + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Kembali</label>'
+                        + '<input type="date" name="tanggal_kembali" class="scan-form-input" required value="' + nextWeekPinjam + '">'
+                        + '</div>'
+                        + '<div class="mb-3">'
+                        + '<label class="form-label fw-semibold" style="font-size:13px">Catatan <span class="text-muted fw-normal">(opsional)</span></label>'
+                        + '<input type="text" name="catatan" class="scan-form-input" placeholder="Contoh: Sudah diperiksa kondisinya">'
+                        + '</div>'
+                        + '<button type="submit" class="scan-aksi-btn scan-btn-pinjam" onclick="return confirm(\'Pinjamkan buku ini?\')">'
+                        + '<i class="bi bi-check-circle"></i> Pinjamkan Buku'
+                        + '</button>'
+                        + '</form>';
+                }
+            } else if (data.status === 'sedang_memiliki') {
+                var p = data.peminjaman;
+                html = '<div class="scan-status-info scan-status-info-blue">'
+                    + '<i class="bi bi-clock-history"></i> Sedang meminjam buku ini sejak ' + fmtDate(p.tanggal_pinjam)
+                    + '</div>'
+                    + '<form method="POST" action="' + KEMBALI_URL + '">'
+                    + '<input type="hidden" name="_token" value="' + CSRF + '">'
+                    + '<input type="hidden" name="buku_id" value="' + bukuData.id + '">'
+                    + '<input type="hidden" name="anggota_id" value="' + id + '">'
+                    + '<button type="submit" class="scan-aksi-btn scan-btn-kembali" onclick="return confirm(\'Kembalikan buku ini?\')">'
+                    + '<i class="bi bi-arrow-return-left"></i> Kembalikan Buku'
+                    + '</button>'
+                    + '</form>';
+            } else {
+                html = '<div class="scan-info-box amber text-center"><i class="bi bi-exclamation-triangle"></i> ' + esc(data.pesan || 'Terjadi kesalahan.') + '</div>';
+            }
+            aksiContainer.innerHTML = html;
+        })
+        .catch(function(err) {
+            console.error('Fetch error:', err);
+            aksiContainer.innerHTML = '<div class="scan-info-box" style="background:#fef2f2;color:#991b1b"><i class="bi bi-x-circle"></i> Gagal memeriksa transaksi.</div>';
+        });
     };
+
+    function today() {
+        return new Date().toISOString().split('T')[0];
+    }
 
     window.clearAnggota = function() {
-        document.getElementById('anggota-id-hidden').value = '';
+        selectedAnggotaId = null;
         var inp = document.getElementById('anggota-search');
         inp.value = '';
-        inp.style.borderColor = '#e5e7eb';
-        inp.style.fontWeight = 'normal';
+        inp.classList.remove('selected');
         inp.focus();
         document.getElementById('anggota-clear').style.display = 'none';
-        var items = document.querySelectorAll('#anggota-dropdown .anggota-item');
+        var items = document.querySelectorAll('.scan-anggota-item');
         for (var i = 0; i < items.length; i++) items[i].style.display = '';
         document.getElementById('anggota-empty').style.display = 'none';
+        document.getElementById('scan-aksi-container').innerHTML = '';
+        activeIndex = -1;
     };
 
-    window.validateAnggota = function() {
-        if (!document.getElementById('anggota-id-hidden').value) {
-            alert('Pilih anggota terlebih dahulu.');
-            return false;
-        }
-        return true;
-    };
+    // ── Anggota search events ──
+    var activeIndex = -1;
 
     document.addEventListener('click', function(e) {
         var wrap = document.getElementById('anggota-wrap');
         if (!wrap) return;
         if (!wrap.contains(e.target)) {
-            document.getElementById('anggota-dropdown').style.display = 'none';
+            document.getElementById('anggota-dropdown').classList.remove('show');
+            var inp = document.getElementById('anggota-search');
+            if (inp) inp.setAttribute('aria-expanded', 'false');
+            activeIndex = -1;
         }
     });
 
     document.addEventListener('input', function(e) {
         if (e.target && e.target.id === 'anggota-search') {
             var q = e.target.value.toLowerCase().trim();
-            var items = document.querySelectorAll('#anggota-dropdown .anggota-item');
+            var items = document.querySelectorAll('.scan-anggota-item');
             var any = false;
             for (var i = 0; i < items.length; i++) {
                 var ds = (items[i].getAttribute('data-nama') || '').toLowerCase();
@@ -408,31 +570,62 @@
                 if (show) any = true;
             }
             document.getElementById('anggota-empty').style.display = any ? 'none' : 'block';
-            document.getElementById('anggota-dropdown').style.display = 'block';
-            if (document.getElementById('anggota-id-hidden').value) {
-                document.getElementById('anggota-id-hidden').value = '';
+            document.getElementById('anggota-dropdown').classList.add('show');
+            e.target.setAttribute('aria-expanded', 'true');
+            if (selectedAnggotaId) {
+                selectedAnggotaId = null;
                 var inp = document.getElementById('anggota-search');
-                inp.style.borderColor = '#e5e7eb';
-                inp.style.fontWeight = 'normal';
+                inp.classList.remove('selected');
                 document.getElementById('anggota-clear').style.display = 'none';
+                document.getElementById('scan-aksi-container').innerHTML = '';
             }
+            activeIndex = -1;
         }
     });
 
-    document.addEventListener('focus', function(e) {
-        if (e.target && e.target.id === 'anggota-search') {
-            document.getElementById('anggota-dropdown').style.display = 'block';
+    document.addEventListener('keydown', function(e) {
+        var dropdown = document.getElementById('anggota-dropdown');
+        var input = document.getElementById('anggota-search');
+        if (!dropdown || !dropdown.classList.contains('show')) return;
+        
+        var items = Array.from(document.querySelectorAll('.scan-anggota-item')).filter(function(item) {
+            return item.style.display !== 'none';
+        });
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (items.length === 0) return;
+            if (activeIndex < items.length - 1) activeIndex++;
+            items.forEach(function(item) { item.classList.remove('active'); });
+            items[activeIndex].classList.add('active');
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (items.length === 0) return;
+            if (activeIndex > 0) activeIndex--;
+            items.forEach(function(item) { item.classList.remove('active'); });
+            items[activeIndex].classList.add('active');
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0 && items[activeIndex]) {
+                pilihAnggota(items[activeIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.classList.remove('show');
+            if (input) input.setAttribute('aria-expanded', 'false');
+            activeIndex = -1;
         }
-    }, true);
+    });
 
     // ── Reset ──
     function resetCard() {
         bukuData = null;
-        peminjamanData = null;
         anggotaList = [];
         dataGlobal = null;
         lastScanned = null;
         sedangMemproses = false;
+        selectedAnggotaId = null;
         document.getElementById('hasil-area').style.display = 'none';
         document.getElementById('hasil-area').innerHTML = '';
         hideAlert();

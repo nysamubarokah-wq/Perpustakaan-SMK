@@ -10,8 +10,8 @@
     #reader__dashboard_section_csr { display: none !important; }
     #reader__camera_permission_button { background: #1a6e35 !important; color: white !important; border-radius: 8px !important; padding: 8px 16px !important; border: none !important; font-size: 14px !important; cursor: pointer !important; }
 
-    .sampul-img { width: 80px; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
-    .sampul-placeholder { width: 80px; height: 110px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+    .scan-sampul { width: 80px; height: 110px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; }
+    .scan-sampul-ph { width: 80px; height: 110px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
 
     #alert-box { border-radius: 10px; padding: 12px 16px; font-size: 14px; font-weight: 500; margin-bottom: 16px; display: none; }
     #alert-box.show { display: block; }
@@ -19,54 +19,191 @@
     #alert-box.error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
     #alert-box.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
 
-    .badge-stok { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge-stok.ada { background: #d4edda; color: #1a6e35; }
-    .badge-stok.habis { background: #f8d7da; color: #721c24; }
+    .scan-badge-stok { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .scan-badge-stok.ada { background: #d4edda; color: #1a6e35; }
+    .scan-badge-stok.habis { background: #f8d7da; color: #721c24; }
 
-    .btn-scan-lain { width: 100%; padding: 11px; background: #f3f4f6; color: #555; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
-    .btn-scan-lain:hover { background: #e5e7eb; }
+    .scan-btn-lain { width: 100%; padding: 11px; background: #f3f4f6; color: #555; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+    .scan-btn-lain:hover { background: #e5e7eb; }
 
-    .btn-aksi { width: 100%; padding: 13px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; color: white; }
-    .btn-aksi:hover { opacity: 0.9; }
-    .btn-aksi:disabled { background: #ccc !important; cursor: not-allowed; }
-    .btn-pinjam { background: linear-gradient(135deg, #1a6e35, #27ae60); }
-    .btn-kembali { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+    .scan-aksi-btn { width: 100%; padding: 13px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; color: white; }
+    .scan-aksi-btn:hover { opacity: 0.9; }
+    .scan-aksi-btn:disabled { background: #ccc !important; cursor: not-allowed; }
+    .scan-btn-pinjam { background: linear-gradient(135deg, #1a6e35, #27ae60); }
+    .scan-btn-kembali { background: linear-gradient(135deg, #2563eb, #3b82f6); }
 
-    .form-input { width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; }
-    .form-input:focus { border-color: #27ae60; }
+    .scan-form-input { width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .scan-form-input:focus { border-color: #27ae60; }
 
-    .info-box { border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.7; }
-    .info-box.green { background: #f0fdf4; color: #166534; }
-    .info-box.blue { background: #eff6ff; color: #1e40af; }
-    .info-box.red { background: #fef2f2; color: #991b1b; }
-    .info-box.amber { background: #fffbeb; color: #92400e; }
+    .scan-info-box { border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.7; }
+    .scan-info-box.amber { background: #fffbeb; color: #92400e; }
 
-    .hasil-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); animation: fadeUp 0.3s ease; }
+    .scan-hasil-card { background: white; border-radius: 16px; overflow: visible; box-shadow: 0 4px 20px rgba(0,0,0,0.08); animation: fadeUp 0.3s ease; position: relative; z-index: 1; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .anggota-wrap { position: relative; }
-    .anggota-input { width: 100%; padding: 10px 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 14px; outline: none; transition: border 0.2s; background: white; cursor: text; }
-    .anggota-input:focus, .anggota-input.selected { border-color: #27ae60; }
-    .anggota-input.has-value { color: #222; font-weight: 600; }
-    .anggota-dropdown { position: absolute; top: 100%; left: 0; right: 0; max-height: 220px; overflow-y: auto; background: white; border: 2px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; z-index: 100; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
-    .anggota-dropdown.show { display: block; }
-    .anggota-item { padding: 10px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #f3f4f6; display: flex; align-items: center; gap: 10px; transition: background 0.15s; }
-    .anggota-item:last-child { border-bottom: none; }
-    .anggota-item:hover { background: #f0fdf4; }
-    .anggota-item .anggota-avatar { width: 32px; height: 32px; border-radius: 50%; background: #1a6e35; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-    .anggota-item .anggota-info { flex: 1; min-width: 0; }
-    .anggota-item .anggota-nama { font-weight: 600; color: #222; }
-    .anggota-item .anggota-nis { font-size: 11px; color: #999; }
-    .anggota-empty { padding: 14px; text-align: center; color: #999; font-size: 13px; }
-    .anggota-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #999; cursor: pointer; font-size: 16px; padding: 4px; display: none; }
-    .anggota-clear.show { display: block; }
+    .scan-section { max-width: 500px; margin: 0 auto; }
 
-    .scanner-section { max-width: 500px; margin: 0 auto; }
-    .selected-anggota-card { background: #f0fdf4; border: 2px solid #27ae60; border-radius: 10px; padding: 12px; margin-bottom: 16px; display: none; }
-    .selected-anggota-card.show { display: block; }
+    .scan-header-card { display: flex; gap: 16px; align-items: flex-start; }
+    .scan-judul { font-size: 18px; line-height: 1.3; }
+    .scan-pengarang { font-size: 13px; }
+    .scan-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .scan-info-item { background: #f8f9fa; border-radius: 8px; padding: 12px; }
+    .scan-info-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .scan-info-value { font-size: 13px; font-weight: 600; color: #333; }
+
+    .scan-aksi-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; }
+    .scan-aksi-section h5 { font-size: 15px; margin-bottom: 12px; }
+
+    .scan-anggota-wrap { position: relative; }
+    .scan-anggota-input-wrap { position: relative; }
+    .scan-anggota-input {
+        width: 100%;
+        padding: 10px 36px 10px 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        background: #fff;
+    }
+    .scan-anggota-input:focus { border-color: #27ae60; }
+    .scan-anggota-input.selected { border-color: #27ae60; font-weight: 600; }
+    .scan-anggota-clear {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 4px;
+        line-height: 1;
+        display: none;
+    }
+    .scan-anggota-clear:hover { color: #666; }
+    .scan-anggota-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        max-height: 280px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        z-index: 1000;
+        display: none;
+        scrollbar-width: thin;
+        scrollbar-color: #ccc #f9fafb;
+    }
+    .scan-anggota-dropdown::-webkit-scrollbar { width: 6px; }
+    .scan-anggota-dropdown::-webkit-scrollbar-track { background: #f9fafb; border-radius: 3px; }
+    .scan-anggota-dropdown::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+    .scan-anggota-dropdown::-webkit-scrollbar-thumb:hover { background: #aaa; }
+    .scan-anggota-dropdown.show { display: block; }
+    .scan-anggota-item {
+        padding: 12px 14px;
+        cursor: pointer;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: background 0.15s ease;
+    }
+    .scan-anggota-item:last-child { border-bottom: none; }
+    .scan-anggota-item:hover, .scan-anggota-item.active { background: #f0fdf4; }
+    .scan-anggota-item.active { outline: 2px solid #27ae60; outline-offset: -2px; }
+    .scan-anggota-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a6e35, #27ae60);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .scan-anggota-info { flex: 1; min-width: 0; }
+    .scan-anggota-nama { font-weight: 600; color: #1a1a1a; font-size: 14px; }
+    .scan-anggota-meta { font-size: 12px; color: #888; margin-top: 2px; }
+    .scan-anggota-empty {
+        padding: 20px 14px;
+        text-align: center;
+        color: #999;
+        font-size: 13px;
+    }
+
+    .scan-loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-size: 14px;
+    }
+    .scan-loading .spin {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+    }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .scan-status-info {
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .scan-status-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .scan-status-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .scan-status-info-blue { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+
+    @media (max-width: 576px) {
+        .scan-section { padding: 0 12px; }
+        .scan-hasil-card { padding: 16px !important; overflow: visible !important; }
+        .scan-header-card { flex-direction: column; align-items: center !important; text-align: center; gap: 12px !important; }
+        .scan-sampul, .scan-sampul-ph { width: 80px !important; height: 110px !important; }
+        .scan-sampul-ph { font-size: 32px !important; }
+        .scan-judul { font-size: 15px !important; text-align: center; }
+        .scan-pengarang { text-align: center !important; }
+        .scan-info-grid { gap: 8px !important; }
+        .scan-info-item { padding: 10px !important; }
+        .scan-form-input { font-size: 14px !important; padding: 12px !important; }
+        .scan-aksi-btn { padding: 14px !important; font-size: 15px !important; }
+        .scan-btn-lain { padding: 12px !important; font-size: 13px !important; }
+        .scan-aksi-section { padding-top: 12px !important; }
+        #reader { border-radius: 8px !important; }
+        .scan-anggota-dropdown {
+            position: fixed !important;
+            top: auto !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            max-height: 60vh;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+        }
+        .scan-anggota-dropdown::before {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 2px;
+            margin: 10px auto;
+        }
+    }
 </style>
 
-<div class="scanner-section">
+<div class="scan-section">
 
     <div class="text-center mb-4">
         <div style="font-size:36px;margin-bottom:8px">📷</div>
@@ -74,17 +211,6 @@
     </div>
 
     <div id="alert-box"></div>
-
-    <div class="selected-anggota-card" id="selected-anggota-card">
-        <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:36px;height:36px;border-radius:50%;background:#1a6e35;color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700" id="selected-anggota-avatar">-</div>
-            <div style="flex:1">
-                <div style="font-weight:700;color:#166534" id="selected-anggota-nama">-</div>
-                <div style="font-size:12px;color:#666" id="selected-anggota-info">-</div>
-            </div>
-            <button type="button" onclick="clearAnggota()" style="background:none;border:none;color:#999;cursor:pointer;font-size:18px">&times;</button>
-        </div>
-    </div>
 
     <div id="reader" class="mb-3"></div>
 
@@ -95,7 +221,7 @@
     </div>
     <div id="manual-box" class="d-none mb-4">
         <div class="d-flex gap-2">
-            <input id="kode-manual" type="text" class="form-input" placeholder="Masukkan kode buku (BK0001) atau ISBN" onkeydown="if(event.key==='Enter'){event.preventDefault();prosesKode(this.value.trim());}">
+            <input id="kode-manual" type="text" class="scan-form-input" placeholder="Masukkan kode buku (BK0001) atau ISBN" onkeydown="if(event.key==='Enter'){event.preventDefault();prosesKode(this.value.trim());}">
             <button onclick="prosesKode(document.getElementById('kode-manual').value.trim())" class="btn btn-success" style="white-space:nowrap;border-radius:8px">Cari</button>
         </div>
     </div>
@@ -110,11 +236,15 @@
 <script>
 (function() {
     var CSRF = '{{ csrf_token() }}';
-    var CEK_URL = '{{ route("admin.scanner.cek") }}'.replace(/^https?:\/\/[^/]+/, '');
+    var CEK_URL = '{{ route("admin.scanner.cek") }}';
+    var CEK_PEMINJAMAN_URL = '{{ route("admin.scanner.cek-peminjaman") }}';
+    var PINJAM_URL = '{{ route("admin.scanner.pinjam") }}';
+    var KEMBALI_URL = '{{ route("admin.scanner.kembali") }}';
 
     var bukuData = null;
     var anggotaList = [];
-    var selectedAnggota = null;
+    var selectedAnggotaId = null;
+    var activeIndex = -1;
 
     var scanner = null;
     var scannerAktif = false;
@@ -168,6 +298,8 @@
 
     function prosesKode(kode) {
         if (!kode) return Promise.resolve();
+        resetCard();
+        showAlert('info', 'Mencari buku...');
         return fetch(CEK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
@@ -189,6 +321,7 @@
                 if (res.ok && data.status === 'found') {
                     bukuData = data.buku;
                     anggotaList = data.anggota || [];
+                    selectedAnggotaId = null;
                     showAlert('success', 'Buku ditemukan: ' + data.buku.judul);
                     return hentikanScanner().then(function() {
                         document.getElementById('reader').style.display = 'none';
@@ -211,93 +344,58 @@
         var stokHabis = b.stok < 1;
 
         var sampulHtml = b.sampul
-            ? '<img src="' + b.sampul + '" class="sampul-img" alt="">'
-            : '<div class="sampul-placeholder">📚</div>';
+            ? '<img src="' + b.sampul + '" class="scan-sampul" alt="">'
+            : '<div class="scan-sampul-ph">📚</div>';
 
         var stokBadge = stokHabis
-            ? '<span class="badge-stok habis">✕ Stok habis</span>'
-            : '<span class="badge-stok ada">✓ Tersedia (' + b.stok + ')</span>';
+            ? '<span class="scan-badge-stok habis">✕ Stok habis</span>'
+            : '<span class="scan-badge-stok ada">✓ Tersedia (' + b.stok + ')</span>';
 
-        var infoHtml = '<div class="row" style="font-size:13px">'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">Kode Buku</span><p class="fw-bold mb-0">' + esc(b.kode_buku) + '</p></div>'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">ISBN</span><p class="fw-bold mb-0">' + esc(b.isbn || '-') + '</p></div>'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">Lokasi Rak</span><p class="fw-bold mb-0">📍 ' + esc(b.lokasi || '-') + '</p></div>'
-            + '<div class="col-6 mb-2"><span class="text-muted" style="font-size:11px">Status</span><p class="mb-0">' + stokBadge + '</p></div>'
-            + '</div>';
-
-        var aksiHtml = '';
-
-        if (!selectedAnggota) {
-            var itemHtml = '';
-            for (var i = 0; i < anggotaList.length; i++) {
-                var a = anggotaList[i];
-                var initials = a.nama.substring(0, 2).toUpperCase();
-                var nisLabel = a.nis ? 'NIS: ' + a.nis : '';
-                var extraInfo = (a.kelas ? a.kelas : '') + (a.jurusan ? ' ' + a.jurusan : '');
-                itemHtml += '<div class="anggota-item" data-id="' + a.id + '" data-nama="' + esc(a.nama) + '" data-info="' + esc(extraInfo) + '" onclick="pilihAnggota(this)">'
-                    + '<div class="anggota-avatar">' + esc(initials) + '</div>'
-                    + '<div class="anggota-info">'
-                    + '<div class="anggota-nama">' + esc(a.nama) + '</div>'
-                    + '<div class="anggota-nis">' + esc(nisLabel + (extraInfo ? ' - ' + extraInfo : '')) + '</div>'
-                    + '</div></div>';
-            }
-
-            aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                + '<h5 class="fw-bold mb-3" style="font-size:15px"><i class="bi bi-person-check text-success"></i> Pilih Anggota</h5>'
-                + '<div class="info-box amber mb-3"><i class="bi bi-info-circle"></i> Silakan pilih anggota terlebih dahulu sebelum memindai QR Code buku.</div>'
-                + '<div class="anggota-wrap mb-3" id="anggota-wrap">'
-                + '<input type="text" class="anggota-input" id="anggota-search" placeholder="Ketik untuk cari, lalu klik nama..." autocomplete="off">'
-                + '<button type="button" class="anggota-clear" id="anggota-clear" onclick="clearAnggota()">&times;</button>'
-                + '<div class="anggota-dropdown" id="anggota-dropdown">'
-                + itemHtml
-                + '<div class="anggota-empty" id="anggota-empty" style="display:none">Anggota tidak ditemukan</div>'
-                + '</div></div>'
-                + '</div>';
-
-        } else {
-            var today = new Date().toISOString().split('T')[0];
-            var nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
-
-            aksiHtml = '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                + '<div class="info-box green mb-3"><i class="bi bi-check-circle"></i> Anggota dipilih: <strong>' + esc(selectedAnggota.nama) + '</strong></div>'
-                + '<form method="POST" action="{{ route("admin.scanner.pinjam") }}">'
-                + '@csrf'
-                + '<input type="hidden" name="buku_id" value="' + b.id + '">'
-                + '<input type="hidden" name="anggota_id" id="anggota-id-hidden" value="' + selectedAnggota.id + '">'
-                + '<div class="mb-3">'
-                + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Pinjam</label>'
-                + '<input type="date" name="tanggal_pinjam" class="form-input" required value="' + today + '">'
-                + '</div>'
-                + '<div class="mb-3">'
-                + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Kembali</label>'
-                + '<input type="date" name="tanggal_kembali" class="form-input" required value="' + nextWeek + '">'
-                + '</div>'
-                + '<div class="mb-3">'
-                + '<label class="form-label fw-semibold" style="font-size:13px">Catatan <span class="text-muted fw-normal">(opsional)</span></label>'
-                + '<input type="text" name="catatan" class="form-input" placeholder="Contoh: Sudah diperiksa kondisinya">'
-                + '</div>'
-                + '<button type="submit" class="btn-aksi btn-pinjam" onclick="return confirm(\'Pinjamkan buku ini?\')"><i class="bi bi-check-circle"></i> Pinjamkan Buku</button>'
-                + '</form>'
-                + '<hr style="margin:16px 0">'
-                + '<form method="POST" action="{{ route("admin.scanner.kembali") }}" id="form-kembali">'
-                + '@csrf'
-                + '<input type="hidden" name="buku_id" value="' + b.id + '">'
-                + '<input type="hidden" name="anggota_id" id="anggota-id-kembali" value="' + selectedAnggota.id + '">'
-                + '<button type="button" class="btn-aksi btn-kembali" onclick="submitKembali()"><i class="bi bi-arrow-return-left"></i> Kembalikan Buku</button>'
-                + '</form>'
-                + '<button class="btn-scan-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
-                + '</div>';
+        var itemHtml = '';
+        for (var i = 0; i < anggotaList.length; i++) {
+            var a = anggotaList[i];
+            var initials = a.nama.substring(0, 2).toUpperCase();
+            var nisLabel = a.nis ? 'NIS: ' + a.nis : '';
+            var kelasLabel = a.kelas ? ' • ' + a.kelas : '';
+            itemHtml += '<div class="scan-anggota-item" data-id="' + a.id + '" data-nama="' + esc(a.nama) + '" data-index="' + i + '" role="option" data-action="pilih-anggota">'
+                + '<div class="scan-anggota-avatar">' + esc(initials) + '</div>'
+                + '<div class="scan-anggota-info">'
+                + '<div class="scan-anggota-nama">' + esc(a.nama) + '</div>'
+                + '<div class="scan-anggota-meta">' + esc(nisLabel) + esc(kelasLabel) + '</div>'
+                + '</div></div>';
         }
 
-        area.innerHTML = '<div class="hasil-card p-4">'
-            + '<div class="d-flex gap-3 align-items-start">'
-            + '<div class="flex-shrink-0">' + sampulHtml + '</div>'
+        var aksiHtml = '<div class="scan-aksi-section scan-aksi-form" id="scan-form-section">'
+            + '<h5 class="fw-bold mb-3"><i class="bi bi-person-plus text-success"></i> Pilih Anggota</h5>'
+            + '<div class="mb-3">'
+            + '<div class="scan-anggota-wrap" id="anggota-wrap">'
+            + '<div class="scan-anggota-input-wrap">'
+            + '<input type="text" class="scan-anggota-input" id="anggota-search" placeholder="Ketik nama anggota..." autocomplete="off" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false">'
+            + '<button type="button" class="scan-anggota-clear" id="anggota-clear" aria-label="Hapus pilihan">&times;</button>'
+            + '</div>'
+            + '<div class="scan-anggota-dropdown" id="anggota-dropdown" role="listbox">'
+            + itemHtml
+            + '<div class="scan-anggota-empty" id="anggota-empty">Tidak ada anggota ditemukan</div>'
+            + '</div></div>'
+            + '</div>'
+            + '<div id="scan-aksi-container"></div>'
+            + '<button class="scan-btn-lain" onclick="resetScanner()"><i class="bi bi-qr-code-scan"></i> Scan Buku Lain</button>'
+            + '</div>';
+
+        area.innerHTML = '<div class="scan-hasil-card p-4">'
+            + '<div class="scan-header-card">'
+            + '<div class="flex-shrink-0 mb-2">' + sampulHtml + '</div>'
             + '<div class="flex-grow-1" style="min-width:0">'
-            + '<h5 class="fw-bold mb-1" style="font-size:16px">' + esc(b.judul) + '</h5>'
-            + '<p class="text-muted mb-0" style="font-size:13px">' + esc(b.pengarang) + '</p>'
+            + '<h5 class="fw-bold mb-1 scan-judul">' + esc(b.judul) + '</h5>'
+            + '<p class="text-muted mb-0 scan-pengarang" style="font-size:13px">' + esc(b.pengarang) + '</p>'
             + '</div>'
             + '</div>'
-            + '<div class="mt-3">' + infoHtml + '</div>'
+            + '<div class="scan-info-grid">'
+            + '<div class="scan-info-item"><div class="scan-info-label">Kode Buku</div><div class="scan-info-value">' + esc(b.kode_buku) + '</div></div>'
+            + '<div class="scan-info-item"><div class="scan-info-label">ISBN</div><div class="scan-info-value">' + esc(b.isbn || '-') + '</div></div>'
+            + '<div class="scan-info-item"><div class="scan-info-label">Lokasi Rak</div><div class="scan-info-value">📍 ' + esc(b.lokasi || '-') + '</div></div>'
+            + '<div class="scan-info-item"><div class="scan-info-label">Status</div><div class="scan-info-value">' + stokBadge + '</div></div>'
+            + '</div>'
             + aksiHtml
             + '</div>';
 
@@ -307,42 +405,129 @@
     window.pilihAnggota = function(el) {
         var id = el.getAttribute('data-id');
         var nama = el.getAttribute('data-nama');
-        var info = el.getAttribute('data-info');
+        selectedAnggotaId = id;
 
-        selectedAnggota = { id: id, nama: nama, info: info };
-
-        document.getElementById('selected-anggota-card').classList.add('show');
-        document.getElementById('selected-anggota-avatar').textContent = nama.substring(0, 2).toUpperCase();
-        document.getElementById('selected-anggota-nama').textContent = nama;
-        document.getElementById('selected-anggota-info').textContent = info || '-';
-
+        var inp = document.getElementById('anggota-search');
+        inp.value = nama;
+        inp.classList.add('selected');
+        document.getElementById('anggota-clear').style.display = 'block';
         document.getElementById('anggota-dropdown').classList.remove('show');
-        tampilkanHasil();
+        inp.setAttribute('aria-expanded', 'false');
+        activeIndex = -1;
+        document.querySelectorAll('.scan-anggota-item').forEach(function(item) { item.classList.remove('active'); });
+
+        var aksiContainer = document.getElementById('scan-aksi-container');
+        aksiContainer.innerHTML = '<div class="scan-loading"><i class="bi bi-arrow-repeat spin"></i> Memeriksa transaksi...</div>';
+
+        fetch(CEK_PEMINJAMAN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+            body: JSON.stringify({ buku_id: bukuData.id, anggota_id: id }),
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var html = '';
+            if (data.status === 'tidak_memiliki') {
+                if (data.stok < 1) {
+                    html = '<div class="scan-status-info scan-status-warning">'
+                        + '<i class="bi bi-info-circle"></i> Semua eksemplar buku sedang dipinjam.'
+                        + '</div>'
+                        + '<button type="button" class="scan-aksi-btn scan-btn-pinjam" disabled>'
+                        + '<i class="bi bi-book-x"></i> Pinjamkan Buku'
+                        + '</button>';
+                } else {
+                    var nextWeekPinjam = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+                    html = '<div class="scan-status-info scan-status-success">'
+                        + '<i class="bi bi-check-circle"></i> Belum meminjam buku ini.'
+                        + '</div>'
+                        + '<form method="POST" action="' + PINJAM_URL + '">'
+                        + '<input type="hidden" name="_token" value="' + CSRF + '">'
+                        + '<input type="hidden" name="buku_id" value="' + bukuData.id + '">'
+                        + '<input type="hidden" name="anggota_id" value="' + id + '">'
+                        + '<div class="mb-3 mt-3">'
+                        + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Pinjam</label>'
+                        + '<input type="date" name="tanggal_pinjam" class="scan-form-input" required value="' + getToday() + '">'
+                        + '</div>'
+                        + '<div class="mb-3">'
+                        + '<label class="form-label fw-semibold" style="font-size:13px">Tanggal Kembali</label>'
+                        + '<input type="date" name="tanggal_kembali" class="scan-form-input" required value="' + nextWeekPinjam + '">'
+                        + '</div>'
+                        + '<div class="mb-3">'
+                        + '<label class="form-label fw-semibold" style="font-size:13px">Catatan <span class="text-muted fw-normal">(opsional)</span></label>'
+                        + '<input type="text" name="catatan" class="scan-form-input" placeholder="Contoh: Sudah diperiksa kondisinya">'
+                        + '</div>'
+                        + '<button type="submit" class="scan-aksi-btn scan-btn-pinjam" onclick="return confirm(\'Pinjamkan buku ini?\')">'
+                        + '<i class="bi bi-check-circle"></i> Pinjamkan Buku'
+                        + '</button>'
+                        + '</form>';
+                }
+            } else if (data.status === 'sedang_memiliki') {
+                var p = data.peminjaman;
+                html = '<div class="scan-status-info scan-status-info-blue">'
+                    + '<i class="bi bi-clock-history"></i> Sedang meminjam buku ini sejak ' + fmtDate(p.tanggal_pinjam)
+                    + '</div>'
+                    + '<form method="POST" action="' + KEMBALI_URL + '">'
+                    + '<input type="hidden" name="_token" value="' + CSRF + '">'
+                    + '<input type="hidden" name="buku_id" value="' + bukuData.id + '">'
+                    + '<input type="hidden" name="anggota_id" value="' + id + '">'
+                    + '<button type="submit" class="scan-aksi-btn scan-btn-kembali" onclick="return confirm(\'Kembalikan buku ini?\')">'
+                    + '<i class="bi bi-arrow-return-left"></i> Kembalikan Buku'
+                    + '</button>'
+                    + '</form>';
+            } else {
+                html = '<div class="scan-info-box amber text-center"><i class="bi bi-exclamation-triangle"></i> ' + esc(data.pesan || 'Terjadi kesalahan.') + '</div>';
+            }
+            aksiContainer.innerHTML = html;
+        })
+        .catch(function(err) {
+            console.error('Fetch error:', err);
+            aksiContainer.innerHTML = '<div class="scan-info-box" style="background:#fef2f2;color:#991b1b"><i class="bi bi-x-circle"></i> Gagal memeriksa transaksi.</div>';
+        });
     };
+
+    function getToday() {
+        return new Date().toISOString().split('T')[0];
+    }
 
     window.clearAnggota = function() {
-        selectedAnggota = null;
-        document.getElementById('selected-anggota-card').classList.remove('show');
-        tampilkanHasil();
-    };
-
-    window.submitKembali = function() {
-        if (!confirm('Kembalikan buku ini?')) return;
-        document.getElementById('form-kembali').submit();
+        selectedAnggotaId = null;
+        var inp = document.getElementById('anggota-search');
+        inp.value = '';
+        inp.classList.remove('selected');
+        inp.focus();
+        document.getElementById('anggota-clear').style.display = 'none';
+        var items = document.querySelectorAll('.scan-anggota-item');
+        for (var i = 0; i < items.length; i++) items[i].style.display = '';
+        document.getElementById('anggota-empty').style.display = 'none';
+        document.getElementById('scan-aksi-container').innerHTML = '';
+        activeIndex = -1;
     };
 
     document.addEventListener('click', function(e) {
         var wrap = document.getElementById('anggota-wrap');
-        if (!wrap) return;
+        var dropdown = document.getElementById('anggota-dropdown');
+        if (!wrap || !dropdown) return;
+        
+        if (e.target.closest('.scan-anggota-item')) {
+            var item = e.target.closest('.scan-anggota-item');
+            if (item && window.pilihAnggota) {
+                window.pilihAnggota(item);
+            }
+            return;
+        }
+        
         if (!wrap.contains(e.target)) {
-            document.getElementById('anggota-dropdown').classList.remove('show');
+            dropdown.classList.remove('show');
+            var inp = document.getElementById('anggota-search');
+            if (inp) inp.setAttribute('aria-expanded', 'false');
+            activeIndex = -1;
         }
     });
 
     document.addEventListener('input', function(e) {
         if (e.target && e.target.id === 'anggota-search') {
             var q = e.target.value.toLowerCase().trim();
-            var items = document.querySelectorAll('#anggota-dropdown .anggota-item');
+            var items = document.querySelectorAll('.scan-anggota-item');
             var any = false;
             for (var i = 0; i < items.length; i++) {
                 var ds = (items[i].getAttribute('data-nama') || '').toLowerCase();
@@ -352,19 +537,67 @@
             }
             document.getElementById('anggota-empty').style.display = any ? 'none' : 'block';
             document.getElementById('anggota-dropdown').classList.add('show');
+            e.target.setAttribute('aria-expanded', 'true');
+            if (selectedAnggotaId) {
+                selectedAnggotaId = null;
+                var inp = document.getElementById('anggota-search');
+                inp.classList.remove('selected');
+                document.getElementById('anggota-clear').style.display = 'none';
+                document.getElementById('scan-aksi-container').innerHTML = '';
+            }
+            activeIndex = -1;
         }
     });
 
-    window.resetScanner = function() {
+    document.addEventListener('keydown', function(e) {
+        var dropdown = document.getElementById('anggota-dropdown');
+        var input = document.getElementById('anggota-search');
+        if (!dropdown || !dropdown.classList.contains('show')) return;
+        
+        var items = Array.from(document.querySelectorAll('.scan-anggota-item')).filter(function(item) {
+            return item.style.display !== 'none';
+        });
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (items.length === 0) return;
+            if (activeIndex < items.length - 1) activeIndex++;
+            items.forEach(function(item) { item.classList.remove('active'); });
+            items[activeIndex].classList.add('active');
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (items.length === 0) return;
+            if (activeIndex > 0) activeIndex--;
+            items.forEach(function(item) { item.classList.remove('active'); });
+            items[activeIndex].classList.add('active');
+            items[activeIndex].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0 && items[activeIndex]) {
+                window.pilihAnggota(items[activeIndex]);
+            }
+        } else if (e.key === 'Escape') {
+            dropdown.classList.remove('show');
+            if (input) input.setAttribute('aria-expanded', 'false');
+            activeIndex = -1;
+        }
+    });
+
+    function resetCard() {
         bukuData = null;
         anggotaList = [];
-        selectedAnggota = null;
+        selectedAnggotaId = null;
+        activeIndex = -1;
         lastScanned = null;
         sedangMemproses = false;
-        document.getElementById('selected-anggota-card').classList.remove('show');
         document.getElementById('hasil-area').style.display = 'none';
         document.getElementById('hasil-area').innerHTML = '';
         hideAlert();
+    }
+
+    window.resetScanner = function() {
+        resetCard();
         hentikanScanner().then(function() {
             document.getElementById('reader').innerHTML = '';
             document.getElementById('reader').style.display = 'block';
@@ -380,6 +613,13 @@
 
     function hideAlert() {
         document.getElementById('alert-box').className = '';
+    }
+
+    function fmtDate(str) {
+        if (!str) return '-';
+        var d = new Date(str);
+        var bln = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        return d.getDate() + ' ' + bln[d.getMonth()] + ' ' + d.getFullYear();
     }
 
     function esc(s) {

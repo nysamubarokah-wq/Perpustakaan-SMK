@@ -159,6 +159,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/admin/scan-buku', [BarcodeController::class, 'adminScanner'])->name('admin.scanner');
     Route::post('/admin/scan-buku/cek', [BarcodeController::class, 'adminCekBuku'])->name('admin.scanner.cek');
+    Route::post('/admin/scan-buku/cek-peminjaman', [BarcodeController::class, 'cekPeminjamanAnggota'])->name('admin.scanner.cek-peminjaman');
     Route::post('/admin/scan-buku/pinjam', [BarcodeController::class, 'adminPinjam'])->name('admin.scanner.pinjam');
     Route::post('/admin/scan-buku/kembali', [BarcodeController::class, 'adminKembali'])->name('admin.scanner.kembali');
 });

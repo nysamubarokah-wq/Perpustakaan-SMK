@@ -407,4 +407,42 @@ class BarcodeController extends Controller
             ],
         ]);
     }
+
+    public function cekPeminjamanAnggota(Request $request)
+    {
+        $request->validate([
+            'buku_id'    => 'required|exists:buku,id',
+            'anggota_id' => 'required|exists:anggota,id',
+        ]);
+
+        $buku = Buku::findOrFail($request->buku_id);
+        $anggota = Anggota::findOrFail($request->anggota_id);
+
+        $peminjaman = Peminjaman::where('buku_id', $buku->id)
+            ->where('anggota_id', $anggota->id)
+            ->whereIn('status', ['dipinjam', 'menunggu_pengembalian'])
+            ->with('eksemplar')
+            ->first();
+
+        if (!$peminjaman) {
+            return response()->json([
+                'status'   => 'tidak_memiliki',
+                'pesan'    => 'Anggota ini belum meminjam buku ini.',
+                'stok'     => $buku->eksemplarTersedia()->count(),
+            ]);
+        }
+
+        return response()->json([
+            'status'   => 'sedang_memiliki',
+            'pesan'    => 'Anggota ini sedang meminjam buku ini.',
+            'peminjaman' => [
+                'id'              => $peminjaman->id,
+                'eksemplar_kode'  => $peminjaman->eksemplar?->kode_buku,
+                'status'          => $peminjaman->status,
+                'tanggal_pinjam'  => $peminjaman->tanggal_pinjam,
+                'tanggal_kembali' => $peminjaman->tanggal_kembali,
+            ],
+            'stok'     => $buku->eksemplarTersedia()->count(),
+        ]);
+    }
 }

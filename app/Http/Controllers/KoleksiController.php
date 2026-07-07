@@ -50,8 +50,8 @@ $buku = $query->get();
         ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
         : [];
 
-    $penerbitList = Penerbit::orderBy('nama')->get();
-    $genreList = Genre::orderBy('nama')->get();
+    $penerbitList = Penerbit::whereHas('buku')->orderBy('nama')->get();
+    $genreList = Genre::whereHas('buku')->orderBy('nama')->get();
 
     $populerQuery = Buku::withCount('peminjaman')
         ->orderByDesc('peminjaman_count');
@@ -133,8 +133,8 @@ public function populer(Request $request)
         ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
         : [];
 
-    $penerbitList = Penerbit::orderBy('nama')->get();
-    $genreList = Genre::orderBy('nama')->get();
+    $penerbitList = Penerbit::whereHas('buku')->orderBy('nama')->get();
+    $genreList = Genre::whereHas('buku')->orderBy('nama')->get();
 
     return view('koleksi.populer', compact(
         'buku', 'penerbit', 'genre', 'favoritIds', 'penerbitList', 'genreList'
@@ -168,8 +168,8 @@ public function terbaru(Request $request)
         ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
         : [];
 
-    $penerbitList = Penerbit::orderBy('nama')->get();
-    $genreList = Genre::orderBy('nama')->get();
+    $penerbitList = Penerbit::whereHas('buku')->orderBy('nama')->get();
+    $genreList = Genre::whereHas('buku')->orderBy('nama')->get();
 
     return view('koleksi.terbaru', compact(
         'buku', 'search', 'penerbit', 'genre', 'favoritIds', 'penerbitList', 'genreList'

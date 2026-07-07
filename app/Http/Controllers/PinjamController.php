@@ -194,7 +194,7 @@ class PinjamController extends Controller
 
         $user = User::where('email', $peminjaman->anggota->email)->first();
         if ($user) {
-            $user->increment('coin', 10000);
+            $user->increment('coin', 10);
         }
 
         return back()->with('success', 'Peminjaman "'.$peminjaman->buku->judul.'" ('.($peminjaman->eksemplar->kode_buku ?? '-').') oleh '.$peminjaman->anggota->nama.' berhasil dikonfirmasi!');

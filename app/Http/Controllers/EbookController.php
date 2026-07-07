@@ -112,11 +112,17 @@ public function adminUpdate(Request $request, $id)
 }
     public function adminStore(Request $request)
     {
+        // DEBUG: Check uploaded file
+        if ($request->hasFile('file_pdf')) {
+            $file = $request->file('file_pdf');
+            \Log::info('PDF uploaded: ' . $file->getSize() . ' bytes, ' . $file->getClientMimeType());
+        }
+        
         $request->validate([
             'judul'      => 'required|string|max:255',
             'penulis'    => 'required|string|max:255',
             'sinopsis'   => 'nullable|string',
-            'file_pdf'   => 'required|mimes:pdf|max:20480', // max 20MB
+'file_pdf'   => 'required|mimes:pdf',
             'cover'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'harga_koin' => 'required|integer|min:0',
             'is_vip'     => 'nullable|boolean',

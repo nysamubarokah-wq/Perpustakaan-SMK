@@ -306,14 +306,28 @@ class BukuController extends Controller
 
             $jumlahEksemplar = max(1, (int) trim($row[5]));
 
+            $penerbitNama = trim($row[2]);
+            $penerbit = null;
+            if ($penerbitNama) {
+                $penerbit = \App\Models\Penerbit::firstOrCreate(['nama' => $penerbitNama]);
+            }
+
+            $genreNama = trim($row[6] ?? '');
+            $genre = null;
+            if ($genreNama) {
+                $genre = \App\Models\Genre::firstOrCreate(['nama' => $genreNama]);
+            }
+
             $buku = Buku::create([
                 'judul'        => trim($row[0]),
                 'pengarang'    => trim($row[1]),
-                'penerbit'     => trim($row[2]),
+                'penerbit'     => $penerbitNama,
+                'penerbit_id'  => $penerbit?->id,
                 'tahun_terbit' => trim($row[3]),
                 'isbn'         => $isbn,
                 'stok'         => $jumlahEksemplar,
-                'genre'        => trim($row[6] ?? ''),
+                'genre'        => $genreNama,
+                'genre_id'     => $genre?->id,
                 'lokasi'       => trim($row[7] ?? ''),
                 'deskripsi'    => trim($row[8] ?? ''),
                 'sampul'       => $sampulPath,
