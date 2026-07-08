@@ -311,8 +311,10 @@
             .filter-tab { padding: 6px 12px; font-size: 12px; }
             .action-btn { padding: 6px 12px; font-size: 12px; }
         }
-
-        /* DARK MODE */
+    </style>
+    @auth
+        @if(auth()->user()->role !== 'admin')
+    <style>
         body.dark-mode { background: #121212; color: #e0e0e0; }
         body.dark-mode .navbar { background: #1e1e1e; transition: all .3s ease; }
         body.dark-mode .navbar span { color: #1a6e35 !important; }
@@ -332,23 +334,35 @@
         body.dark-mode .pagination .page-item.active .page-link { background: linear-gradient(135deg, #1a6e35, #27ae60); border-color: #1a6e35; }
         body.dark-mode .pagination .page-link:hover { background: #3a3a3a; }
         body.dark-mode .alert-success { background: #1a3d1a; border-color: #2d5c2d; color: #81c784; }
-        body.dark-mode form[action*="favorit"] button { background: rgba(40,40,40,0.9) !important; }
+        body.dark-mode .action-btn.primary { background: #2d6a3e; }
+        body.dark-mode .action-btn.danger { background: rgba(220, 38, 38, 0.15); color: #f87171; }
+        body.dark-mode .action-btn.danger:hover { background: rgba(220, 38, 38, 0.25); }
+        body.dark-mode .count-badge { background: #e74c3c; }
     </style>
+        @endif
+    @endauth
 </head>
 <body>
+    @php
+        $isAdmin = auth()->check() && auth()->user()->role === 'admin';
+        $backUrl = session('notifikasi_back_url')
+            ?? ($isAdmin ? route('admin.dashboard') : route('koleksi.index'));
+    @endphp
 
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-            <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <a href="{{ $backUrl }}" class="d-flex align-items-center gap-2 text-decoration-none">
                 <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('koleksi.index') }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+                @if(!$isAdmin)
+                <button id="darkModeToggle" class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-moon-fill"></i></button>
+                @endif
+                <a href="{{ $backUrl }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
-
             </div>
         </div>
     </div>
@@ -468,10 +482,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-if(localStorage.getItem('darkMode') === 'enabled'){
-    document.body.classList.add('dark-mode');
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
@@ -635,55 +645,27 @@ function updatePageCount() {
 
 setInterval(updatePageCount, 30000);
 
-function updatePageCount() {
-    const url = new URL(window.location.href);
-    const currentFilter = url.searchParams.get('filter');
+// Dark mode toggle - hanya untuk user
+(function initDarkMode() {
+    const btn = document.getElementById('darkModeToggle');
+    if (!btn) return;
     
-    fetch('{{ route("notifikasi.unreadCount") }}', {
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const titleBadge = document.querySelector('.page-title .count-badge');
-        const filterBadge = document.querySelector('.filter-tab.active .count-badge');
-        
-        if (data.count > 0) {
-            if (titleBadge) {
-                titleBadge.textContent = data.count;
-            } else {
-                const newTitleBadge = document.createElement('span');
-                newTitleBadge.className = 'count-badge';
-                newTitleBadge.textContent = data.count;
-                document.querySelector('.page-title').appendChild(newTitleBadge);
-            }
-            
-            if (filterBadge) {
-                filterBadge.textContent = data.count;
-            } else if (currentFilter === 'belum_dibaca') {
-                const activeTab = document.querySelector('.filter-tab.active');
-                if (activeTab) {
-                    const newFilterBadge = document.createElement('span');
-                    newFilterBadge.className = 'count-badge';
-                    newFilterBadge.textContent = data.count;
-                    activeTab.appendChild(newFilterBadge);
-                }
-            }
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        document.body.classList.add('dark-mode');
+        btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    }
+    
+    btn.addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('darkMode', 'enabled');
+            btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
         } else {
-            if (titleBadge) titleBadge.remove();
-            if (filterBadge) filterBadge.remove();
-            
-            if (currentFilter === 'belum_dibaca' && document.querySelectorAll('.notif-card').length === 0) {
-                location.reload();
-            }
+            localStorage.setItem('darkMode', 'disabled');
+            btn.innerHTML = '<i class="bi bi-moon-fill"></i>';
         }
-    })
-    .catch(error => console.error('Error:', error));
-}
-
-setInterval(updatePageCount, 30000);
+    });
+})();
 </script>
 
 </body>

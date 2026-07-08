@@ -350,6 +350,15 @@
                                 <?php if($item->terlambat_hari > 0): ?>
                                     <div class="fine-info">Rp <?php echo e(number_format($item->taksiran_denda, 0, ',', '.')); ?></div>
                                 <?php endif; ?>
+                                <?php if($item->status == 'dipinjam'): ?>
+                                    <form action="<?php echo e(route('peminjaman.kembalikan', $item->id)); ?>" method="POST" class="d-inline mt-1">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('PUT'); ?>
+                                        <button type="submit" class="btn btn-sm btn-success text-white py-1 px-3" style="border-radius: 20px; font-size: 11px; font-weight: 600;" onclick="return confirm('Yakin ingin mengembalikan buku ini?')">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Kembalikan
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </a>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>

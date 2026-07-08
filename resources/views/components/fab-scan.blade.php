@@ -274,9 +274,14 @@ body.dark-mode .fab-date-input{background:#2a2a2a;border-color:#444;color:#fff}
                 <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block" class="fab-label">Tanggal Pinjam</label>
                 <input type="date" id="fab-tgl-pinjam" min="${today}" value="${today}" max="${maxDate}" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" class="fab-date-input" onchange="updateMinKembali()">
             </div>
-            <div style="margin-bottom:16px">
+            <div style="margin-bottom:12px">
                 <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block" class="fab-label">Tanggal Kembali</label>
                 <input type="date" id="fab-tgl-kembali" min="${minKembali}" max="${maxDate}" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" class="fab-date-input">
+            </div>
+            <div style="margin-bottom:12px">
+                <label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block" class="fab-label">Jumlah Buku</label>
+                <input type="number" id="fab-jumlah" min="1" max="${buku.stok}" value="1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" class="fab-date-input">
+                <small style="font-size:11px;color:#888">Stok tersedia: <strong>${buku.stok}</strong> eksemplar</small>
             </div>
             <div id="fab-validasi-msg" style="color:#e74c3c;font-size:12px;margin-bottom:12px;display:none"></div>
             <button class="fab-btn-primary" onclick="fabSubmitPinjam(${buku.id})">
@@ -303,6 +308,7 @@ body.dark-mode .fab-date-input{background:#2a2a2a;border-color:#444;color:#fff}
     window.fabSubmitPinjam = function(bukuId) {
         const tglPinjam = document.getElementById('fab-tgl-pinjam').value;
         const tglKembali = document.getElementById('fab-tgl-kembali').value;
+        const jumlah = parseInt(document.getElementById('fab-jumlah').value) || 1;
         const maxDurasi = isVip ? 14 : 7;
         const validasiMsg = document.getElementById('fab-validasi-msg');
 
@@ -340,18 +346,13 @@ body.dark-mode .fab-date-input{background:#2a2a2a;border-color:#444;color:#fff}
 
         validasiMsg.style.display = 'none';
 
-        console.log('CSRF Token:', csrf);
-        console.log('Submitting to:', '{{ route("barcode.pinjam") }}');
-
         fetch('{{ route("barcode.pinjam") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
-            body: JSON.stringify({ buku_id: bukuId, tanggal_pinjam: tglPinjam, tanggal_kembali: tglKembali })
+            body: JSON.stringify({ buku_id: bukuId, tanggal_pinjam: tglPinjam, tanggal_kembali: tglKembali, jumlah: jumlah })
         })
         .then(r => {
-            console.log('Response status:', r.status);
             return r.json().then(data => {
-                console.log('Response body:', data);
                 if (r.status === 422 && data.errors) {
                     const msgs = Object.values(data.errors).flat().join(', ');
                     toast('error', msgs);
@@ -369,9 +370,25 @@ body.dark-mode .fab-date-input{background:#2a2a2a;border-color:#444;color:#fff}
 
     function showKembali(data) {
         const buku = data.buku;
-        const pinjam = data.peminjaman_aktif;
-        const tglPinjam = pinjam.tanggal_pinjam ? new Date(pinjam.tanggal_pinjam).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
-        const tglKembali = pinjam.tanggal_kembali ? new Date(pinjam.tanggal_kembali).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-';
+        const pinjamList = Array.isArray(data.peminjaman_aktif) ? data.peminjaman_aktif : [data.peminjaman_aktif];
+        const dipinjamList = pinjamList.filter(function(p) { return p && p.status === 'dipinjam'; });
+
+        let checkboxesHtml = '';
+        dipinjamList.forEach(function(p, idx) {
+            const eksKode = p.eksemplar_kode ? p.eksemplar_kode : '-';
+            const tglPinjam = p.tanggal_pinjam ? new Date(p.tanggal_pinjam).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+            const tglKembali = p.tanggal_kembali ? new Date(p.tanggal_kembali).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+            checkboxesHtml += ''
+                + '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eff6ff;border-radius:8px;margin-bottom:8px;cursor:pointer">'
+                + '<input type="checkbox" class="fab-pinjam-check" value="' + p.id + '" style="width:18px;height:18px;accent-color:#2563eb" onchange="fabUpdateKembaliBtn()">'
+                + '<div style="flex:1">'
+                + '<div style="font-size:13px;font-weight:600;color:#1e40af">📖 Eksemplar: <strong>' + eksKode + '</strong></div>'
+                + '<div style="font-size:11px;color:#666">Pinjam: ' + tglPinjam + ' | Kembali: ' + tglKembali + '</div>'
+                + '</div>'
+                + '</label>';
+        });
+
+        const selectAllChecked = dipinjamList.length > 0 ? 'checked' : '';
 
         document.getElementById('fab-kembali-content').innerHTML = `
             <div style="display:flex;gap:12px;align-items:start;margin-bottom:16px">
@@ -381,29 +398,54 @@ body.dark-mode .fab-date-input{background:#2a2a2a;border-color:#444;color:#fff}
                     <div style="font-size:13px;color:#666;margin-top:2px">${buku.pengarang}</div>
                 </div>
             </div>
-            <div class="fab-modal-info" style="margin-bottom:16px">
-                ${buku.kode_buku ? `<p><i class="bi bi-upc-scan"></i> Kode Buku: <strong>${buku.kode_buku}</strong></p>` : ''}
-                <p><i class="bi bi-calendar"></i> Tanggal Pinjam: <strong>${tglPinjam}</strong></p>
-                <p><i class="bi bi-calendar-check"></i> Tanggal Harus Kembali: <strong>${tglKembali}</strong></p>
-                <p><i class="bi bi-info-circle"></i> Status: <strong style="color:#2563eb">Dipinjam</strong></p>
+            <div class="fab-modal-info" style="margin-bottom:12px">
+                <p style="margin-bottom:8px;font-weight:600;color:#1e40af"><i class="bi bi-info-circle"></i> Centang buku yang ingin dikembalikan:</p>
             </div>
-            <button class="fab-btn-primary" style="background:linear-gradient(135deg,#2563eb,#3b82f6)" onclick="fabSubmitKembali(${pinjam.id})">
-                <i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian
+            <div id="fabPinjamListContainer" style="margin-bottom:10px">${checkboxesHtml}</div>
+            <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;font-weight:600;color:#2563eb;margin-bottom:12px">
+                <input type="checkbox" id="fabSelectAll" ${selectAllChecked} onchange="fabToggleAllPinjam(this)">
+                Pilih Semua (${dipinjamList.length})
+            </label>
+            <button class="fab-btn-primary" id="fab-btn-kembali" style="background:linear-gradient(135deg,#2563eb,#3b82f6)" onclick="fabSubmitKembali()">
+                <i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian (${dipinjamList.length})
             </button>
             <button class="fab-btn-secondary" onclick="fabCloseKembali()">Batal</button>
         `;
         document.getElementById('fab-kembali-modal').classList.add('show');
     }
 
+    window.fabToggleAllPinjam = function(el) {
+        var checks = document.querySelectorAll('.fab-pinjam-check');
+        checks.forEach(function(c) { c.checked = el.checked; });
+        fabUpdateKembaliBtn();
+    };
+
+    window.fabUpdateKembaliBtn = function() {
+        var checks = document.querySelectorAll('.fab-pinjam-check:checked');
+        var btn = document.getElementById('fab-btn-kembali');
+        if (btn) {
+            btn.innerHTML = checks.length > 0
+                ? '<i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian (' + checks.length + ')'
+                : '<i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian (0)';
+        }
+    };
+
     window.fabCloseKembali = function() {
         document.getElementById('fab-kembali-modal').classList.remove('show');
     };
 
-    window.fabSubmitKembali = function(peminjamanId) {
+    window.fabSubmitKembali = function() {
+        var checks = document.querySelectorAll('.fab-pinjam-check:checked');
+        if (checks.length === 0) {
+            toast('error', 'Pilih setidaknya satu buku untuk dikembalikan.');
+            return;
+        }
+        var ids = [];
+        checks.forEach(function(c) { ids.push(parseInt(c.value)); });
         fetch('{{ route("barcode.kembali") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
-            body: JSON.stringify({ peminjaman_id: peminjamanId })
+            body: JSON.stringify({ peminjaman_ids: ids })
         })
         .then(r => r.json())
         .then(data => {

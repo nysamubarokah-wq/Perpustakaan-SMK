@@ -300,7 +300,7 @@ body.dark-mode .notification-mark-read-btn:hover {
         </div>
 
         <div class="notification-dropdown-footer">
-            <a href="{{ route('notifikasi.index') }}">
+            <a href="{{ route('notifikasi.go') }}">
                 <i class="bi bi-list-ul"></i>
                 Lihat Semua Notifikasi
             </a>

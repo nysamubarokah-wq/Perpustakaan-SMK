@@ -271,7 +271,7 @@ class NotifikasiService
         string $icon = 'bell',
         string $warna = '#6c757d',
         ?string $link = null
-    ): self {
+    ): \App\Models\Notification {
         return Notification::createNotification(
             userId: $userId,
             judul: $judul,

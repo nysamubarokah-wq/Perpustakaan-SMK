@@ -231,7 +231,7 @@
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-            <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
                 <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
@@ -240,9 +240,6 @@
             </a>
             <div class="d-flex align-items-center gap-2">
                 <ul class="navbar-nav flex-row gap-1 mb-0">
-                    <li class="nav-item">
-                       <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-house"></i> <span class="nav-text">Home</span></a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleLayanan(event)">
                             <i class="bi bi-person-workspace"></i> <span class="nav-text">Layanan</span> <i class="bi bi-chevron-down" style="font-size:10px"></i>

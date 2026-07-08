@@ -49,6 +49,10 @@ class PinjamController extends Controller
                 ->get()
             : collect();
 
+        $favoritIds = auth()->check()
+            ? Favorit::where('user_id', auth()->id())->pluck('buku_id')->toArray()
+            : [];
+
         $unreadCount = 0;
         if (auth()->check()) {
             $unreadCount = NotifikasiService::unreadCount(auth()->id());
@@ -57,7 +61,7 @@ class PinjamController extends Controller
         $stokTersedia = $buku->eksemplarTersedia()->count();
 
         return view('pinjam.detail', compact(
-            'buku', 'isFavorit', 'ulasanList', 'avgRating', 'totalUlasan', 'ulasanSaya', 'bolehUlasan', 'rekomendasi', 'unreadCount', 'stokTersedia'
+            'buku', 'isFavorit', 'ulasanList', 'avgRating', 'totalUlasan', 'ulasanSaya', 'bolehUlasan', 'rekomendasi', 'favoritIds', 'unreadCount', 'stokTersedia'
         ));
     }
 
@@ -66,9 +70,11 @@ class PinjamController extends Controller
         $request->validate([
             'tanggal_pinjam' => 'required|date',
             'tanggal_kembali' => 'required|date|after:tanggal_pinjam',
+            'jumlah' => 'required|integer|min:1',
         ]);
 
         $user = auth()->user();
+        $jumlahDiminta = (int) $request->jumlah;
 
         $isVip = $user->is_vip && $user->vip_expired_at && now()->lt($user->vip_expired_at);
 
@@ -95,15 +101,23 @@ class PinjamController extends Controller
             ]);
         }
 
+        $stokTersedia = $buku->eksemplarTersedia()->count();
+
+        if ($jumlahDiminta > $stokTersedia) {
+            return back()->with('error', "Jumlah yang diminta ({$jumlahDiminta}) melebihi stok tersedia ({$stokTersedia} eksemplar).");
+        }
+
         $jumlahDipinjam = Peminjaman::where('anggota_id', $anggota->id)
             ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
             ->count();
 
-        if ($jumlahDipinjam >= $maxBuku) {
+        $sisaSlot = $maxBuku - $jumlahDipinjam;
+
+        if ($jumlahDiminta > $sisaSlot) {
             return back()->with('error',
                 $isVip
-                    ? "Batas pinjam VIP maksimal {$maxBuku} buku sekaligus."
-                    : "Kamu sudah meminjam {$jumlahDipinjam} buku. Maksimal {$maxBuku} buku (upgrade VIP untuk 6 buku)."
+                    ? "Sisa slot pinjam VIP: {$sisaSlot} buku. Anda meminta {$jumlahDiminta} buku."
+                    : "Sisa slot pinjam reguler: {$sisaSlot} buku. Anda meminta {$jumlahDiminta} buku. (Upgrade VIP untuk 6 buku)"
             );
         }
 
@@ -119,46 +133,57 @@ class PinjamController extends Controller
             );
         }
 
-        // Cari eksemplar tersedia
-        $eksemplar = $buku->eksemplarTersedia()->first();
+        $eksemplarList = $buku->eksemplarTersedia()->limit($jumlahDiminta)->get();
 
-        if (! $eksemplar) {
-            return back()->with('error', 'Maaf, semua eksemplar buku "' . $buku->judul . '" sedang tidak tersedia.');
+        if ($eksemplarList->count() < $jumlahDiminta) {
+            return back()->with('error', "Hanya {$eksemplarList->count()} eksemplar tersedia.");
         }
 
-        // Cek apakah user sudah pinjam eksemplar yang sama
-        $sudahPinjamEksemplar = Peminjaman::where('anggota_id', $anggota->id)
-            ->where('eksemplar_id', $eksemplar->id)
-            ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
-            ->exists();
+        $dipinjamCount = 0;
+        $dipinjamList = [];
 
-        if ($sudahPinjamEksemplar) {
-            return back()->with('error', 'Kamu sudah meminjam eksemplar ini.');
+        foreach ($eksemplarList as $eksemplar) {
+            $sudahPinjamEksemplar = Peminjaman::where('anggota_id', $anggota->id)
+                ->where('eksemplar_id', $eksemplar->id)
+                ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
+                ->exists();
+
+            if ($sudahPinjamEksemplar) {
+                continue;
+            }
+
+            $eksemplar->update(['status' => 'dipinjam']);
+
+            $peminjaman = Peminjaman::create([
+                'anggota_id' => $anggota->id,
+                'buku_id' => $buku->id,
+                'eksemplar_id' => $eksemplar->id,
+                'tanggal_pinjam' => $request->tanggal_pinjam,
+                'tanggal_kembali' => $request->tanggal_kembali,
+                'status' => 'menunggu_konfirmasi',
+                'tipe_konfirmasi' => 'pinjam',
+            ]);
+
+            $dipinjamList[] = $peminjaman;
+            $dipinjamCount++;
         }
-
-        $eksemplar->update(['status' => 'dipinjam']);
 
         $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
 
-        $peminjaman = Peminjaman::create([
-            'anggota_id' => $anggota->id,
-            'buku_id' => $buku->id,
-            'eksemplar_id' => $eksemplar->id,
-            'tanggal_pinjam' => $request->tanggal_pinjam,
-            'tanggal_kembali' => $request->tanggal_kembali,
-            'status' => 'menunggu_konfirmasi',
-            'tipe_konfirmasi' => 'pinjam',
-        ]);
-
         $adminUsers = User::where('role', 'admin')->get();
-        foreach ($adminUsers as $admin) {
-            NotifikasiService::permintaanPinjamBaru($admin->id, $user->name, $buku->judul, $peminjaman->id);
+        foreach ($dipinjamList as $peminjaman) {
+            foreach ($adminUsers as $admin) {
+                NotifikasiService::permintaanPinjamBaru($admin->id, $user->name, $buku->judul, $peminjaman->id);
+            }
         }
 
         $redirectUrl = $request->input('redirect_url') ?: route('koleksi.index');
 
-        return redirect($redirectUrl)
-            ->with('success', 'Permintaan peminjaman berhasil dikirim! Menunggu konfirmasi admin.');
+        $msg = $dipinjamCount == 1
+            ? 'Permintaan peminjaman berhasil dikirim! Menunggu konfirmasi admin.'
+            : "{$dipinjamCount} permintaan peminjaman berhasil dikirim! Menunggu konfirmasi admin.";
+
+        return redirect($redirectUrl)->with('success', $msg);
     }
 
     public function konfirmasiPinjam($id)

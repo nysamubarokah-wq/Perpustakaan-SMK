@@ -11,6 +11,11 @@ class NotifikasiController extends Controller
 {
     public function index(Request $request)
     {
+        $prevUrl = url()->previous();
+        if ($prevUrl && !str_contains($prevUrl, '/notifikasi')) {
+            session(['notifikasi_back_url' => $prevUrl]);
+        }
+
         $userId = auth()->id();
         $query = Notification::where('user_id', $userId)
             ->orderByDesc('created_at');

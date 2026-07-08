@@ -383,8 +383,10 @@
     function tampilkanHasil(data) {
         var area = document.getElementById('hasil-area');
         var buku = data.buku;
-        var pinjam = data.peminjaman_aktif;
+        var pinjamList = data.peminjaman_aktif || [];
         var stokHabis = buku.stok < 1;
+        var hasDipinjam = pinjamList.some(function(p) { return p.status === 'dipinjam'; });
+        var hasMenunggu = pinjamList.some(function(p) { return p.status === 'menunggu_konfirmasi' || p.status === 'menunggu_pengembalian'; });
 
         var sampulHtml = buku.sampul
             ? '<img src="' + buku.sampul + '" class="sampul-img" alt="' + escHtml(buku.judul) + '">'
@@ -395,11 +397,8 @@
             : '<span class="badge-stok ada">✓ Tersedia (' + buku.stok + ')</span>';
 
         var statusBadge = '';
-        if (pinjam) {
-            if (pinjam.status === 'dipinjam') statusBadge = '<span class="badge-status" style="background:#dbeafe;color:#1d4ed8">📖 Sedang dipinjam</span>';
-            else if (pinjam.status === 'menunggu_konfirmasi') statusBadge = '<span class="badge-status" style="background:#fef3c7;color:#92400e">⏳ Menunggu konfirmasi</span>';
-            else if (pinjam.status === 'menunggu_pengembalian') statusBadge = '<span class="badge-status" style="background:#ede9fe;color:#6d28d9">⏳ Menunggu pengembalian</span>';
-        }
+        if (hasDipinjam) statusBadge = '<span class="badge-status" style="background:#dbeafe;color:#1d4ed8">📖 Sedang dipinjam (' + pinjamList.filter(function(p){return p.status==='dipinjam';}).length + ' eksemplar)</span>';
+        else if (hasMenunggu) statusBadge = '<span class="badge-status" style="background:#fef3c7;color:#92400e">⏳ Menunggu</span>';
 
         var genreBadge = buku.genre ? '<span class="badge-status" style="background:#f3f4f6;color:#666">' + escHtml(buku.genre) + '</span>' : '';
 
@@ -411,24 +410,38 @@
         infoHtml += '</div>';
 
         var aksiHtml = '';
+        var dipinjamList = pinjamList.filter(function(p) { return p.status === 'dipinjam'; });
 
-        if (pinjam && pinjam.status === 'dipinjam') {
-            var tglPinjam = formatDate(pinjam.tanggal_pinjam);
-            var tglKembali = formatDate(pinjam.tanggal_kembali);
-            var eksKode = pinjam.eksemplar_kode ? ' (' + pinjam.eksemplar_kode + ')' : '';
+        if (dipinjamList.length > 0) {
+            var pinjamCheckboxes = '';
+            dipinjamList.forEach(function(p, idx) {
+                var eksKode = p.eksemplar_kode ? p.eksemplar_kode : '-';
+                pinjamCheckboxes += ''
+                    + '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f0fdf4;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background=\'#dcfce7\'" onmouseout="this.style.background=\'#f0fdf4\'">'
+                    + '<input type="checkbox" class="pinjam-check" value="' + p.id + '" style="width:18px;height:18px;accent-color:#1a6e35">'
+                    + '<div style="flex:1">'
+                    + '<div style="font-size:13px;font-weight:600;color:#333">📖 Eksemplar: <strong>' + eksKode + '</strong></div>'
+                    + '<div style="font-size:11px;color:#666">Pinjam: ' + formatDate(p.tanggal_pinjam) + ' | Kembali: ' + formatDate(p.tanggal_kembali) + '</div>'
+                    + '</div>'
+                    + '</label>';
+            });
+
             aksiHtml = ''
                 + '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
-                + '<h3 style="font-size:15px;font-weight:700;color:#222;margin-bottom:12px"><i class="bi bi-arrow-counterclockwise" style="color:#2563eb"></i> Konfirmasi Pengembalian</h3>'
-                + '<div class="info-box blue" style="margin-bottom:16px">'
-                + '<p><i class="bi bi-calendar"></i> Tanggal Pinjam: <strong>' + tglPinjam + '</strong></p>'
-                + '<p><i class="bi bi-calendar-check"></i> Tanggal Harus Kembali: <strong>' + tglKembali + '</strong></p>'
-                + '<p><i class="bi bi-info-circle"></i> Status: <strong>Dipinjam</strong></p>'
+                + '<h3 style="font-size:15px;font-weight:700;color:#222;margin-bottom:12px"><i class="bi bi-arrow-counterclockwise" style="color:#2563eb"></i> Ajukan Pengembalian</h3>'
+                + '<p style="font-size:12px;color:#666;margin-bottom:12px">Centang buku yang ingin dikembalikan:</p>'
+                + '<div id="pinjamListContainer">' + pinjamCheckboxes + '</div>'
+                + '<div id="selectAllWrap" style="margin-bottom:12px">'
+                + '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;font-weight:600;color:#1a6e35">'
+                + '<input type="checkbox" id="selectAllPinjam" style="width:16px;height:16px;accent-color:#1a6e35" onchange="toggleAllPinjam(this)">'
+                + 'Pilih Semua (' + dipinjamList.length + ')'
+                + '</label>'
                 + '</div>'
-                + '<button id="btnKembali" class="btn-aksi btn-kembali" onclick="submitKembali()"><i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian</button>'
+                + '<button id="btnKembali" class="btn-aksi btn-kembali" onclick="submitKembali()" disabled><i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian</button>'
                 + '<button class="btn-scan-lain" onclick="resetDanMulaiLagi()">Scan Buku Lain</button>'
                 + '</div>';
-        } else if (pinjam && (pinjam.status === 'menunggu_konfirmasi' || pinjam.status === 'menunggu_pengembalian')) {
-            var msg = pinjam.status === 'menunggu_konfirmasi' ? 'Peminjaman sedang menunggu konfirmasi admin.' : 'Pengembalian sedang menunggu konfirmasi admin.';
+        } else if (hasMenunggu) {
+            var msg = 'Buku ini sedang menunggu konfirmasi dari admin.';
             aksiHtml = ''
                 + '<div style="border-top:1px solid #eee;padding-top:16px;margin-top:16px">'
                 + '<div class="info-box amber" style="text-align:center"><i class="bi bi-hourglass-split"></i> ' + msg + '</div>'
@@ -459,9 +472,14 @@
                 + '<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:4px">Tanggal Pinjam</label>'
                 + '<input type="date" id="form-tgl-pinjam" class="form-input" required min="' + today + '" value="' + today + '" max="' + maxDate + '" onchange="updateMinKembali()">'
                 + '</div>'
-                + '<div style="margin-bottom:14px">'
+                + '<div style="margin-bottom:12px">'
                 + '<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:4px">Tanggal Kembali</label>'
                 + '<input type="date" id="form-tgl-kembali" class="form-input" required min="' + minKembali + '" max="' + maxDate + '">'
+                + '</div>'
+                + '<div style="margin-bottom:14px">'
+                + '<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:4px">Jumlah Buku</label>'
+                + '<input type="number" id="form-jumlah" class="form-input" required min="1" max="' + buku.stok + '" value="1">'
+                + '<small style="font-size:11px;color:#888">Stok tersedia: <strong>' + buku.stok + '</strong> eksemplar</small>'
                 + '</div>'
                 + '<div id="form-validasi" style="display:none;color:#dc2626;font-size:12px;margin-bottom:10px"></div>'
                 + '<button type="submit" id="btnPinjam" class="btn-aksi btn-pinjam"><i class="bi bi-check-circle"></i> Ajukan Peminjaman</button>'
@@ -523,7 +541,7 @@
         fetch(PINJAM_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-            body: JSON.stringify({ buku_id: bukuData.id, tanggal_pinjam: tglPinjam, tanggal_kembali: tglKembali }),
+            body: JSON.stringify({ buku_id: bukuData.id, tanggal_pinjam: tglPinjam, tanggal_kembali: tglKembali, jumlah: parseInt(document.getElementById('form-jumlah').value) || 1 }),
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
@@ -543,8 +561,36 @@
         });
     };
 
+    window.toggleAllPinjam = function(el) {
+        var checks = document.querySelectorAll('.pinjam-check');
+        checks.forEach(function(c) { c.checked = el.checked; });
+        updateKembaliBtn();
+    };
+
+    window.updateKembaliBtn = function() {
+        var checks = document.querySelectorAll('.pinjam-check:checked');
+        var btn = document.getElementById('btnKembali');
+        if (btn) {
+            btn.disabled = checks.length === 0;
+            btn.innerHTML = checks.length > 0
+                ? '<i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian (' + checks.length + ')'
+                : '<i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian';
+        }
+    };
+
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('pinjam-check')) {
+            updateKembaliBtn();
+        }
+    });
+
     window.submitKembali = function() {
-        if (!pinjamData) return;
+        var checks = document.querySelectorAll('.pinjam-check:checked');
+        if (checks.length === 0) return;
+
+        var ids = [];
+        checks.forEach(function(c) { ids.push(parseInt(c.value)); });
+
         var btn = document.getElementById('btnKembali');
         btn.disabled = true;
         btn.innerHTML = 'Mengirim...';
@@ -552,7 +598,7 @@
         fetch(KEMBALI_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
-            body: JSON.stringify({ peminjaman_id: pinjamData.id }),
+            body: JSON.stringify({ peminjaman_ids: ids }),
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {

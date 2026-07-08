@@ -453,6 +453,11 @@
                         + '<input type="date" name="tanggal_kembali" class="scan-form-input" required value="' + nextWeekPinjam + '">'
                         + '</div>'
                         + '<div class="mb-3">'
+                        + '<label class="form-label fw-semibold" style="font-size:13px">Jumlah Buku</label>'
+                        + '<input type="number" name="jumlah" class="scan-form-input" required min="1" max="' + data.stok + '" value="1">'
+                        + '<small style="font-size:11px;color:#888">Stok tersedia: <strong>' + data.stok + '</strong> eksemplar</small>'
+                        + '</div>'
+                        + '<div class="mb-3">'
                         + '<label class="form-label fw-semibold" style="font-size:13px">Catatan <span class="text-muted fw-normal">(opsional)</span></label>'
                         + '<input type="text" name="catatan" class="scan-form-input" placeholder="Contoh: Sudah diperiksa kondisinya">'
                         + '</div>'
@@ -462,18 +467,45 @@
                         + '</form>';
                 }
             } else if (data.status === 'sedang_memiliki') {
-                var p = data.peminjaman;
-                html = '<div class="scan-status-info scan-status-info-blue">'
-                    + '<i class="bi bi-clock-history"></i> Sedang meminjam buku ini sejak ' + fmtDate(p.tanggal_pinjam)
-                    + '</div>'
-                    + '<form method="POST" action="' + KEMBALI_URL + '">'
-                    + '<input type="hidden" name="_token" value="' + CSRF + '">'
-                    + '<input type="hidden" name="buku_id" value="' + bukuData.id + '">'
-                    + '<input type="hidden" name="anggota_id" value="' + id + '">'
-                    + '<button type="submit" class="scan-aksi-btn scan-btn-kembali" onclick="return confirm(\'Kembalikan buku ini?\')">'
-                    + '<i class="bi bi-arrow-return-left"></i> Kembalikan Buku'
-                    + '</button>'
-                    + '</form>';
+                var pList = Array.isArray(data.peminjaman) ? data.peminjaman : [data.peminjaman];
+                var dipinjamList = pList.filter(function(p) { return p && p.status === 'dipinjam'; });
+
+                if (dipinjamList.length > 0) {
+                    var checkboxes = '';
+                    dipinjamList.forEach(function(p, idx) {
+                        var eksKode = p.eksemplar_kode ? p.eksemplar_kode : '-';
+                        checkboxes += ''
+                            + '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eff6ff;border-radius:8px;margin-bottom:8px;cursor:pointer">'
+                            + '<input type="checkbox" class="admin2-pinjam-check" value="' + p.id + '" style="width:18px;height:18px;accent-color:#2563eb">'
+                            + '<div style="flex:1">'
+                            + '<div style="font-size:13px;font-weight:600;color:#1e40af">📖 Eksemplar: <strong>' + eksKode + '</strong></div>'
+                            + '<div style="font-size:11px;color:#666">Pinjam: ' + fmtDate(p.tanggal_pinjam) + ' | Kembali: ' + fmtDate(p.tanggal_kembali) + '</div>'
+                            + '</div>'
+                            + '</label>';
+                    });
+
+                    html = '<div class="scan-status-info scan-status-info-blue">'
+                        + '<i class="bi bi-clock-history"></i> Sedang meminjam ' + dipinjamList.length + ' eksemplar buku ini.'
+                        + '</div>'
+                        + '<p style="font-size:12px;color:#666;margin:10px 0 8px">Centang buku yang ingin dikembalikan:</p>'
+                        + '<div id="admin2PinjamListContainer" style="margin-bottom:10px">' + checkboxes + '</div>'
+                        + '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;font-weight:600;color:#2563eb;margin-bottom:12px">'
+                        + '<input type="checkbox" id="admin2SelectAll" onchange="admin2ToggleAllPinjam(this)">'
+                        + 'Pilih Semua (' + dipinjamList.length + ')'
+                        + '</label>'
+                        + '<form method="POST" action="' + KEMBALI_URL + '" id="admin2KembaliForm">'
+                        + '<input type="hidden" name="_token" value="' + CSRF + '">'
+                        + '<input type="hidden" name="buku_id" value="' + bukuData.id + '">'
+                        + '<input type="hidden" name="anggota_id" value="' + id + '">'
+                        + '<div id="admin2KembaliIdsContainer"></div>'
+                        + '<button type="submit" class="scan-aksi-btn scan-btn-kembali" id="admin2BtnKembali" onclick="return admin2SubmitKembali(event)">'
+                        + '<i class="bi bi-arrow-return-left"></i> Kembalikan (' + dipinjamList.length + ')'
+                        + '</button>'
+                        + '</form>';
+                } else {
+                    html = '<div class="scan-status-info scan-status-info-blue">'
+                        + '<i class="bi bi-clock-history"></i> Sedang menunggu pengembalian.</div>';
+                }
             } else {
                 html = '<div class="scan-info-box amber text-center"><i class="bi bi-exclamation-triangle"></i> ' + esc(data.pesan || 'Terjadi kesalahan.') + '</div>';
             }
@@ -628,6 +660,29 @@
         d.textContent = s;
         return d.innerHTML;
     }
+
+    window.admin2ToggleAllPinjam = function(el) {
+        document.querySelectorAll('.admin2-pinjam-check').forEach(function(c) { c.checked = el.checked; });
+    };
+
+    window.admin2SubmitKembali = function(e) {
+        var checks = document.querySelectorAll('.admin2-pinjam-check:checked');
+        if (checks.length === 0) {
+            e.preventDefault();
+            alert('Pilih setidaknya satu buku untuk dikembalikan.');
+            return false;
+        }
+        var idsContainer = document.getElementById('admin2KembaliIdsContainer');
+        idsContainer.innerHTML = '';
+        checks.forEach(function(c) {
+            var inp = document.createElement('input');
+            inp.type = 'hidden';
+            inp.name = 'peminjaman_ids[]';
+            inp.value = c.value;
+            idsContainer.appendChild(inp);
+        });
+        return true;
+    };
 })();
 </script>
 @endsection

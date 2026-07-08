@@ -145,7 +145,30 @@
         .slider-nav-next { right: 0; }
         @media (max-width: 768px) { .slider-nav-btn { display: none; } }
 
-        /* COMPACT BOOK CARD */
+        /* STREAMING-STYLE BOOK CARD */
+        .streaming-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); height: 100%; display: flex; flex-direction: column; position: relative; width: 100%; transition: transform 0.3s cubic-bezier(0.25,0.8,0.25,1), box-shadow 0.3s; cursor: pointer; }
+        .streaming-card:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+        .streaming-card-cover { position: relative; overflow: hidden; aspect-ratio: 2/3; }
+        @media (max-width: 768px) { .streaming-card-cover { aspect-ratio: 3/4; } }
+        .streaming-card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s cubic-bezier(0.25,0.8,0.25,1); }
+        @media (hover: hover) and (pointer: fine) {
+            .streaming-card:hover .streaming-card-cover img { transform: scale(1.05); }
+            .streaming-card:hover .streaming-card-overlay { opacity: 1; }
+            .streaming-card:hover .streaming-card-overlay-info { transform: translateY(0); opacity: 1; }
+        }
+        .streaming-card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 40px; color: rgba(255,255,255,0.5); }
+        .streaming-card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%); opacity: 0; transition: opacity 0.3s ease; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; }
+        .streaming-card-overlay-info { transform: translateY(10px); opacity: 0; transition: transform 0.3s ease 0.05s, opacity 0.3s ease 0.05s; }
+        .streaming-card-title { font-size: 12px; font-weight: 700; color: white; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+        .streaming-card-meta { font-size: 10px; color: rgba(255,255,255,0.8); margin-bottom: 2px; display: flex; align-items: center; gap: 4px; }
+        .streaming-card-meta i { font-size: 9px; }
+        .streaming-card-genre { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; background: rgba(39,174,96,0.25); color: #4ade80; border: 1px solid rgba(39,174,96,0.4); margin-top: 4px; }
+        .streaming-card-stok { font-size: 10px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+        .streaming-card-body { padding: 8px 4px; }
+        .streaming-card-body h5 { font-size: 11px; font-weight: 700; color: #1a1a2e; margin: 0; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-favorit { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 10; transition: all 0.2s; }
+
+        /* Legacy card styles */
         .book-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1); height: 100%; display: flex; flex-direction: column; position: relative; width: 100%; }
         .book-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
         .book-card-cover { height: 160px; position: relative; overflow: hidden; }
@@ -160,9 +183,8 @@
         .book-card-genre { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 600; background: #f0f0f0; color: #666; margin-top: 3px; align-self: flex-start; }
 
         /* Badges - compact */
-        .badge-trending { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; box-shadow: 0 2px 8px rgba(255,87,34,0.4); }
-        .badge-vip { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; }
-        .btn-favorit { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5; transition: all 0.2s; }
+        .badge-trending { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 6; box-shadow: 0 2px 8px rgba(255,87,34,0.4); }
+        .badge-vip { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 6; }
         .btn-favorit:hover { transform: scale(1.12); background: white; }
         .btn-favorit i { font-size: 14px !important; }
 
@@ -331,6 +353,8 @@
         body.dark-mode .penerbit-chip:hover { border-color: #27ae60; color: #4ade80; background: #1a2e1a; }
         body.dark-mode .penerbit-chip.active { background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; border-color: #1a6e35; }
         body.dark-mode .book-card-genre { background: #2a2a2a; color: #aaa; }
+        body.dark-mode .streaming-card { background: #1e1e1e; }
+        body.dark-mode .streaming-card-body h5 { color: #ffffff; }
         body.dark-mode .btn-detail-disabled { background: #333; color: #666; }
         body.dark-mode .pagination .page-link { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
         body.dark-mode .pagination .page-item.active .page-link { background: linear-gradient(135deg, #1a6e35, #27ae60); border-color: #1a6e35; }
@@ -439,15 +463,12 @@
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-            <a href="<?php echo e(route('dashboard')); ?>" class="d-flex align-items-center gap-2 text-decoration-none">
+            <a href="<?php echo e(route('koleksi.index')); ?>" class="d-flex align-items-center gap-2 text-decoration-none">
                 <img src="<?php echo e(asset('images/logo.jpg')); ?>" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
             <div class="d-flex align-items-center gap-2">
                 <ul class="navbar-nav flex-row gap-1 mb-0">
-                    <li class="nav-item">
-                       <a class="nav-link" href="<?php echo e(route('dashboard')); ?>"><i class="bi bi-house"></i> <span class="nav-text">Home</span></a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleLayanan(event)">
                             <i class="bi bi-person-workspace"></i> <span class="nav-text">Layanan</span> <i class="bi bi-chevron-down" style="font-size:10px"></i>
@@ -673,39 +694,37 @@
             <div class="book-slider-track" id="sliderPopuler">
                 <?php $__currentLoopData = $bukuPopuler; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="book-card-wrapper" data-penerbit="<?php echo e($item->penerbit); ?>">
-                    <div class="book-card">
-                        <div class="book-card-cover cover-<?php echo e(($index % 6) + 1); ?>">
+                    <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="streaming-card" style="text-decoration:none">
+                        <div class="streaming-card-cover cover-<?php echo e(($index % 6) + 1); ?>">
                             <?php if(($item->peminjaman_count ?? 0) >= 10): ?>
                             <div class="badge-trending">Trending</div>
                             <?php endif; ?>
                             <?php if($item->sampul): ?>
                                 <img src="<?php echo e(asset($item->sampul)); ?>" alt="<?php echo e($item->judul); ?>">
                             <?php else: ?>
-                                <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
+                                <div class="streaming-card-placeholder"><i class="bi bi-book"></i></div>
                             <?php endif; ?>
-                            <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this)" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
+                            <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this); event.preventDefault(); event.stopPropagation();" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
                                 <?php if(in_array($item->id, $favoritIds ?? [])): ?>
                                     <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
                                 <?php else: ?>
                                     <i class="bi bi-heart" style="color:#999"></i>
                                 <?php endif; ?>
                             </button>
-                        </div>
-                        <div class="book-card-body">
-                            <h5><?php echo e($item->judul); ?></h5>
-                            <p class="book-card-meta"><i class="bi bi-person"></i> <?php echo e($item->pengarang); ?></p>
-                            <?php if($item->genre): ?><span class="book-card-genre"><?php echo e($item->genre); ?></span><?php endif; ?>
-                            <div style="margin-top:auto;padding-top:4px">
-                                <span class="status-badge <?php echo e($item->stok > 0 ? 'status-ada' : 'status-habis'); ?>">
-                                    <?php echo e($item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam'); ?>
-
-                                </span>
+                            <div class="streaming-card-overlay">
+                                <div class="streaming-card-overlay-info">
+                                    <div class="streaming-card-title"><?php echo e($item->judul); ?></div>
+                                    <div class="streaming-card-meta"><i class="bi bi-person"></i> <?php echo e(Str::limit($item->pengarang, 20)); ?></div>
+                                    <?php if($item->penerbit): ?><div class="streaming-card-meta"><i class="bi bi-building"></i> <?php echo e(Str::limit($item->penerbit, 20)); ?></div><?php endif; ?>
+                                    <?php if($item->genre): ?><div class="streaming-card-genre"><?php echo e($item->genre); ?></div><?php endif; ?>
+                                    <div class="streaming-card-stok">Stok: <?php echo e($item->stok); ?></div>
+                                </div>
                             </div>
-                            <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="btn-detail" style="margin-top:6px">
-                                <i class="bi bi-eye"></i> Detail
-                            </a>
                         </div>
-                    </div>
+                        <div class="streaming-card-body">
+                            <h5><?php echo e($item->judul); ?></h5>
+                        </div>
+                    </a>
                 </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
@@ -737,39 +756,37 @@
             <div class="book-slider-track" id="sliderTerbaru">
                 <?php $__currentLoopData = $bukuTerbaru; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="book-card-wrapper" data-penerbit="<?php echo e($item->penerbit); ?>">
-                    <div class="book-card">
-                        <div class="book-card-cover cover-<?php echo e((($index + 3) % 6) + 1); ?>">
+                    <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="streaming-card" style="text-decoration:none">
+                        <div class="streaming-card-cover cover-<?php echo e((($index + 3) % 6) + 1); ?>">
                             <?php if($item->created_at && $item->created_at->diffInDays(now()) <= 30): ?>
                             <div class="badge-vip">Baru</div>
                             <?php endif; ?>
                             <?php if($item->sampul): ?>
                                 <img src="<?php echo e(asset($item->sampul)); ?>" alt="<?php echo e($item->judul); ?>">
                             <?php else: ?>
-                                <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
+                                <div class="streaming-card-placeholder"><i class="bi bi-book"></i></div>
                             <?php endif; ?>
-                            <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this)" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
+                            <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this); event.preventDefault(); event.stopPropagation();" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
                                 <?php if(in_array($item->id, $favoritIds ?? [])): ?>
                                     <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
                                 <?php else: ?>
                                     <i class="bi bi-heart" style="color:#999"></i>
                                 <?php endif; ?>
                             </button>
-                        </div>
-                        <div class="book-card-body">
-                            <h5><?php echo e($item->judul); ?></h5>
-                            <p class="book-card-meta"><i class="bi bi-person"></i> <?php echo e($item->pengarang); ?></p>
-                            <?php if($item->genre): ?><span class="book-card-genre"><?php echo e($item->genre); ?></span><?php endif; ?>
-                            <div style="margin-top:auto;padding-top:4px">
-                                <span class="status-badge <?php echo e($item->stok > 0 ? 'status-ada' : 'status-habis'); ?>">
-                                    <?php echo e($item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam'); ?>
-
-                                </span>
+                            <div class="streaming-card-overlay">
+                                <div class="streaming-card-overlay-info">
+                                    <div class="streaming-card-title"><?php echo e($item->judul); ?></div>
+                                    <div class="streaming-card-meta"><i class="bi bi-person"></i> <?php echo e(Str::limit($item->pengarang, 20)); ?></div>
+                                    <?php if($item->penerbit): ?><div class="streaming-card-meta"><i class="bi bi-building"></i> <?php echo e(Str::limit($item->penerbit, 20)); ?></div><?php endif; ?>
+                                    <?php if($item->genre): ?><div class="streaming-card-genre"><?php echo e($item->genre); ?></div><?php endif; ?>
+                                    <div class="streaming-card-stok">Stok: <?php echo e($item->stok); ?></div>
+                                </div>
                             </div>
-                            <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="btn-detail" style="margin-top:6px">
-                                <i class="bi bi-eye"></i> Detail
-                            </a>
                         </div>
-                    </div>
+                        <div class="streaming-card-body">
+                            <h5><?php echo e($item->judul); ?></h5>
+                        </div>
+                    </a>
                 </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
@@ -1546,7 +1563,8 @@ function scanShowPinjam(data) {
         '</div>' +
         (data.buku.sampul ? '<img src="' + data.buku.sampul + '" class="scan-cover" style="margin:0 auto 16px;display:block">' : '') +
         '<div style="margin-bottom:12px"><label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block" class="scan-label">Tanggal Pinjam</label><input type="date" id="scanTglPinjam" min="' + today + '" value="' + today + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" class="scan-date-input"></div>' +
-        '<div style="margin-bottom:16px"><label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block" class="scan-label">Tanggal Kembali</label><input type="date" id="scanTglKembali" min="' + minKembali + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" class="scan-date-input"></div>' +
+        '<div style="margin-bottom:12px"><label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block" class="scan-label">Tanggal Kembali</label><input type="date" id="scanTglKembali" min="' + minKembali + '" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" class="scan-date-input"></div>' +
+        '<div style="margin-bottom:16px"><label style="font-size:13px;font-weight:600;margin-bottom:4px;display:block" class="scan-label">Jumlah Buku</label><input type="number" id="scanJumlah" min="1" max="' + data.buku.stok + '" value="1" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:14px" class="scan-date-input"><small style="font-size:11px;color:#888">Stok tersedia: <strong>' + data.buku.stok + '</strong> eksemplar</small></div>' +
         '<div id="scanValidasiMsg" style="color:#e74c3c;font-size:12px;margin-bottom:12px;display:none"></div>' +
         '<button class="scan-btn-primary" onclick="scanSubmitPinjam(' + data.buku.id + ')"><i class="bi bi-check-circle"></i> Ajukan Peminjaman</button>' +
         '<button class="scan-btn-secondary" onclick="document.getElementById(\'scanPinjamModal\').classList.remove(\'show\')">Batal</button>';
@@ -1556,6 +1574,7 @@ function scanShowPinjam(data) {
 function scanSubmitPinjam(bukuId) {
     var tglPinjam = document.getElementById('scanTglPinjam').value;
     var tglKembali = document.getElementById('scanTglKembali').value;
+    var jumlah = parseInt(document.getElementById('scanJumlah').value) || 1;
     var maxDurasi = scanIsVip ? 14 : 7;
     var msg = document.getElementById('scanValidasiMsg');
     if (!tglPinjam || !tglKembali) { msg.textContent = 'Tanggal Pinjam dan Tanggal Kembali wajib diisi.'; msg.style.display = 'block'; return; }
@@ -1568,7 +1587,7 @@ function scanSubmitPinjam(bukuId) {
     fetch('<?php echo e(route("barcode.pinjam")); ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': scanCsrf },
-        body: JSON.stringify({ buku_id: bukuId, tanggal_pinjam: tglPinjam, tanggal_kembali: tglKembali })
+        body: JSON.stringify({ buku_id: bukuId, tanggal_pinjam: tglPinjam, tanggal_kembali: tglKembali, jumlah: jumlah })
     })
     .then(function(r) { return r.json().then(function(data) {
         if (r.status === 422 && data.errors) { scanToastFn('error', Object.values(data.errors).flat().join(', ')); }
@@ -1578,26 +1597,78 @@ function scanSubmitPinjam(bukuId) {
 }
 
 function scanShowKembali(data) {
+    var pinjamList = Array.isArray(data.peminjaman_aktif) ? data.peminjaman_aktif : [data.peminjaman_aktif];
+    var dipinjamList = pinjamList.filter(function(p) { return p && p.status === 'dipinjam'; });
+
+    var checkboxesHtml = '';
+    dipinjamList.forEach(function(p, idx) {
+        var eksKode = p.eksemplar_kode ? p.eksemplar_kode : '-';
+        checkboxesHtml += ''
+            + '<label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eff6ff;border-radius:8px;margin-bottom:8px;cursor:pointer">'
+            + '<input type="checkbox" class="scan-pinjam-check" value="' + p.id + '" style="width:18px;height:18px;accent-color:#2563eb">'
+            + '<div style="flex:1">'
+            + '<div style="font-size:13px;font-weight:600;color:#1e40af">📖 Eksemplar: <strong>' + eksKode + '</strong></div>'
+            + '<div style="font-size:11px;color:#666">Pinjam: ' + p.tanggal_pinjam + ' | Kembali: ' + p.tanggal_kembali + '</div>'
+            + '</div>'
+            + '</label>';
+    });
+
+    var selectAllChecked = dipinjamList.length > 0 ? 'checked' : '';
+
     document.getElementById('scanKembaliContent').innerHTML =
         '<div class="scan-modal-info">' +
             '<p><i class="bi bi-person"></i> Peminjam: <strong><?php echo e(auth()->user()->name); ?></strong></p>' +
             '<p><i class="bi bi-book"></i> Buku: <strong>' + data.buku.judul + '</strong></p>' +
-            '<p><i class="bi bi-calendar"></i> Batas kembali: <strong>' + data.peminjaman_aktif.tanggal_kembali + '</strong></p>' +
+            '<p style="margin-bottom:8px"><i class="bi bi-info-circle"></i> Centang buku yang ingin dikembalikan:</p>' +
         '</div>' +
-        (data.buku.sampul ? '<img src="' + data.buku.sampul + '" class="scan-cover" style="margin:0 auto 16px;display:block">' : '') +
-        '<button class="scan-btn-primary" onclick="scanSubmitKembali(' + data.peminjaman_aktif.id + ')"><i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian</button>' +
+        (data.buku.sampul ? '<img src="' + data.buku.sampul + '" class="scan-cover" style="margin:0 auto 12px;display:block">' : '') +
+        '<div id="scanPinjamListKembali" style="margin-bottom:10px">' + checkboxesHtml + '</div>' +
+        '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:13px;font-weight:600;color:#2563eb;margin-bottom:12px">' +
+            '<input type="checkbox" id="scanSelectAllPinjam" ' + selectAllChecked + ' onchange="scanToggleAllKembali(this)">' +
+            'Pilih Semua (' + dipinjamList.length + ')' +
+        '</label>' +
+        '<button class="scan-btn-primary" id="scanBtnKembali" onclick="scanSubmitKembali()"><i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian (' + dipinjamList.length + ')</button>' +
         '<button class="scan-btn-secondary" onclick="document.getElementById(\'scanKembaliModal\').classList.remove(\'show\')">Batal</button>';
     document.getElementById('scanKembaliModal').classList.add('show');
+
+    document.querySelectorAll('.scan-pinjam-check').forEach(function(c) {
+        c.addEventListener('change', scanUpdateKembaliBtn);
+    });
 }
 
-function scanSubmitKembali(peminjamanId) {
+function scanToggleAllKembali(el) {
+    document.querySelectorAll('.scan-pinjam-check').forEach(function(c) { c.checked = el.checked; });
+    scanUpdateKembaliBtn();
+}
+
+function scanUpdateKembaliBtn() {
+    var checks = document.querySelectorAll('.scan-pinjam-check:checked');
+    var btn = document.getElementById('scanBtnKembali');
+    if (btn) {
+        btn.innerHTML = checks.length > 0
+            ? '<i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian (' + checks.length + ')'
+            : '<i class="bi bi-arrow-return-left"></i> Ajukan Pengembalian (0)';
+    }
+}
+
+function scanSubmitKembali() {
+    var checks = document.querySelectorAll('.scan-pinjam-check:checked');
+    if (checks.length === 0) {
+        scanToastFn('error', 'Pilih setidaknya satu buku untuk dikembalikan.');
+        return;
+    }
+    var ids = [];
+    checks.forEach(function(c) { ids.push(parseInt(c.value)); });
     fetch('<?php echo e(route("barcode.kembali")); ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': scanCsrf },
-        body: JSON.stringify({ peminjaman_id: peminjamanId })
+        body: JSON.stringify({ peminjaman_ids: ids })
     })
     .then(function(r) { return r.json(); })
-    .then(function(data) { document.getElementById('scanKembaliModal').classList.remove('show'); scanToastFn(data.status === 'success' ? 'success' : 'error', data.pesan); })
+    .then(function(data) {
+        document.getElementById('scanKembaliModal').classList.remove('show');
+        scanToastFn(data.status === 'success' ? 'success' : 'error', data.pesan);
+    })
     .catch(function() { scanToastFn('error', 'Terjadi kesalahan.'); });
 }
 

@@ -37,14 +37,24 @@ class BarcodeController extends Controller
         }
 
         $anggota = Anggota::where('user_id', auth()->id())->first();
-        $peminjamanAktif = null;
+        $peminjamanAktifList = [];
 
         if ($anggota) {
             $peminjamanAktif = Peminjaman::where('buku_id', $buku->id)
                 ->where('anggota_id', $anggota->id)
                 ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi', 'menunggu_pengembalian'])
-                ->latest()
-                ->first();
+                ->with('eksemplar')
+                ->get();
+
+            foreach ($peminjamanAktif as $p) {
+                $peminjamanAktifList[] = [
+                    'id'              => $p->id,
+                    'eksemplar_kode'  => $p->eksemplar?->kode_buku,
+                    'status'          => $p->status,
+                    'tanggal_pinjam'  => $p->tanggal_pinjam,
+                    'tanggal_kembali' => $p->tanggal_kembali,
+                ];
+            }
         }
 
         $stokTersedia = $buku->eksemplarTersedia()->count();
@@ -62,14 +72,8 @@ class BarcodeController extends Controller
                 'genre'     => $buku->genre,
                 'lokasi'    => $buku->lokasi,
             ],
-            'peminjaman_aktif' => $peminjamanAktif ? [
-                'id'              => $peminjamanAktif->id,
-                'eksemplar_kode'  => $peminjamanAktif->eksemplar?->kode_buku,
-                'status'          => $peminjamanAktif->status,
-                'tanggal_pinjam'  => $peminjamanAktif->tanggal_pinjam,
-                'tanggal_kembali' => $peminjamanAktif->tanggal_kembali,
-            ] : null,
-            'anggota_id'         => $anggota?->id,
+            'peminjaman_aktif' => $peminjamanAktifList,
+            'anggota_id'       => $anggota?->id,
         ]);
     }
 
@@ -79,10 +83,13 @@ class BarcodeController extends Controller
             'buku_id' => 'required|exists:buku,id',
             'tanggal_pinjam' => 'required|date',
             'tanggal_kembali' => 'required|date|after:tanggal_pinjam',
+            'jumlah' => 'nullable|integer|min:1',
         ]);
 
         $buku = Buku::findOrFail($request->buku_id);
         $user = auth()->user();
+        $jumlahDiminta = (int) ($request->jumlah ?? 1);
+
         $anggota = Anggota::where('user_id', $user->id)->first();
 
         if (!$anggota) {
@@ -101,24 +108,12 @@ class BarcodeController extends Controller
             ]);
         }
 
-        $eksemplar = $buku->eksemplarTersedia()->first();
+        $stokTersedia = $buku->eksemplarTersedia()->count();
 
-        if (!$eksemplar) {
+        if ($jumlahDiminta > $stokTersedia) {
             return response()->json([
                 'status' => 'error',
-                'pesan'  => 'Semua eksemplar buku ini sedang tidak tersedia.',
-            ], 422);
-        }
-
-        $sudahPinjam = Peminjaman::where('buku_id', $buku->id)
-            ->where('anggota_id', $anggota->id)
-            ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
-            ->exists();
-
-        if ($sudahPinjam) {
-            return response()->json([
-                'status' => 'error',
-                'pesan'  => 'Kamu sudah meminjam buku ini dan belum mengembalikannya.',
+                'pesan'  => "Jumlah yang diminta ({$jumlahDiminta}) melebihi stok tersedia ({$stokTersedia} eksemplar).",
             ], 422);
         }
 
@@ -130,12 +125,14 @@ class BarcodeController extends Controller
             ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
             ->count();
 
-        if ($totalAktif >= $maxBuku) {
+        $sisaSlot = $maxBuku - $totalAktif;
+
+        if ($jumlahDiminta > $sisaSlot) {
             return response()->json([
                 'status' => 'error',
                 'pesan'  => $isVip
-                    ? "Batas pinjam VIP maksimal {$maxBuku} buku sekaligus."
-                    : "Kamu sudah mencapai batas maksimal {$maxBuku} buku. Upgrade VIP untuk pinjam 6 buku.",
+                    ? "Sisa slot pinjam VIP: {$sisaSlot} buku. Anda meminta {$jumlahDiminta} buku."
+                    : "Sisa slot pinjam reguler: {$sisaSlot} buku. Anda meminta {$jumlahDiminta} buku. (Upgrade VIP untuk 6 buku)",
             ], 422);
         }
 
@@ -152,32 +149,64 @@ class BarcodeController extends Controller
             ], 422);
         }
 
-        $eksemplar->update(['status' => 'dipinjam']);
+        $eksemplarList = $buku->eksemplarTersedia()->limit($jumlahDiminta)->get();
+
+        if ($eksemplarList->count() < $jumlahDiminta) {
+            return response()->json([
+                'status' => 'error',
+                'pesan'  => "Hanya {$eksemplarList->count()} eksemplar tersedia.",
+            ], 422);
+        }
+
+        $dipinjamCount = 0;
+
+        foreach ($eksemplarList as $eksemplar) {
+            $sudahPinjam = Peminjaman::where('buku_id', $buku->id)
+                ->where('anggota_id', $anggota->id)
+                ->where('eksemplar_id', $eksemplar->id)
+                ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
+                ->exists();
+
+            if ($sudahPinjam) {
+                continue;
+            }
+
+            $eksemplar->update(['status' => 'dipinjam']);
+
+            Peminjaman::create([
+                'anggota_id'      => $anggota->id,
+                'buku_id'         => $buku->id,
+                'eksemplar_id'    => $eksemplar->id,
+                'tanggal_pinjam'  => $request->tanggal_pinjam,
+                'tanggal_kembali' => $request->tanggal_kembali,
+                'status'          => 'menunggu_konfirmasi',
+                'tipe_konfirmasi' => 'pinjam',
+            ]);
+
+            $dipinjamCount++;
+        }
+
         $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
 
-        Peminjaman::create([
-            'anggota_id'      => $anggota->id,
-            'buku_id'         => $buku->id,
-            'eksemplar_id'    => $eksemplar->id,
-            'tanggal_pinjam'  => $request->tanggal_pinjam,
-            'tanggal_kembali' => $request->tanggal_kembali,
-            'status'          => 'menunggu_konfirmasi',
-            'tipe_konfirmasi' => 'pinjam',
-        ]);
+        $msg = $dipinjamCount == 1
+            ? "Permintaan pinjam \"$buku->judul\" berhasil dikirim. Menunggu konfirmasi admin."
+            : "{$dipinjamCount} permintaan pinjam \"$buku->judul\" berhasil dikirim. Menunggu konfirmasi admin.";
 
         return response()->json([
             'status' => 'success',
-            'pesan'  => "Permintaan pinjam \"$buku->judul\" berhasil dikirim. Menunggu konfirmasi admin.",
+            'pesan'  => $msg,
         ]);
     }
 
     public function kembaliViaScan(Request $request)
     {
-        $request->validate(['peminjaman_id' => 'required|exists:peminjaman,id']);
+        $request->validate([
+            'peminjaman_ids' => 'required|array|min:1',
+            'peminjaman_ids.*' => 'exists:peminjaman,id',
+        ]);
 
-        $peminjaman = Peminjaman::with(['buku', 'eksemplar'])->findOrFail($request->peminjaman_id);
-        $user       = auth()->user();
-        $anggota    = Anggota::where('user_id', $user->id)->first();
+        $user    = auth()->user();
+        $anggota = Anggota::where('user_id', $user->id)->first();
 
         if (!$anggota) {
             $anggota = Anggota::where('email', $user->email)->first();
@@ -186,48 +215,71 @@ class BarcodeController extends Controller
             }
         }
 
-        if (!$anggota || $peminjaman->anggota_id !== $anggota->id) {
+        if (!$anggota) {
             return response()->json([
                 'status' => 'error',
-                'pesan'  => 'Peminjaman ini bukan milikmu.',
-            ], 403);
-        }
-
-        if ($peminjaman->status !== 'dipinjam') {
-            return response()->json([
-                'status' => 'error',
-                'pesan'  => 'Buku ini tidak bisa dikembalikan (status: ' . $peminjaman->status . ').',
+                'pesan'  => 'Data anggota tidak ditemukan.',
             ], 422);
         }
 
-        $peminjaman->update([
-            'status'               => 'menunggu_pengembalian',
-            'tanggal_dikembalikan' => Carbon::now()->toDateString(),
-        ]);
+        $ids = $request->peminjaman_ids;
+        $peminjamanList = Peminjaman::with(['buku', 'eksemplar'])
+            ->whereIn('id', $ids)
+            ->where('anggota_id', $anggota->id)
+            ->where('status', 'dipinjam')
+            ->get();
 
-        $tanggalKembali = \Carbon\Carbon::parse($peminjaman->tanggal_kembali)->startOfDay();
-        $hariIni = \Carbon\Carbon::now('Asia/Jakarta')->startOfDay();
+        if ($peminjamanList->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'pesan'  => 'Tidak ada peminjaman valid untuk dikembalikan.',
+            ], 422);
+        }
 
-        if ($hariIni->gt($tanggalKembali)) {
-            $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
-            $hitungDenda = $selisihHari * 1000;
+        $kembaliCount = 0;
+        $totalDenda = 0;
+        $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
 
-            $peminjaman->update(['denda' => $hitungDenda]);
+        foreach ($peminjamanList as $peminjaman) {
+            $peminjaman->update([
+                'status'               => 'menunggu_pengembalian',
+                'tanggal_dikembalikan' => $hariIni->toDateString(),
+            ]);
 
-            $sudahAda = Denda::where('peminjaman_id', $peminjaman->id)->exists();
-            if (!$sudahAda) {
-                Denda::create([
-                    'peminjaman_id' => $peminjaman->id,
-                    'jumlah_denda'  => $hitungDenda,
-                    'status'        => 'belum_dibayar',
-                    'keterangan'    => 'Terlambat ' . $selisihHari . ' hari',
-                ]);
+            $tanggalKembali = Carbon::parse($peminjaman->tanggal_kembali)->startOfDay();
+
+            if ($hariIni->gt($tanggalKembali)) {
+                $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
+                $hitungDenda = $selisihHari * 1000;
+                $totalDenda += $hitungDenda;
+
+                $peminjaman->update(['denda' => $hitungDenda]);
+
+                $sudahAda = Denda::where('peminjaman_id', $peminjaman->id)->exists();
+                if (!$sudahAda) {
+                    Denda::create([
+                        'peminjaman_id' => $peminjaman->id,
+                        'jumlah_denda'  => $hitungDenda,
+                        'status'        => 'belum_dibayar',
+                        'keterangan'    => 'Terlambat ' . $selisihHari . ' hari',
+                    ]);
+                }
             }
+
+            $kembaliCount++;
+        }
+
+        $msg = $kembaliCount == 1
+            ? 'Pengembalian berhasil diajukan!'
+            : "{$kembaliCount} buku berhasil diajukan untuk dikembalikan!";
+
+        if ($totalDenda > 0) {
+            $msg .= ' (Denda keterlambatan: Rp ' . number_format($totalDenda, 0, ',', '.') . ')';
         }
 
         return response()->json([
             'status' => 'success',
-            'pesan'  => 'Pengembalian berhasil diajukan!',
+            'pesan'  => $msg,
         ]);
     }
 
@@ -280,97 +332,132 @@ class BarcodeController extends Controller
             'anggota_id'      => 'required|exists:anggota,id',
             'tanggal_pinjam'  => 'required|date',
             'tanggal_kembali' => 'required|date|after:tanggal_pinjam',
+            'jumlah'          => 'nullable|integer|min:1',
         ]);
 
         $buku = Buku::findOrFail($request->buku_id);
         $anggota = Anggota::findOrFail($request->anggota_id);
+        $jumlahDiminta = (int) ($request->jumlah ?? 1);
 
-        $eksemplar = $buku->eksemplarTersedia()->first();
+        $stokTersedia = $buku->eksemplarTersedia()->count();
 
-        if (!$eksemplar) {
-            return back()->with('error', 'Semua eksemplar buku "' . $buku->judul . '" sedang tidak tersedia.');
+        if ($jumlahDiminta > $stokTersedia) {
+            return back()->with('error', "Jumlah yang diminta ({$jumlahDiminta}) melebihi stok tersedia ({$stokTersedia} eksemplar).");
         }
 
-        $sudahPinjam = Peminjaman::where('buku_id', $buku->id)
-            ->where('anggota_id', $anggota->id)
-            ->whereIn('status', ['dipinjam', 'menunggu_pengembalian'])
-            ->exists();
+        $eksemplarList = $buku->eksemplarTersedia()->limit($jumlahDiminta)->get();
 
-        if ($sudahPinjam) {
-            return back()->with('error', 'Anggota "' . $anggota->nama . '" masih memiliki peminjaman aktif untuk buku ini.');
+        if ($eksemplarList->count() < $jumlahDiminta) {
+            return back()->with('error', "Hanya {$eksemplarList->count()} eksemplar tersedia.");
         }
 
-        $eksemplar->update(['status' => 'dipinjam']);
+        $dipinjamCount = 0;
+
+        foreach ($eksemplarList as $eksemplar) {
+            $sudahPinjam = Peminjaman::where('buku_id', $buku->id)
+                ->where('anggota_id', $anggota->id)
+                ->where('eksemplar_id', $eksemplar->id)
+                ->whereIn('status', ['dipinjam', 'menunggu_pengembalian'])
+                ->exists();
+
+            if ($sudahPinjam) {
+                continue;
+            }
+
+            $eksemplar->update(['status' => 'dipinjam']);
+
+            Peminjaman::create([
+                'anggota_id'      => $anggota->id,
+                'buku_id'         => $buku->id,
+                'eksemplar_id'    => $eksemplar->id,
+                'tanggal_pinjam'  => $request->tanggal_pinjam,
+                'tanggal_kembali' => $request->tanggal_kembali,
+                'status'          => 'dipinjam',
+                'catatan'         => $request->catatan,
+            ]);
+
+            $dipinjamCount++;
+        }
+
         $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
 
-        Peminjaman::create([
-            'anggota_id'      => $anggota->id,
-            'buku_id'         => $buku->id,
-            'eksemplar_id'    => $eksemplar->id,
-            'tanggal_pinjam'  => $request->tanggal_pinjam,
-            'tanggal_kembali' => $request->tanggal_kembali,
-            'status'          => 'dipinjam',
-            'catatan'         => $request->catatan,
-        ]);
+        $msg = $dipinjamCount == 1
+            ? 'Buku "' . $buku->judul . '" berhasil dipinjamkan ke ' . $anggota->nama . '.'
+            : "{$dipinjamCount} eksemplar buku \"{$buku->judul}\" berhasil dipinjamkan ke {$anggota->nama}.";
 
-        return back()->with('success', 'Buku "' . $buku->judul . '" berhasil dipinjamkan ke ' . $anggota->nama . '.');
+        return back()->with('success', $msg);
     }
 
     public function adminKembali(Request $request)
     {
         $request->validate([
-            'buku_id'    => 'required|exists:buku,id',
-            'anggota_id' => 'required|exists:anggota,id',
+            'buku_id'       => 'required|exists:buku,id',
+            'anggota_id'    => 'required|exists:anggota,id',
+            'peminjaman_ids' => 'required|array|min:1',
+            'peminjaman_ids.*' => 'exists:peminjaman,id',
         ]);
 
         $buku = Buku::findOrFail($request->buku_id);
         $anggota = Anggota::findOrFail($request->anggota_id);
 
-        $peminjaman = Peminjaman::where('buku_id', $buku->id)
+        $ids = $request->peminjaman_ids;
+        $peminjamanList = Peminjaman::whereIn('id', $ids)
+            ->where('buku_id', $buku->id)
             ->where('anggota_id', $anggota->id)
             ->where('status', 'dipinjam')
-            ->first();
+            ->get();
 
-        if (!$peminjaman) {
-            return back()->with('error', 'Buku ini tidak sedang dipinjam oleh anggota tersebut.');
+        if ($peminjamanList->isEmpty()) {
+            return back()->with('error', 'Tidak ada peminjaman valid untuk dikembalikan.');
         }
 
-        $tanggalKembali = Carbon::parse($peminjaman->tanggal_kembali)->startOfDay();
         $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
-        $hitungDenda = 0;
+        $kembaliCount = 0;
+        $totalDenda = 0;
 
-        if ($hariIni->gt($tanggalKembali)) {
-            $selisihHari = (int) ceil(abs($hariIni->diffInDays($tanggalKembali)));
-            $hitungDenda = $selisihHari * 1000;
+        foreach ($peminjamanList as $peminjaman) {
+            $tanggalKembali = Carbon::parse($peminjaman->tanggal_kembali)->startOfDay();
+            $hitungDenda = 0;
 
-            Denda::updateOrCreate(
-                ['peminjaman_id' => $peminjaman->id],
-                [
-                    'jumlah_denda' => $hitungDenda,
-                    'status'       => 'belum_dibayar',
-                    'keterangan'   => 'Terlambat ' . $selisihHari . ' hari',
-                ]
-            );
-        }
+            if ($hariIni->gt($tanggalKembali)) {
+                $selisihHari = (int) ceil(abs($hariIni->diffInDays($tanggalKembali)));
+                $hitungDenda = $selisihHari * 1000;
+                $totalDenda += $hitungDenda;
 
-        $peminjaman->update([
-            'status'               => 'dikembalikan',
-            'tanggal_dikembalikan' => $hariIni->toDateString(),
-            'denda'                => $hitungDenda,
-        ]);
+                Denda::updateOrCreate(
+                    ['peminjaman_id' => $peminjaman->id],
+                    [
+                        'jumlah_denda' => $hitungDenda,
+                        'status'       => 'belum_dibayar',
+                        'keterangan'   => 'Terlambat ' . $selisihHari . ' hari',
+                    ]
+                );
+            }
 
-        if ($peminjaman->eksemplar) {
-            $peminjaman->eksemplar->update(['status' => 'tersedia']);
+            $peminjaman->update([
+                'status'               => 'dikembalikan',
+                'tanggal_dikembalikan' => $hariIni->toDateString(),
+                'denda'                => $hitungDenda,
+            ]);
+
+            if ($peminjaman->eksemplar) {
+                $peminjaman->eksemplar->update(['status' => 'tersedia']);
+            }
+
+            $kembaliCount++;
         }
 
         $buku->update(['stok' => $buku->eksemplarTersedia()->count()]);
 
-        $pesan = 'Buku "' . $buku->judul . '" berhasil dikembalikan oleh ' . $anggota->nama . '.';
-        if ($hitungDenda > 0) {
-            $pesan .= ' Denda keterlambatan: Rp ' . number_format($hitungDenda, 0, ',', '.') . '.';
+        $msg = $kembaliCount == 1
+            ? 'Buku "' . $buku->judul . '" berhasil dikembalikan oleh ' . $anggota->nama . '.'
+            : $kembaliCount . ' eksemplar buku "' . $buku->judul . '" berhasil dikembalikan oleh ' . $anggota->nama . '.';
+
+        if ($totalDenda > 0) {
+            $msg .= ' (Denda keterlambatan: Rp ' . number_format($totalDenda, 0, ',', '.') . ').';
         }
 
-        return back()->with('success', $pesan);
+        return back()->with('success', $msg);
     }
 
     public function adminCekPeminjaman(Request $request)
@@ -383,28 +470,33 @@ class BarcodeController extends Controller
         $buku = Buku::findOrFail($request->buku_id);
         $anggota = Anggota::findOrFail($request->anggota_id);
 
-        $peminjaman = Peminjaman::where('buku_id', $buku->id)
+        $peminjamanList = Peminjaman::where('buku_id', $buku->id)
             ->where('anggota_id', $anggota->id)
             ->whereIn('status', ['dipinjam', 'menunggu_pengembalian'])
             ->with('eksemplar')
-            ->first();
+            ->get();
 
-        if (!$peminjaman) {
+        if ($peminjamanList->isEmpty()) {
             return response()->json([
                 'status' => 'not_found',
                 'pesan'  => 'Buku ini tidak sedang dipinjam oleh anggota tersebut.',
             ]);
         }
 
+        $peminjamanData = [];
+        foreach ($peminjamanList as $p) {
+            $peminjamanData[] = [
+                'id'              => $p->id,
+                'eksemplar_kode'  => $p->eksemplar?->kode_buku,
+                'status'          => $p->status,
+                'tanggal_pinjam'  => $p->tanggal_pinjam,
+                'tanggal_kembali' => $p->tanggal_kembali,
+            ];
+        }
+
         return response()->json([
             'status' => 'found',
-            'peminjaman' => [
-                'id'              => $peminjaman->id,
-                'eksemplar_kode'  => $peminjaman->eksemplar?->kode_buku,
-                'status'          => $peminjaman->status,
-                'tanggal_pinjam'  => $peminjaman->tanggal_pinjam,
-                'tanggal_kembali' => $peminjaman->tanggal_kembali,
-            ],
+            'peminjaman' => $peminjamanData,
         ]);
     }
 
@@ -418,13 +510,13 @@ class BarcodeController extends Controller
         $buku = Buku::findOrFail($request->buku_id);
         $anggota = Anggota::findOrFail($request->anggota_id);
 
-        $peminjaman = Peminjaman::where('buku_id', $buku->id)
+        $peminjamanList = Peminjaman::where('buku_id', $buku->id)
             ->where('anggota_id', $anggota->id)
             ->whereIn('status', ['dipinjam', 'menunggu_pengembalian'])
             ->with('eksemplar')
-            ->first();
+            ->get();
 
-        if (!$peminjaman) {
+        if ($peminjamanList->isEmpty()) {
             return response()->json([
                 'status'   => 'tidak_memiliki',
                 'pesan'    => 'Anggota ini belum meminjam buku ini.',
@@ -432,16 +524,21 @@ class BarcodeController extends Controller
             ]);
         }
 
+        $peminjamanData = [];
+        foreach ($peminjamanList as $p) {
+            $peminjamanData[] = [
+                'id'              => $p->id,
+                'eksemplar_kode'  => $p->eksemplar?->kode_buku,
+                'status'          => $p->status,
+                'tanggal_pinjam'  => $p->tanggal_pinjam,
+                'tanggal_kembali' => $p->tanggal_kembali,
+            ];
+        }
+
         return response()->json([
             'status'   => 'sedang_memiliki',
             'pesan'    => 'Anggota ini sedang meminjam buku ini.',
-            'peminjaman' => [
-                'id'              => $peminjaman->id,
-                'eksemplar_kode'  => $peminjaman->eksemplar?->kode_buku,
-                'status'          => $peminjaman->status,
-                'tanggal_pinjam'  => $peminjaman->tanggal_pinjam,
-                'tanggal_kembali' => $peminjaman->tanggal_kembali,
-            ],
+            'peminjaman' => $peminjamanData,
             'stok'     => $buku->eksemplarTersedia()->count(),
         ]);
     }

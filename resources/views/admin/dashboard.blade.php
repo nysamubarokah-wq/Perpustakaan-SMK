@@ -61,19 +61,6 @@
     .status-konfirmasi { background: #cff4fc; color: #055160; }
     .chart-container { position: relative; width: 100%; }
 
-    /* Dark mode overrides for dashboard */
-    body.dark-mode .stat-card { background: var(--bg-card); }
-    body.dark-mode .stat-card h3 { color: var(--text-primary); }
-    body.dark-mode .stat-card p { color: var(--text-secondary); }
-    body.dark-mode .chart-card { background: var(--bg-card); }
-    body.dark-mode .chart-card h5 { color: var(--text-primary); }
-    body.dark-mode .table-card { background: var(--bg-card); }
-    body.dark-mode .table-card-header { border-color: var(--border-color); }
-    body.dark-mode .table-card-header h5 { color: var(--text-primary); }
-    body.dark-mode .table-card thead { background: var(--bg-header) !important; }
-    body.dark-mode .table-card thead th { color: var(--text-primary); }
-    body.dark-mode .table-card td { color: var(--text-primary); }
-
     @media (max-width: 768px) {
         .stat-card {
             padding: 14px 16px;

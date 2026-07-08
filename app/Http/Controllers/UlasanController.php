@@ -81,8 +81,7 @@ public function index(Request $request)
             ['rating' => $request->rating, 'komentar' => $request->komentar]
         );
 
-        $redirectUrl = session()->get('koleksiFilterUrl', route('koleksi.index'));
-        return redirect($redirectUrl)->with('success', 'Ulasan kamu berhasil disimpan. Terima kasih!');
+        return redirect()->route('buku.detail', $buku->id)->with('success', 'Ulasan kamu berhasil disimpan. Terima kasih!');
     }
 
    public function destroy(Ulasan $ulasan)

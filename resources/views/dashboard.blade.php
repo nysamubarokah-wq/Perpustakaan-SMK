@@ -503,15 +503,12 @@ body.dark-mode .stat-card {
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-            <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+            <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
                 <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
             <div class="d-flex align-items-center gap-2">
                 <ul class="navbar-nav flex-row gap-1 mb-0">
-                    <li class="nav-item">
-                       <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-house"></i> <span class="nav-text">Home</span></a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" onclick="toggleLayanan(event)">
                             <i class="bi bi-person-workspace"></i> <span class="nav-text">Layanan</span> <i class="bi bi-chevron-down" style="font-size:10px"></i>
@@ -584,7 +581,7 @@ body.dark-mode .stat-card {
                 @php
                     $dashUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
                 @endphp
-                <a href="{{ route('notifikasi.index') }}" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
+                <a href="{{ route('notifikasi.go') }}" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
                     <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
                     @if($dashUnreadCount > 0)
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">

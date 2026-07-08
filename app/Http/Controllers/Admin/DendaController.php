@@ -79,11 +79,32 @@ class DendaController extends Controller
 
     public function lunasiSemua()
     {
-        Denda::where('status', 'belum_dibayar')->update([
-            'status' => 'sudah_dibayar',
-            'tanggal_bayar' => now()->toDateString()
-        ]);
+        $updated = Denda::where('status', 'belum_dibayar')
+            ->whereHas('peminjaman', fn($q) => $q->where('status', 'dikembalikan'))
+            ->update([
+                'status' => 'sudah_dibayar',
+                'tanggal_bayar' => now()->toDateString()
+            ]);
 
-        return redirect()->back()->with('success', 'Semua denda berhasil dilunasi!');
+        if ($updated > 0) {
+            return redirect()->back()->with('success', "{$updated} denda berhasil dilunasi!");
+        }
+        return redirect()->back()->with('error', 'Tidak ada denda yang bisa dilunasi.');
+    }
+
+    public function hapusBanyak(Request $request)
+    {
+        $ids = $request->ids;
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Pilih denda yang akan dihapus.');
+        }
+        Denda::destroy($ids);
+        return redirect()->back()->with('success', count($ids) . ' denda berhasil dihapus!');
+    }
+
+    public function destroy($id)
+    {
+        Denda::destroy($id);
+        return redirect()->back()->with('success', 'Denda berhasil dihapus!');
     }
 }

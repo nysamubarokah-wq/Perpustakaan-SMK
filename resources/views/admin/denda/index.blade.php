@@ -71,6 +71,22 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <form id="formHapusBanyak" action="{{ route('admin.denda.hapus-banyak') }}" method="POST">
+        @csrf
+        <div class="d-flex justify-content-end mb-2">
+            <button type="submit" id="btnHapusBanyak" class="btn btn-sm btn-danger" style="display:none" onclick="return confirm('Yakin hapus denda yang dipilih?')">
+                <i class="bi bi-trash"></i> Hapus Terpilih (<span id="jumlahTerpilih">0</span>)
+            </button>
+        </div>
+    </form>
+
     <div class="card border-0 shadow-sm" style="border-radius:15px">
         <div class="card-body p-3 p-md-4">
             <h5 class="mb-3 mb-md-4">Daftar Denda</h5>
@@ -78,6 +94,7 @@
                 <table class="table table-denda table-hover align-middle mb-0">
                     <thead>
                         <tr>
+                            <th class="text-nowrap"><input type="checkbox" id="checkAll"></th>
                             <th class="text-nowrap">No</th>
                             <th class="text-nowrap">Anggota</th>
                             <th class="text-nowrap">Buku</th>
@@ -91,6 +108,7 @@
                     <tbody>
                         @forelse($dendas as $i => $d)
                         <tr>
+                            <td><input type="checkbox" name="ids[]" value="{{ $d->id }}" class="checkbox-hapus"></td>
                             <td class="text-muted">{{ $i + 1 }}</td>
                             <td>
                                 <div class="fw-semibold">{{ $d->peminjaman->anggota->nama ?? '-' }}</div>
@@ -151,11 +169,22 @@
                                     <i class="bi bi-hourglass-split me-1"></i>Menunggu
                                 </small>
                                 @endif
+                                @if($d->peminjaman->status === 'dikembalikan')
+                                <form action="{{ route('admin.denda.destroy', $d->id) }}" method="POST" class="d-inline ms-1">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            style="padding:6px 10px;background:#f8d7da;color:#721c24;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer"
+                                            onclick="return confirm('Yakin hapus denda ini?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                                @endif
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="empty-state">
                                     <i class="bi bi-check-circle" style="font-size:50px;color:#27ae60"></i>
                                     <p class="mt-3 mb-1 fw-semibold">Tidak ada denda</p>
@@ -169,6 +198,7 @@
             </div>
         </div>
     </div>
+    </form>
 @endsection
 
 @section('style')
@@ -236,5 +266,20 @@ document.querySelectorAll('form[action*="lunasi"]').forEach(form => {
         }
     });
 });
+
+document.getElementById('checkAll').addEventListener('change', function() {
+    document.querySelectorAll('.checkbox-hapus').forEach(cb => cb.checked = this.checked);
+    updateJumlah();
+});
+
+document.querySelectorAll('.checkbox-hapus').forEach(cb => {
+    cb.addEventListener('change', updateJumlah);
+});
+
+function updateJumlah() {
+    const checked = document.querySelectorAll('.checkbox-hapus:checked').length;
+    document.getElementById('jumlahTerpilih').textContent = checked;
+    document.getElementById('btnHapusBanyak').style.display = checked > 0 ? 'inline-block' : 'none';
+}
 </script>
 @endsection

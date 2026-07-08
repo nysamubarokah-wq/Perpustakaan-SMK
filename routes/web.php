@@ -40,6 +40,13 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::get('/notifikasi/go', function (\Illuminate\Http\Request $request) {
+        $prevUrl = url()->previous();
+        if ($prevUrl && !str_contains($prevUrl, '/notifikasi')) {
+            session(['notifikasi_back_url' => $prevUrl]);
+        }
+        return redirect()->route('notifikasi.index');
+    })->name('notifikasi.go');
     Route::post('/notifikasi/{id}/baca', [NotifikasiController::class, 'markRead'])->name('notifikasi.baca');
     Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'markAllRead'])->name('notifikasi.bacaSemua');
     Route::delete('/notifikasi/{id}', [NotifikasiController::class, 'destroy'])->name('notifikasi.destroy');
@@ -47,7 +54,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifikasi/unread-count', [NotifikasiController::class, 'getUnreadCount'])->name('notifikasi.unreadCount');
     Route::get('/notifikasi/latest', [NotifikasiController::class, 'getLatest'])->name('notifikasi.latest');
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', function () {
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('koleksi.index');
+    })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -165,6 +177,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/denda', [App\Http\Controllers\Admin\DendaController::class, 'index'])->name('admin.denda.index');
     Route::post('/admin/denda/{id}/lunasi', [App\Http\Controllers\Admin\DendaController::class, 'lunasi'])->name('admin.denda.lunasi');
     Route::post('/admin/denda/lunasi-semua', [App\Http\Controllers\Admin\DendaController::class, 'lunasiSemua'])->name('admin.denda.lunasi-semua');
+    Route::delete('/admin/denda/{id}', [App\Http\Controllers\Admin\DendaController::class, 'destroy'])->name('admin.denda.destroy');
+    Route::post('/admin/denda/hapus-banyak', [App\Http\Controllers\Admin\DendaController::class, 'hapusBanyak'])->name('admin.denda.hapus-banyak');
 
     Route::get('/admin/scan-buku', [BarcodeController::class, 'adminScanner'])->name('admin.scanner');
     Route::post('/admin/scan-buku/cek', [BarcodeController::class, 'adminCekBuku'])->name('admin.scanner.cek');

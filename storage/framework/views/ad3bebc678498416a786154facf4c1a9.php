@@ -500,6 +500,453 @@ body.dark-mode #rekomendasiSection div[style*="color:#888"] {
     color: #bbb !important;
 }
 
+/* STREAMING-STYLE RECOMMENDATION CARDS */
+.streaming-rec-section {
+    flex-direction: column;
+    margin-top: 20px;
+}
+.streaming-rec-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.streaming-rec-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.streaming-rec-title i {
+    color: #1a6e35;
+    font-size: 20px;
+}
+.streaming-rec-slider-wrapper {
+    position: relative;
+}
+.streaming-rec-slider {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    padding: 4px 0 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.streaming-rec-slider::-webkit-scrollbar {
+    display: none;
+}
+.streaming-rec-slider::-moz-scrollbar {
+    display: none;
+}
+.streaming-rec-card-wrapper {
+    scroll-snap-align: start;
+    flex-shrink: 0;
+}
+.streaming-rec-card {
+    width: 140px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    transition: transform 0.3s cubic-bezier(0.25,0.8,0.25,1), box-shadow 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+.streaming-rec-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+.streaming-rec-cover {
+    position: relative;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+}
+.streaming-rec-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.25,0.8,0.25,1);
+}
+.streaming-rec-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px;
+    text-align: center;
+    background: linear-gradient(145deg, #1a6e35 0%, #27ae60 50%, #1a6e35 100%);
+    position: relative;
+    overflow: hidden;
+}
+.streaming-rec-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 10px,
+        rgba(0,0,0,0.03) 10px,
+        rgba(0,0,0,0.03) 20px
+    );
+}
+.streaming-rec-placeholder-icon {
+    font-size: 28px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 8px;
+    position: relative;
+}
+.streaming-rec-placeholder-text {
+    font-size: 8px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    position: relative;
+}
+.streaming-rec-no-cover {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    transition: transform 0.3s cubic-bezier(0.25,0.8,0.25,1), box-shadow 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    width: 140px;
+}
+.streaming-rec-no-cover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+.streaming-rec-no-cover-cover {
+    position: relative;
+    aspect-ratio: 2/3;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1a6e35, #27ae60);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 8px;
+    text-align: center;
+}
+.streaming-rec-no-cover-icon {
+    font-size: 32px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 10px;
+}
+.streaming-rec-no-cover-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+.streaming-rec-no-cover-author {
+    font-size: 8px;
+    color: rgba(255,255,255,0.7);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.streaming-rec-no-cover-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 2px 6px;
+    border-radius: 20px;
+    font-size: 8px;
+    font-weight: 700;
+    z-index: 5;
+}
+.streaming-rec-no-cover-favorit {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10;
+    transition: all 0.2s;
+}
+.streaming-rec-no-cover-favorit:hover {
+    transform: scale(1.12);
+    background: white;
+}
+.streaming-rec-no-cover-body {
+    padding: 8px 6px;
+    background: white;
+}
+.streaming-rec-no-cover-body h6 {
+    font-size: 10px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 2px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.streaming-rec-no-cover-meta {
+    font-size: 9px;
+    color: #888;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.streaming-rec-favorit {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10;
+    transition: all 0.2s;
+}
+.streaming-rec-favorit:hover {
+    transform: scale(1.12);
+    background: white;
+}
+.streaming-rec-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 700;
+    z-index: 5;
+}
+.streaming-rec-badge.trending {
+    background: linear-gradient(135deg, #ff5722, #ff9800);
+    color: white;
+}
+.streaming-rec-badge.baru {
+    background: linear-gradient(135deg, #1a6e35, #27ae60);
+    color: white;
+}
+.streaming-rec-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px;
+}
+.streaming-rec-card:hover .streaming-rec-overlay {
+    opacity: 1;
+}
+.streaming-rec-overlay-info {
+    transform: translateY(10px);
+    opacity: 0;
+    transition: transform 0.3s ease 0.05s, opacity 0.3s ease 0.05s;
+}
+.streaming-rec-card:hover .streaming-rec-overlay-info {
+    transform: translateY(0);
+    opacity: 1;
+}
+.streaming-rec-overlay-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+}
+.streaming-rec-overlay-meta {
+    font-size: 9px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 1px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+.streaming-rec-overlay-meta i {
+    font-size: 8px;
+}
+.streaming-rec-overlay-genre {
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 8px;
+    font-weight: 600;
+    background: rgba(39,174,96,0.25);
+    color: #4ade80;
+    border: 1px solid rgba(39,174,96,0.4);
+    margin-top: 3px;
+}
+.streaming-rec-overlay-stok {
+    font-size: 9px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 3px;
+}
+.streaming-rec-body {
+    padding: 8px 6px;
+}
+.streaming-rec-body h6 {
+    font-size: 10px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.streaming-rec-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #e0e0e0;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.25s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 14px;
+}
+.streaming-rec-nav:hover {
+    background: #1a6e35;
+    color: white;
+    border-color: #1a6e35;
+}
+.streaming-rec-slider-wrapper:hover .streaming-rec-nav {
+    opacity: 1;
+}
+.streaming-rec-nav.prev {
+    left: -5px;
+}
+.streaming-rec-nav.next {
+    right: -5px;
+}
+@media (hover: hover) and (pointer: fine) {
+    .streaming-rec-card:hover .streaming-rec-cover img {
+        transform: scale(1.05);
+    }
+    .streaming-rec-card:hover .streaming-rec-overlay {
+        opacity: 1;
+    }
+    .streaming-rec-card:hover .streaming-rec-overlay-info {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+@media (max-width: 768px) {
+    .streaming-rec-card {
+        width: 120px;
+    }
+    .streaming-rec-no-cover {
+        width: 120px;
+    }
+    .streaming-rec-nav {
+        display: none;
+    }
+    .streaming-rec-overlay {
+        display: none;
+    }
+}
+@media (max-width: 480px) {
+    .streaming-rec-card {
+        width: 110px;
+    }
+    .streaming-rec-no-cover {
+        width: 110px;
+    }
+}
+
+/* Dark mode streaming rec */
+body.dark-mode .streaming-rec-title {
+    color: #ffffff;
+}
+body.dark-mode .streaming-rec-card {
+    background: #1e1e1e;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+body.dark-mode .streaming-rec-card .streaming-rec-body {
+    background: #1e1e1e;
+}
+body.dark-mode .streaming-rec-card .streaming-rec-body h6 {
+    color: #ffffff;
+}
+body.dark-mode .streaming-rec-no-cover {
+    background: #1e1e1e;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+body.dark-mode .streaming-rec-no-cover-cover {
+    background: linear-gradient(145deg, #1a3d1a, #1a4d2a);
+}
+body.dark-mode .streaming-rec-no-cover-body {
+    background: #1e1e1e;
+}
+body.dark-mode .streaming-rec-no-cover-body h6 {
+    color: #ffffff;
+}
+body.dark-mode .streaming-rec-no-cover-meta {
+    color: #bdbdbd;
+}
+body.dark-mode .streaming-rec-nav {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+body.dark-mode .streaming-rec-nav:hover {
+    background: #1a6e35;
+    border-color: #1a6e35;
+    color: white;
+}
+
 /* Ulasan section - dark mode */
 body.dark-mode div[style*="border-top:1px solid #eee"] {
     border-top-color: #444 !important;
@@ -570,20 +1017,6 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
             <div class="d-flex align-items-center gap-3">
-                <?php if(auth()->guard()->check()): ?>
-                    <?php
-                        $detailUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
-                    ?>
-                    <a href="<?php echo e(route('notifikasi.index')); ?>" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
-                        <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
-                        <?php if($detailUnreadCount > 0): ?>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
-                                <?php echo e($detailUnreadCount > 99 ? '99+' : $detailUnreadCount); ?>
-
-                            </span>
-                        <?php endif; ?>
-                    </a>
-                <?php endif; ?>
                 <a href="#" onclick="kembaliKeKoleksi()" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
@@ -724,34 +1157,82 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
     
 </div>
 <?php if($rekomendasi->count() > 0): ?>
-<div class="detail-card" id="rekomendasiSection" style="flex-direction:column;margin-top:20px">
-    <h5 style="font-weight:700;color:#222;margin-bottom:20px">
-        <i class="bi bi-collection" style="color:#1a6e35"></i> Rekomendasi Buku Serupa
-    </h5>
-    <div style="display:flex;gap:15px;overflow-x:auto;padding-bottom:5px">
-        <?php $__currentLoopData = $rekomendasi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-        <a href="<?php echo e(route('buku.detail', $rec->id)); ?>" style="text-decoration:none;flex:0 0 160px;width:160px">
-            <div style="background:#f8f9fa;border-radius:12px;overflow:hidden;transition:transform 0.3s;height:100%" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
-                <div style="aspect-ratio:2/3;overflow:hidden">
-                    <?php if($rec->sampul): ?>
-                        <img src="<?php echo e(asset($rec->sampul)); ?>" style="width:100%;height:100%;object-fit:cover;object-position:center center" alt="<?php echo e($rec->judul); ?>">
-                    <?php else: ?>
-                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a6e35,#27ae60);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:36px">
-                            <i class="bi bi-book"></i>
+<div class="detail-card streaming-rec-section" id="rekomendasiSection">
+    <div class="streaming-rec-header">
+        <h5 class="streaming-rec-title">
+            <i class="bi bi-collection"></i> Rekomendasi Buku Serupa
+        </h5>
+    </div>
+    <div class="streaming-rec-slider-wrapper">
+        <button class="streaming-rec-nav prev" onclick="slideRecSlider(-1)" aria-label="Sebelumnya">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <button class="streaming-rec-nav next" onclick="slideRecSlider(1)" aria-label="Berikutnya">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+        <div class="streaming-rec-slider" id="recSlider">
+            <?php $__currentLoopData = $rekomendasi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rec): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if($rec->sampul): ?>
+            <div class="streaming-rec-card-wrapper">
+                <a href="<?php echo e(route('buku.detail', $rec->id)); ?>" class="streaming-rec-card">
+                    <div class="streaming-rec-cover cover-<?php echo e(($loop->index % 6) + 1); ?>">
+                        <?php if($rec->created_at && $rec->created_at->diffInDays(now()) <= 30): ?>
+                        <div class="streaming-rec-badge baru">Baru</div>
+                        <?php elseif(($rec->peminjaman_count ?? 0) >= 10): ?>
+                        <div class="streaming-rec-badge trending">Trending</div>
+                        <?php endif; ?>
+                        <img src="<?php echo e(asset($rec->sampul)); ?>" alt="<?php echo e($rec->judul); ?>">
+                        <button type="button" onclick="toggleFavorit(<?php echo e($rec->id); ?>, this); event.preventDefault(); event.stopPropagation();" data-favorit="<?php echo e(in_array($rec->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="streaming-rec-favorit">
+                            <?php if(in_array($rec->id, $favoritIds ?? [])): ?>
+                                <i class="bi bi-heart-fill" style="color:#e74c3c;font-size:13px"></i>
+                            <?php else: ?>
+                                <i class="bi bi-heart" style="color:#999;font-size:13px"></i>
+                            <?php endif; ?>
+                        </button>
+                        <div class="streaming-rec-overlay">
+                            <div class="streaming-rec-overlay-info">
+                                <div class="streaming-rec-overlay-title"><?php echo e($rec->judul); ?></div>
+                                <div class="streaming-rec-overlay-meta"><i class="bi bi-person"></i> <?php echo e(Str::limit($rec->pengarang, 18)); ?></div>
+                                <?php if($rec->penerbit): ?><div class="streaming-rec-overlay-meta"><i class="bi bi-building"></i> <?php echo e(Str::limit($rec->penerbit, 18)); ?></div><?php endif; ?>
+                                <?php if($rec->genre): ?><div class="streaming-rec-overlay-genre"><?php echo e($rec->genre); ?></div><?php endif; ?>
+                                <div class="streaming-rec-overlay-stok">Stok: <?php echo e($rec->stok); ?></div>
+                            </div>
                         </div>
-                    <?php endif; ?>
-                </div>
-                <div style="padding:10px">
-                    <div style="font-size:12px;font-weight:700;color:#222;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?php echo e($rec->judul); ?></div>
-                    <div style="font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?php echo e($rec->pengarang); ?></div>
-                    <span style="display:inline-block;margin-top:6px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;background:<?php echo e($rec->stok > 0 ? '#d4edda' : '#f8d7da'); ?>;color:<?php echo e($rec->stok > 0 ? '#1a6e35' : '#721c24'); ?>">
-                        <?php echo e($rec->stok > 0 ? 'Tersedia' : 'Habis'); ?>
-
-                    </span>
-                </div>
+                    </div>
+                    <div class="streaming-rec-body">
+                        <h6><?php echo e($rec->judul); ?></h6>
+                    </div>
+                </a>
             </div>
-        </a>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            <?php else: ?>
+            <div class="streaming-rec-card-wrapper">
+                <a href="<?php echo e(route('buku.detail', $rec->id)); ?>" class="streaming-rec-no-cover">
+                    <div class="streaming-rec-no-cover-cover">
+                        <?php if($rec->created_at && $rec->created_at->diffInDays(now()) <= 30): ?>
+                        <div class="streaming-rec-no-cover-badge" style="background: linear-gradient(135deg, #1a6e35, #27ae60); color: white;">Baru</div>
+                        <?php elseif(($rec->peminjaman_count ?? 0) >= 10): ?>
+                        <div class="streaming-rec-no-cover-badge" style="background: linear-gradient(135deg, #ff5722, #ff9800); color: white;">Trending</div>
+                        <?php endif; ?>
+                        <i class="bi bi-book streaming-rec-no-cover-icon"></i>
+                        <div class="streaming-rec-no-cover-title"><?php echo e($rec->judul); ?></div>
+                        <div class="streaming-rec-no-cover-author"><?php echo e($rec->pengarang); ?></div>
+                        <button type="button" onclick="toggleFavorit(<?php echo e($rec->id); ?>, this); event.preventDefault(); event.stopPropagation();" data-favorit="<?php echo e(in_array($rec->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="streaming-rec-no-cover-favorit">
+                            <?php if(in_array($rec->id, $favoritIds ?? [])): ?>
+                                <i class="bi bi-heart-fill" style="color:#e74c3c;font-size:11px"></i>
+                            <?php else: ?>
+                                <i class="bi bi-heart" style="color:#999;font-size:11px"></i>
+                            <?php endif; ?>
+                        </button>
+                    </div>
+                    <div class="streaming-rec-no-cover-body">
+                        <h6><?php echo e($rec->judul); ?></h6>
+                        <p class="streaming-rec-no-cover-meta"><i class="bi bi-person"></i> <?php echo e(Str::limit($rec->pengarang, 15)); ?></p>
+                    </div>
+                </a>
+            </div>
+            <?php endif; ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </div>
     </div>
 </div>
 <?php endif; ?>
@@ -921,10 +1402,27 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
                 <input type="date" name="tanggal_kembali" required
                        min="<?php echo e(date('Y-m-d', strtotime('+1 day'))); ?>">
             </div>
+            <div class="form-group">
+                <label>Jumlah Buku</label>
+                <input type="number" name="jumlah" id="inputJumlah" required min="1" max="<?php echo e($stokTersedia); ?>" value="1" onchange="updateMaxJumlah()" style="width:100%;padding:11px 15px;border:2px solid #eee;border-radius:10px;font-size:14px;outline:none;transition:border 0.3s" onfocus="this.style.borderColor='#27ae60'">
+                <small style="color:#888;font-size:11px">Stok tersedia: <strong><?php echo e($stokTersedia); ?></strong> eksemplar</small>
+            </div>
             <button type="submit" class="btn-konfirmasi">
                 <i class="bi bi-check-circle"></i> Konfirmasi Pinjam
             </button>
         </form>
+        <script>
+            function updateMaxJumlah() {
+                var input = document.getElementById('inputJumlah');
+                var max = <?php echo e($stokTersedia); ?>;
+                if (parseInt(input.value) > max) {
+                    input.value = max;
+                }
+                if (parseInt(input.value) < 1) {
+                    input.value = 1;
+                }
+            }
+        </script>
         <script>
             document.getElementById('redirectUrlInput').value = sessionStorage.getItem('koleksiFilterUrl') || '<?php echo e(route('koleksi.index')); ?>';
         </script>
@@ -967,9 +1465,50 @@ if(localStorage.getItem('darkMode') === 'enabled'){
 }
 
 function kembaliKeKoleksi() {
-    const savedUrl = sessionStorage.getItem('koleksiFilterUrl') || '<?php echo e(route('koleksi.index')); ?>';
-    window.location.href = savedUrl;
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.location.href = '<?php echo e(route('koleksi.index')); ?>';
+    }
 }
+
+// Recommendation slider navigation
+function slideRecSlider(direction) {
+    var slider = document.getElementById('recSlider');
+    if (!slider) return;
+    var scrollAmount = slider.offsetWidth * 0.6;
+    slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+}
+
+function updateRecSliderButtons() {
+    var slider = document.getElementById('recSlider');
+    var wrapper = slider ? slider.closest('.streaming-rec-slider-wrapper') : null;
+    if (!wrapper) return;
+    var prevBtn = wrapper.querySelector('.streaming-rec-nav.prev');
+    var nextBtn = wrapper.querySelector('.streaming-rec-nav.next');
+    if (!prevBtn || !nextBtn) return;
+    requestAnimationFrame(function() {
+        prevBtn.disabled = slider.scrollLeft <= 5;
+        nextBtn.disabled = slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 5;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Slider functionality
+    var slider = document.getElementById('recSlider');
+    if (slider) {
+        updateRecSliderButtons();
+        slider.addEventListener('scroll', function() { updateRecSliderButtons(); });
+        window.addEventListener('resize', function() { updateRecSliderButtons(); });
+
+        slider.addEventListener('wheel', function(e) {
+            if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+                e.preventDefault();
+                slider.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    }
+});
 </script>
 
 </body>
