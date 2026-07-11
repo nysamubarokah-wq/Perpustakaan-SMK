@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Denda as DendaHelper;
 use App\Models\Buku;
 use App\Models\Peminjaman;
 use App\Models\Anggota;
@@ -250,7 +251,7 @@ class BarcodeController extends Controller
 
             if ($hariIni->gt($tanggalKembali)) {
                 $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
-                $hitungDenda = $selisihHari * 1000;
+                $hitungDenda = DendaHelper::hitung($selisihHari);
                 $totalDenda += $hitungDenda;
 
                 $peminjaman->update(['denda' => $hitungDenda]);
@@ -421,7 +422,7 @@ class BarcodeController extends Controller
 
             if ($hariIni->gt($tanggalKembali)) {
                 $selisihHari = (int) ceil(abs($hariIni->diffInDays($tanggalKembali)));
-                $hitungDenda = $selisihHari * 1000;
+                $hitungDenda = DendaHelper::hitung($selisihHari);
                 $totalDenda += $hitungDenda;
 
                 Denda::updateOrCreate(

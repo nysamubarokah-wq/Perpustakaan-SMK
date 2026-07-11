@@ -1,4 +1,4 @@
-@php
+<?php
     $user = auth()->user();
     $buku = $peminjaman->buku;
     $eksemplar = $peminjaman->eksemplar;
@@ -26,7 +26,7 @@
     }
 
     $totalDenda = $denda ? $denda->jumlah_denda : $peminjaman->denda ?? $peminjaman->taksiran_denda ?? 0;
-@endphp
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -293,11 +293,11 @@
     <nav class="navbar">
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center justify-content-between w-100">
-                <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                    <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
+                <a href="<?php echo e(route('koleksi.index')); ?>" class="d-flex align-items-center gap-2 text-decoration-none">
+                    <img src="<?php echo e(asset('images/logo.jpg')); ?>" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                     <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
                 </a>
-                <a href="{{ route('profil.riwayat') }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+                <a href="<?php echo e(route('profil.riwayat')); ?>" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -307,37 +307,37 @@
     <div class="main-container">
         <div class="detail-card">
             <div class="detail-header">
-                <i class="{{ $badgeIcon }} me-2"></i>
+                <i class="<?php echo e($badgeIcon); ?> me-2"></i>
                 <h2>Detail Peminjaman</h2>
             </div>
             <div class="detail-body">
 
                 <div class="book-section">
-                    @if($buku && $buku->sampul)
-                        <img src="{{ asset($buku->sampul) }}" class="book-cover" alt="{{ $buku->judul }}">
-                    @else
+                    <?php if($buku && $buku->sampul): ?>
+                        <img src="<?php echo e(asset($buku->sampul)); ?>" class="book-cover" alt="<?php echo e($buku->judul); ?>">
+                    <?php else: ?>
                         <div class="cover-placeholder"><i class="bi bi-book"></i></div>
-                    @endif
+                    <?php endif; ?>
                     <div class="book-info">
-                        <div class="book-title">{{ $buku->judul ?? 'Buku tidak ditemukan' }}</div>
-                        <div class="book-author"><i class="bi bi-person-fill"></i>{{ $buku->pengarang ?? '-' }}</div>
+                        <div class="book-title"><?php echo e($buku->judul ?? 'Buku tidak ditemukan'); ?></div>
+                        <div class="book-author"><i class="bi bi-person-fill"></i><?php echo e($buku->pengarang ?? '-'); ?></div>
                         <div class="book-meta">
                             <div class="meta-item">
                                 <i class="bi bi-upc-scan"></i>
                                 <span class="meta-label">Kode Buku</span>
                                 <span class="meta-value">
-                                    @if($eksemplar){{ $eksemplar->kode_buku }}@elseif($buku){{ $buku->kode_buku }}@else-@endif
+                                    <?php if($eksemplar): ?><?php echo e($eksemplar->kode_buku); ?><?php elseif($buku): ?><?php echo e($buku->kode_buku); ?><?php else: ?>-<?php endif; ?>
                                 </span>
                             </div>
                             <div class="meta-item">
                                 <i class="bi bi-buildings"></i>
                                 <span class="meta-label">Penerbit</span>
-                                <span class="meta-value">{{ $buku->penerbit ?? '-' }}</span>
+                                <span class="meta-value"><?php echo e($buku->penerbit ?? '-'); ?></span>
                             </div>
                             <div class="meta-item">
                                 <i class="bi bi-calendar3"></i>
                                 <span class="meta-label">Tahun Terbit</span>
-                                <span class="meta-value">{{ $buku->tahun_terbit ?? '-' }}</span>
+                                <span class="meta-value"><?php echo e($buku->tahun_terbit ?? '-'); ?></span>
                             </div>
                         </div>
                     </div>
@@ -348,69 +348,71 @@
                     <div class="info-grid">
                         <div class="info-box">
                             <div class="label">Tanggal Pinjam</div>
-                            <div class="value">{{ $peminjaman->tanggal_pinjam }}</div>
+                            <div class="value"><?php echo e($peminjaman->tanggal_pinjam); ?></div>
                         </div>
                         <div class="info-box">
                             <div class="label">Tanggal Jatuh Tempo</div>
-                            <div class="value">{{ $peminjaman->tanggal_kembali }}</div>
+                            <div class="value"><?php echo e($peminjaman->tanggal_kembali); ?></div>
                         </div>
                         <div class="info-box">
                             <div class="label">Tanggal Kembali</div>
                             <div class="value">
-                                @if($peminjaman->tanggal_dikembalikan)
-                                    {{ $peminjaman->tanggal_dikembalikan }}
-                                @else
+                                <?php if($peminjaman->tanggal_dikembalikan): ?>
+                                    <?php echo e($peminjaman->tanggal_dikembalikan); ?>
+
+                                <?php else: ?>
                                     <span style="color:#aaa;font-weight:400">-</span>
-                                @endif
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="info-box">
                             <div class="label">Status</div>
                             <div class="value">
-                                <span class="status-badge {{ $badgeClass }}">{{ $badgeText }}</span>
+                                <span class="status-badge <?php echo e($badgeClass); ?>"><?php echo e($badgeText); ?></span>
                             </div>
                         </div>
-                        @if($peminjaman->terlambat_hari > 0)
+                        <?php if($peminjaman->terlambat_hari > 0): ?>
                             <div class="info-box full">
                                 <div class="label">Lama Keterlambatan</div>
                                 <div class="value" style="color:#dc3545">
-                                    <i class="bi bi-exclamation-triangle-fill"></i> {{ $peminjaman->terlambat_hari }} hari
+                                    <i class="bi bi-exclamation-triangle-fill"></i> <?php echo e($peminjaman->terlambat_hari); ?> hari
                                 </div>
                             </div>
-                        @endif
-                        @if($peminjaman->catatan)
+                        <?php endif; ?>
+                        <?php if($peminjaman->catatan): ?>
                             <div class="info-box full">
                                 <div class="label">Catatan</div>
-                                <div class="value" style="font-weight:400;font-size:13px">{{ $peminjaman->catatan }}</div>
+                                <div class="value" style="font-weight:400;font-size:13px"><?php echo e($peminjaman->catatan); ?></div>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
 
-                @if($totalDenda > 0)
-                    <div class="denda-box {{ $denda && $denda->status === 'lunas' ? 'paid' : '' }}">
+                <?php if($totalDenda > 0): ?>
+                    <div class="denda-box <?php echo e($denda && $denda->status === 'lunas' ? 'paid' : ''); ?>">
                         <div class="denda-label">Total Denda</div>
-                        <div class="denda-amount">Rp {{ number_format($totalDenda, 0, ',', '.') }}</div>
-                        @if($peminjaman->terlambat_hari > 0)
-                            <div class="denda-days">{{ $peminjaman->terlambat_hari }} hari x Rp 1.000</div>
-                        @endif
-                        @if($denda && $denda->status)
+                        <div class="denda-amount">Rp <?php echo e(number_format($totalDenda, 0, ',', '.')); ?></div>
+                        <?php if($peminjaman->terlambat_hari > 0): ?>
+                            <div class="denda-days"><?php echo e($peminjaman->terlambat_hari); ?> hari x Rp 1.000</div>
+                        <?php endif; ?>
+                        <?php if($denda && $denda->status): ?>
                             <div style="margin-top:8px;font-size:12px;color:#888">
-                                Status: {{ ucfirst($denda->status) }}
-                            </div>
-                        @endif
-                    </div>
-                @endif
+                                Status: <?php echo e(ucfirst($denda->status)); ?>
 
-                @if($buku && $buku->qrcode_path && file_exists(public_path($buku->qrcode_path)))
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if($buku && $buku->qrcode_path && file_exists(public_path($buku->qrcode_path))): ?>
                     <div class="qr-section">
                         <div class="section-title">QR Code Buku</div>
                         <div class="qr-wrapper">
-                            <img src="{{ asset($buku->qrcode_path) }}" alt="QR Code">
-                            <div class="qr-label">{{ $buku->kode_buku }}</div>
+                            <img src="<?php echo e(asset($buku->qrcode_path)); ?>" alt="QR Code">
+                            <div class="qr-label"><?php echo e($buku->kode_buku); ?></div>
                         </div>
                     </div>
-                @endif
+                <?php endif; ?>
 
             </div>
         </div>
@@ -423,3 +425,4 @@
     </script>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\PerpustakaanDigital\resources\views/profil/riwayat-detail.blade.php ENDPATH**/ ?>

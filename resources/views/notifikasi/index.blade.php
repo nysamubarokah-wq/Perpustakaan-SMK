@@ -379,12 +379,9 @@
         </h1>
         <div class="d-flex gap-2 flex-wrap" id="actionButtons">
             @if($belumDibaca > 0)
-                <form action="{{ route('notifikasi.bacaSemua') }}" method="POST" id="markAllForm" style="display:inline">
-                    @csrf
-                    <button type="submit" class="action-btn primary">
-                        <i class="bi bi-check-all"></i> Tandai Semua Dibaca
-                    </button>
-                </form>
+                <button type="button" class="action-btn primary" onclick="markAllRead()">
+                    <i class="bi bi-check-all"></i> Tandai Semua Dibaca
+                </button>
             @endif
             <form action="{{ route('notifikasi.destroyAll') }}" method="POST" id="deleteAllForm" style="display:inline">
                 @csrf
@@ -430,7 +427,7 @@
                     default => '#6c757d'
                 };
             @endphp
-            <div class="notif-card {{ !$item->is_read ? 'unread' : '' }}" id="notif-card-{{ $item->id }}">
+            <div class="notif-card {{ !$item->is_read ? 'unread' : '' }}" id="notif-card-{{ $item->id }}" onclick="window.open('/notifikasi/{{ $item->id }}/baca', '_self')" style="cursor:pointer;">
                 <div class="notif-card-content">
                     <div class="notif-icon-wrap" style="background: {{ $iconBg }}">
                         <i class="bi bi-{{ $item->icon ?? 'bell' }}"></i>
@@ -449,16 +446,16 @@
                             </span>
                             <div class="notif-actions">
                                 @if($item->link)
-                                    <a href="{{ $item->link }}" class="action-icon" title="Buka link">
+                                    <a href="{{ $item->link }}" class="action-icon" title="Buka link" onclick="event.stopPropagation()">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 @endif
                                 @if(!$item->is_read)
-                                    <button type="button" class="action-icon" onclick="markSingleRead({{ $item->id }})" title="Tandai dibaca">
+                                    <button type="button" class="action-icon" onclick="event.stopPropagation(); markSingleRead({{ $item->id }})" title="Tandai dibaca">
                                         <i class="bi bi-check-circle"></i>
                                     </button>
                                 @endif
-                                <button type="button" class="action-icon delete" onclick="deleteSingle({{ $item->id }})" title="Hapus">
+                                <button type="button" class="action-icon delete" onclick="event.stopPropagation(); deleteSingle({{ $item->id }})" title="Hapus">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -484,33 +481,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-    document.getElementById('markAllForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = this;
-        fetch(form.action, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelectorAll('.notif-card.unread').forEach(card => {
-                    card.classList.remove('unread');
-                    const badge = card.querySelector('.unread-badge');
-                    if (badge) badge.remove();
-                });
-                document.querySelectorAll('[title="Tandai dibaca"]').forEach(btn => btn.remove());
-                form.remove();
-                updatePageCount();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
 
     document.getElementById('deleteAllForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -540,13 +510,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function markAllRead() {
+    fetch('{{ route("notifikasi.bacaSemua") }}', {
+        credentials: 'include',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('.notif-card.unread').forEach(card => {
+                card.classList.remove('unread');
+                const badge = card.querySelector('.unread-badge');
+                if (badge) badge.remove();
+                const actions = card.querySelector('.notif-actions');
+                const readBtn = actions?.querySelector('[title="Tandai dibaca"]');
+                if (readBtn) readBtn.remove();
+            });
+            document.getElementById('markAllReadBtn')?.remove();
+            updatePageCount();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
 function markSingleRead(id) {
     fetch(`/notifikasi/${id}/baca`, {
-        method: 'POST',
+        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
         }
     })
     .then(response => response.json())

@@ -44,10 +44,10 @@ public function ebookAccess()
     return $this->hasMany(\App\Models\EbookAccess::class);
 }
 
-public function notifikasi()
-{
-    return $this->hasMany(\App\Models\Notifikasi::class);
-}
+    public function notifikasi()
+    {
+        return $this->hasMany(\App\Models\Notification::class);
+    }
 
 public function notifications()
 {

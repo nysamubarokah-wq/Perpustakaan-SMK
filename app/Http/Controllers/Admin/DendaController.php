@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\Denda as DendaHelper;
 use App\Models\Denda;
 use App\Models\Peminjaman;
 use App\Http\Controllers\Controller;
@@ -52,7 +53,7 @@ class DendaController extends Controller
             if (!$sudahAda) {
                 $tglKembali = Carbon::parse($p->tanggal_kembali)->startOfDay();
                 $selisihHari = (int) $tglKembali->diffInDays($hariIni);
-                $jumlahDenda = $selisihHari * 1000;
+                $jumlahDenda = DendaHelper::hitung($selisihHari);
 
                 $p->update(['denda' => $jumlahDenda]);
 

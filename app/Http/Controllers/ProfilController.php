@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Backgrounds;
+use App\Helpers\Denda as DendaHelper;
 use App\Models\Anggota;
 use App\Models\Denda;
 use App\Models\Ebook;
@@ -13,8 +14,9 @@ use App\Services\NotifikasiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
 {
@@ -41,7 +43,6 @@ class ProfilController extends Controller
 
         $totalRiwayatCount = Peminjaman::where('anggota_id', $anggotaId)->count();
 
-        $tarifDendaPerHari = 1000;
         $totalDendaBelumBayar = 0;
 
         foreach ($riwayat as $item) {
@@ -54,7 +55,7 @@ class ProfilController extends Controller
 
                 if ($hariIni->gt($tanggalKembali)) {
                     $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
-                    $item->taksiran_denda = $selisihHari * $tarifDendaPerHari;
+                    $item->taksiran_denda = DendaHelper::hitung($selisihHari);
                     $item->terlambat_hari = $selisihHari;
                     $totalDendaBelumBayar += $item->taksiran_denda;
                 }
@@ -81,7 +82,7 @@ class ProfilController extends Controller
 
         if ($hariIni->gt($tanggalKembali)) {
             $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
-            $hitungDenda = $selisihHari * 1000;
+            $hitungDenda = DendaHelper::hitung($selisihHari);
 
             $peminjaman->update(['denda' => $hitungDenda]);
 
@@ -104,6 +105,67 @@ class ProfilController extends Controller
         }
 
         return redirect()->back()->with('success', 'Buku berhasil diajukan untuk dikembalikan! Menunggu konfirmasi admin.');
+    }
+
+    public function kembalikanBanyak(Request $request)
+    {
+        $idsRaw = $request->input('peminjaman_ids', []);
+        $ids = is_array($idsRaw) ? $idsRaw : json_decode($idsRaw, true) ?? [];
+        $user = auth()->user();
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Pilih buku yang ingin dikembalikan.');
+        }
+
+        try {
+            DB::transaction(function () use ($ids, $user, &$jumlah) {
+                $peminjamans = Peminjaman::whereIn('id', $ids)
+                    ->where('status', 'dipinjam')
+                    ->whereHas('anggota', function ($q) use ($user) {
+                        $q->where('user_id', $user->id);
+                    })
+                    ->get();
+
+                $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
+                $adminUsers = User::where('role', 'admin')->get();
+                $jumlah = 0;
+
+                foreach ($peminjamans as $peminjaman) {
+                    $peminjaman->update([
+                        'status' => 'menunggu_konfirmasi',
+                        'tipe_konfirmasi' => 'kembali',
+                    ]);
+
+                    $tanggalKembali = Carbon::parse($peminjaman->tanggal_kembali)->startOfDay();
+                    if ($hariIni->gt($tanggalKembali)) {
+                        $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
+                        $hitungDenda = DendaHelper::hitung($selisihHari);
+                        $peminjaman->update(['denda' => $hitungDenda]);
+
+                        $sudahAda = Denda::where('peminjaman_id', $peminjaman->id)->exists();
+                        if (! $sudahAda) {
+                            Denda::create([
+                                'peminjaman_id' => $peminjaman->id,
+                                'jumlah_denda' => $hitungDenda,
+                                'status' => 'belum_dibayar',
+                                'keterangan' => 'Terlambat '.$selisihHari.' hari',
+                            ]);
+                        }
+                    }
+
+                    $judulBuku = $peminjaman->buku ? $peminjaman->buku->judul : 'buku';
+                    foreach ($adminUsers as $admin) {
+                        NotifikasiService::permintaanPengembalianBaru($admin->id, $user->name, $judulBuku);
+                    }
+                    $jumlah++;
+                }
+            });
+        } catch (\Exception $e) {
+            Log::error('Error kembalikan banyak: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses pengembalian.');
+        }
+
+        return redirect()->back()->with('success', "$jumlah buku berhasil diajukan untuk dikembalikan! Menunggu konfirmasi admin.");
     }
 
     public function uploadFoto(Request $request)
@@ -185,7 +247,7 @@ class ProfilController extends Controller
 
                 if ($hariIni->gt($tanggalKembali)) {
                     $item->terlambat_hari = (int) $hariIni->diffInDays($tanggalKembali);
-                    $item->taksiran_denda = $item->terlambat_hari * 1000;
+                    $item->taksiran_denda = DendaHelper::hitung($item->terlambat_hari);
                 }
             }
         }
@@ -218,7 +280,7 @@ class ProfilController extends Controller
 
             if ($hariIni->gt($tanggalKembali)) {
                 $peminjaman->terlambat_hari = (int) $hariIni->diffInDays($tanggalKembali);
-                $peminjaman->taksiran_denda = $peminjaman->terlambat_hari * 1000;
+                $peminjaman->taksiran_denda = DendaHelper::hitung($peminjaman->terlambat_hari);
             }
         }
 

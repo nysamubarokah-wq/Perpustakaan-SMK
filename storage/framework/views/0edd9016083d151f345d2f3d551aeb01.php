@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('header_title', 'Dashboard Admin'); ?>
 
 <?php $__env->startSection('content'); ?>

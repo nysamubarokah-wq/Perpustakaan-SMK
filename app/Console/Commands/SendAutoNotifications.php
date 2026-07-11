@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\Denda as DendaHelper;
 use App\Models\Peminjaman;
 use App\Models\User;
 use App\Services\NotifikasiService;
@@ -56,7 +57,6 @@ class SendAutoNotifications extends Command
             ->get();
 
         $count = 0;
-        $tarifDendaPerHari = 1000;
 
         foreach ($peminjaman as $pinjam) {
             $user = User::where('email', $pinjam->anggota->email)->first();
@@ -64,7 +64,7 @@ class SendAutoNotifications extends Command
 
             $tanggalKembali = Carbon::parse($pinjam->tanggal_kembali)->startOfDay();
             $selisihHari = ceil(abs(Carbon::today('Asia/Jakarta')->startOfDay()->diffInDays($tanggalKembali)));
-            $denda = $selisihHari * $tarifDendaPerHari;
+            $denda = DendaHelper::hitung($selisihHari);
 
             $result = NotifikasiService::bukuTerlambat($user->id, $pinjam, $selisihHari, $denda);
             if ($result) $count++;

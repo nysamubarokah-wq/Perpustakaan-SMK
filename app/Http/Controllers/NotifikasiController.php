@@ -12,7 +12,17 @@ class NotifikasiController extends Controller
     public function index(Request $request)
     {
         $prevUrl = url()->previous();
-        if ($prevUrl && !str_contains($prevUrl, '/notifikasi')) {
+        $excludedPatterns = ['/notifikasi', '/login', '/register', '/password/reset', '/verify', '/email'];
+        $isExcluded = false;
+
+        foreach ($excludedPatterns as $pattern) {
+            if ($prevUrl && str_contains($prevUrl, $pattern)) {
+                $isExcluded = true;
+                break;
+            }
+        }
+
+        if ($prevUrl && !$isExcluded) {
             session(['notifikasi_back_url' => $prevUrl]);
         }
 
@@ -37,35 +47,48 @@ class NotifikasiController extends Controller
 
     public function markRead(Request $request, int $id): JsonResponse
     {
+        $notifikasi = Notification::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$notifikasi) {
+            \Log::info("Notifikasi {$id} tidak ditemukan atau bukan milik user ini");
+        }
+
         $result = NotifikasiService::markRead($id, auth()->id());
 
         if ($request->wantsJson()) {
             return response()->json(['success' => $result]);
         }
 
-        $notifikasi = Notification::where('id', $id)
-            ->where('user_id', auth()->id())
-            ->first();
+        $linkMap = [
+            'coin_bertambah' => '/profil',
+            'pinjam_disetujui' => '/profil/riwayat',
+            'pinjam_ditolak' => '/koleksi',
+            'pengembalian_berhasil' => '/profil/riwayat',
+            'pengingat_jatuh_tempo' => '/profil/riwayat',
+            'buku_terlambat' => '/profil/riwayat',
+            'vip_hampir_habis' => '/vip',
+            'permintaan_baru' => '/admin/pinjam',
+            'pengembalian_pending' => '/admin/pengembalian',
+            'stok_habis' => '/admin/buku',
+            'import_berhasil' => '/',
+            'import_gagal' => '/',
+        ];
 
-        if ($notifikasi && $notifikasi->link) {
-            return redirect($notifikasi->link);
-        }
+        $redirectUrl = $notifikasi ? ($linkMap[$notifikasi->type] ?? '/profil') : '/profil';
 
-        return back();
+        return redirect($redirectUrl);
     }
 
     public function markAllRead(Request $request): JsonResponse
     {
         $count = NotifikasiService::markAllReadForUser(auth()->id());
 
-        if ($request->ajax() || $request->wantsJson() || $request->is('notifikasi/*')) {
-            return response()->json([
-                'success' => true,
-                'count' => $count,
-            ]);
-        }
-
-        return redirect()->route('notifikasi.index')->with('success', "{$count} notifikasi ditandai sudah dibaca.");
+        return response()->json([
+            'success' => true,
+            'count' => $count,
+        ]);
     }
 
     public function destroy(Request $request, int $id): JsonResponse

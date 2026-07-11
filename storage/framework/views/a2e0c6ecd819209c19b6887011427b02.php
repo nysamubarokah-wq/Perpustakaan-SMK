@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('header_title', 'Kelola E-book'); ?>
 
 <?php $__env->startSection('content'); ?>

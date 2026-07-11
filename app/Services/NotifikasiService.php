@@ -22,7 +22,7 @@ class NotifikasiService
             type: Notification::TYPE_PINJAM_DISETUJI,
             icon: 'book',
             warna: '#27ae60',
-            link: route('profil.riwayat')
+            link: url('/profil/riwayat')
         );
     }
 
@@ -111,7 +111,7 @@ class NotifikasiService
             type: Notification::TYPE_COIN_BERTAMBAH,
             icon: 'coin',
             warna: '#f1c40f',
-            link: route('profil.index')
+            link: url('/profil')
         );
     }
 

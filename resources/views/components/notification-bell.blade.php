@@ -331,6 +331,7 @@ function toggleNotificationDropdown(event) {
 
 function loadNotifications() {
     fetch('{{ route("notifikasi.latest") }}', {
+        credentials: 'include',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
@@ -362,7 +363,6 @@ function renderNotifications(notifications) {
         return `
             <a href="${notif.link ? notif.link : '#'}" 
                class="notification-item ${unreadClass}"
-               onclick="markNotificationRead(${notif.id}, event)"
                data-notif-id="${notif.id}">
                 <div style="display:flex;align-items:flex-start">
                     <div class="notification-item-icon" style="background:${iconBg}">
@@ -379,46 +379,14 @@ function renderNotifications(notifications) {
     }).join('');
 }
 
-function markNotificationRead(notifId, event) {
-    event.preventDefault();
-    
-    fetch(`/notifikasi/${notifId}/baca`, {
-        method: 'POST',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const item = document.querySelector(`[data-notif-id="${notifId}"]`);
-            if (item) item.classList.remove('unread');
-            updateBadge(data.new_count ?? (parseInt(document.getElementById('notificationBadge')?.textContent || 0) - 1));
-        }
-        
-        if (event.target.closest('a')?.href) {
-            window.location.href = event.target.closest('a').href;
-        }
-    })
-    .catch(error => {
-        console.error('Error marking notification as read:', error);
-        if (event.target.closest('a')?.href) {
-            window.location.href = event.target.closest('a').href;
-        }
-    });
-}
-
 function markAllNotificationsRead(event) {
     event.stopPropagation();
     
     fetch('{{ route("notifikasi.bacaSemua") }}', {
-        method: 'POST',
+        credentials: 'include',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
         }
     })
     .then(response => response.json())

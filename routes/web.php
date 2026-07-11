@@ -42,13 +42,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
     Route::get('/notifikasi/go', function (\Illuminate\Http\Request $request) {
         $prevUrl = url()->previous();
-        if ($prevUrl && !str_contains($prevUrl, '/notifikasi')) {
+        $excludedPatterns = ['/notifikasi', '/login', '/register', '/password/reset', '/verify', '/email'];
+        $isExcluded = false;
+        foreach ($excludedPatterns as $pattern) {
+            if ($prevUrl && str_contains($prevUrl, $pattern)) {
+                $isExcluded = true;
+                break;
+            }
+        }
+        if ($prevUrl && !$isExcluded) {
             session(['notifikasi_back_url' => $prevUrl]);
         }
         return redirect()->route('notifikasi.index');
-    })->name('notifikasi.go');
-    Route::post('/notifikasi/{id}/baca', [NotifikasiController::class, 'markRead'])->name('notifikasi.baca');
-    Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'markAllRead'])->name('notifikasi.bacaSemua');
+    })->middleware('auth')->name('notifikasi.go');
+    Route::get('/notifikasi/{id}/baca', [NotifikasiController::class, 'markRead'])->name('notifikasi.baca');
+    Route::get('/notifikasi/baca-semua', [NotifikasiController::class, 'markAllRead'])->name('notifikasi.bacaSemua');
     Route::delete('/notifikasi/{id}', [NotifikasiController::class, 'destroy'])->name('notifikasi.destroy');
     Route::post('/notifikasi/hapus-semua', [NotifikasiController::class, 'destroyAll'])->name('notifikasi.destroyAll');
     Route::get('/notifikasi/unread-count', [NotifikasiController::class, 'getUnreadCount'])->name('notifikasi.unreadCount');
@@ -76,6 +84,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profil/riwayat', [App\Http\Controllers\ProfilController::class, 'riwayat'])->name('profil.riwayat');
     Route::get('/profil/riwayat/{id}', [App\Http\Controllers\ProfilController::class, 'detailRiwayat'])->name('profil.riwayat.detail');
     Route::put('/profil/peminjaman/{id}/kembalikan', [App\Http\Controllers\ProfilController::class, 'kembalikan'])->name('peminjaman.kembalikan');
+    Route::post('/profil/peminjaman/kembalikan-banyak', [App\Http\Controllers\ProfilController::class, 'kembalikanBanyak'])->name('peminjaman.kembalikan.banyak');
     Route::post('/profil/foto', [App\Http\Controllers\ProfilController::class, 'uploadFoto'])->name('profil.foto');
     Route::post('/profil/background/{key}', [App\Http\Controllers\ProfilController::class, 'beliBackground'])->name('profil.background');
 

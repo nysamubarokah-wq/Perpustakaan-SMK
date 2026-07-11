@@ -196,6 +196,10 @@
             font-weight: 600;
         }
 
+        .history-item-selectable { cursor: pointer; }
+        .history-item-selectable:hover { background: #f8fff8; }
+        body.dark-mode .history-item-selectable:hover { background: #1a2e1a; }
+
         .empty-state {
             text-align: center;
             padding: 50px 0;
@@ -301,6 +305,24 @@
                     @endif
                 </form>
 
+                @php
+                    $sedangDipinjam = $peminjaman->filter(function($item) { return $item->status == 'dipinjam'; });
+                @endphp
+
+                @if($sedangDipinjam->count() > 0)
+                    <form action="{{ route('peminjaman.kembalikan.banyak') }}" method="POST" id="bulkReturnForm" class="mb-3">
+                        @csrf
+                        <input type="hidden" name="peminjaman_ids" id="bulkSelectedIds" value="">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <input type="checkbox" id="selectAllDipinjam" onchange="toggleAllDipinjam(this)">
+                            <label for="selectAllDipinjam" style="cursor:pointer;font-weight:600;font-size:13px;margin:0">Pilih Semua ({{ $sedangDipinjam->count() }})</label>
+                            <button type="submit" class="btn btn-sm btn-success ms-auto" onclick="return submitBulkReturn()" style="border-radius:20px">
+                                <i class="bi bi-arrow-counterclockwise"></i> Kembalikan Terpilih (<span id="selectedCount">0</span>)
+                            </button>
+                        </div>
+                    </form>
+                @endif
+
                 @if($peminjaman->count() > 0)
                     @foreach($peminjaman as $item)
                         @php
@@ -320,14 +342,21 @@
                                 $badgeText = 'Terlambat';
                             }
                         @endphp
-                        <a href="{{ route('profil.riwayat.detail', $item->id) }}" class="history-item">
-                            @if($item->buku && $item->buku->sampul)
-                                <img src="{{ asset($item->buku->sampul) }}" class="history-cover" alt="{{ $item->buku->judul }}">
-                            @else
-                                <div class="cover-placeholder"><i class="bi bi-book"></i></div>
+                        <div class="history-item{{ $item->status == 'dipinjam' ? ' history-item-selectable' : '' }}" onclick="{{ $item->status == 'dipinjam' ? 'toggleCheckbox(' . $item->id . ')' : 'window.location=\'' . route('profil.riwayat.detail', $item->id) . '\'' }}">
+                            @if($item->status == 'dipinjam')
+                                <input type="checkbox" name="peminjaman_ids[]" value="{{ $item->id }}" class="dipinjam-checkbox" id="cb-{{ $item->id }}" onchange="updateSelectedCount()">
                             @endif
+                            <a href="{{ route('profil.riwayat.detail', $item->id) }}" class="history-item-link" onclick="event.stopPropagation()">
+                                @if($item->buku && $item->buku->sampul)
+                                    <img src="{{ asset($item->buku->sampul) }}" class="history-cover" alt="{{ $item->buku->judul }}">
+                                @else
+                                    <div class="cover-placeholder"><i class="bi bi-book"></i></div>
+                                @endif
+                            </a>
                             <div class="history-info">
-                                <div class="history-title">{{ $item->buku->judul ?? 'Buku tidak ditemukan' }}</div>
+                                <a href="{{ route('profil.riwayat.detail', $item->id) }}" class="history-title-link" onclick="event.stopPropagation()">
+                                    {{ $item->buku->judul ?? 'Buku tidak ditemukan' }}
+                                </a>
                                 <div class="history-code">
                                     @if($item->eksemplar){{ $item->eksemplar->kode_buku }}@endif
                                 </div>
@@ -354,13 +383,13 @@
                                     <form action="{{ route('peminjaman.kembalikan', $item->id) }}" method="POST" class="d-inline mt-1">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit" class="btn btn-sm btn-success text-white py-1 px-3" style="border-radius: 20px; font-size: 11px; font-weight: 600;" onclick="return confirm('Yakin ingin mengembalikan buku ini?')">
+                                        <button type="submit" class="btn btn-sm btn-success text-white py-1 px-3" style="border-radius: 20px; font-size: 11px; font-weight: 600;" onclick="event.stopPropagation(); return confirm('Yakin ingin mengembalikan buku ini?')">
                                             <i class="bi bi-arrow-counterclockwise"></i> Kembalikan
                                         </button>
                                     </form>
                                 @endif
                             </div>
-                        </a>
+                        </div>
                     @endforeach
 
                     <div class="pagination-wrap">
@@ -379,6 +408,34 @@
     <script>
         if(localStorage.getItem('darkMode') === 'enabled'){
             document.body.classList.add('dark-mode');
+        }
+
+        function toggleAllDipinjam(checkbox) {
+            const checkboxes = document.querySelectorAll('.dipinjam-checkbox');
+            checkboxes.forEach(cb => cb.checked = checkbox.checked);
+            updateSelectedCount();
+        }
+
+        function toggleCheckbox(id) {
+            const cb = document.getElementById('cb-' + id);
+            if (cb) cb.checked = !cb.checked;
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checked = document.querySelectorAll('.dipinjam-checkbox:checked');
+            document.getElementById('selectedCount').textContent = checked.length;
+        }
+
+        function submitBulkReturn() {
+            const checked = document.querySelectorAll('.dipinjam-checkbox:checked');
+            if (checked.length === 0) {
+                alert('Pilih setidaknya satu buku untuk dikembalikan.');
+                return false;
+            }
+            const ids = Array.from(checked).map(cb => cb.value);
+            document.getElementById('bulkSelectedIds').value = JSON.stringify(ids);
+            return confirm('Kembalikan ' + checked.length + ' buku yang dipilih?');
         }
     </script>
 </body>

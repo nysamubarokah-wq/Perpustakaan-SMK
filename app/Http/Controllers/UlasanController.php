@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Anggota;
 use App\Models\Buku;
-use App\Models\Notifikasi;
 use App\Models\Peminjaman;
 use App\Models\Ulasan;
 use App\Services\NotifikasiService;

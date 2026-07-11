@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Denda as DendaHelper;
 use App\Models\Anggota;
 use App\Models\Buku;
 use App\Models\Denda;
@@ -121,6 +122,20 @@ class PinjamController extends Controller
             );
         }
 
+        $eksemplarTersedia = $buku->eksemplarTersedia()->pluck('id')->toArray();
+
+        $sudahDipinjamIds = Peminjaman::where('anggota_id', $anggota->id)
+            ->whereIn('eksemplar_id', $eksemplarTersedia)
+            ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
+            ->pluck('eksemplar_id')
+            ->toArray();
+
+        $eksemplarTersedia = array_diff($eksemplarTersedia, $sudahDipinjamIds);
+
+        if (count($eksemplarTersedia) < $jumlahDiminta) {
+            return back()->with('error', "Hanya " . count($eksemplarTersedia) . " eksemplar yang bisa dipinjam (sisanya sudah Anda pinjam).");
+        }
+
         $tglPinjam = Carbon::parse($request->tanggal_pinjam);
         $tglKembali = Carbon::parse($request->tanggal_kembali);
         $durasi = $tglPinjam->diffInDays($tglKembali);
@@ -133,25 +148,14 @@ class PinjamController extends Controller
             );
         }
 
-        $eksemplarList = $buku->eksemplarTersedia()->limit($jumlahDiminta)->get();
-
-        if ($eksemplarList->count() < $jumlahDiminta) {
-            return back()->with('error', "Hanya {$eksemplarList->count()} eksemplar tersedia.");
-        }
+        $eksemplarList = EksemplarBuku::whereIn('id', $eksemplarTersedia)
+            ->limit($jumlahDiminta)
+            ->get();
 
         $dipinjamCount = 0;
         $dipinjamList = [];
 
         foreach ($eksemplarList as $eksemplar) {
-            $sudahPinjamEksemplar = Peminjaman::where('anggota_id', $anggota->id)
-                ->where('eksemplar_id', $eksemplar->id)
-                ->whereIn('status', ['dipinjam', 'menunggu_konfirmasi'])
-                ->exists();
-
-            if ($sudahPinjamEksemplar) {
-                continue;
-            }
-
             $eksemplar->update(['status' => 'dipinjam']);
 
             $peminjaman = Peminjaman::create([
@@ -255,15 +259,13 @@ class PinjamController extends Controller
             ->latest()
             ->get();
 
-        $tarifDendaPerHari = 1000;
-
         foreach ($persetujuan as $item) {
             $tanggalKembali = Carbon::parse($item->tanggal_kembali)->startOfDay();
             $hariIni = Carbon::now('Asia/Jakarta')->startOfDay();
 
             if ($hariIni->gt($tanggalKembali)) {
                 $selisihHari = ceil(abs($hariIni->diffInDays($tanggalKembali)));
-                $item->taksiran_denda = $selisihHari * $tarifDendaPerHari;
+                $item->taksiran_denda = DendaHelper::hitung($selisihHari);
                 $item->terlambat_hari = $selisihHari;
             } else {
                 $item->taksiran_denda = 0;
@@ -316,8 +318,7 @@ class PinjamController extends Controller
 
             if ($hariIni->gt($tanggalKembali)) {
                 $selisihHari = ceil(abs($hariIni->diffInDays($tanggalKembali)));
-                $tarifDendaPerHari = 1000;
-                $hitungDenda = $selisihHari * $tarifDendaPerHari;
+                $hitungDenda = DendaHelper::hitung($selisihHari);
             }
 
             $peminjaman->update([
@@ -377,7 +378,7 @@ class PinjamController extends Controller
 
             if ($hariIni->gt($tanggalKembali)) {
                 $selisihHari = ceil(abs($hariIni->diffInDays($tanggalKembali)));
-                $hitungDenda = $selisihHari * 1000;
+                $hitungDenda = DendaHelper::hitung($selisihHari);
             }
 
             $peminjaman->update([

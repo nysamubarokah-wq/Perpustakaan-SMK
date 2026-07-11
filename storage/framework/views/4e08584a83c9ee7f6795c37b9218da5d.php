@@ -379,12 +379,9 @@
         </h1>
         <div class="d-flex gap-2 flex-wrap" id="actionButtons">
             <?php if($belumDibaca > 0): ?>
-                <form action="<?php echo e(route('notifikasi.bacaSemua')); ?>" method="POST" id="markAllForm" style="display:inline">
-                    <?php echo csrf_field(); ?>
-                    <button type="submit" class="action-btn primary">
-                        <i class="bi bi-check-all"></i> Tandai Semua Dibaca
-                    </button>
-                </form>
+                <button type="button" class="action-btn primary" onclick="markAllRead()">
+                    <i class="bi bi-check-all"></i> Tandai Semua Dibaca
+                </button>
             <?php endif; ?>
             <form action="<?php echo e(route('notifikasi.destroyAll')); ?>" method="POST" id="deleteAllForm" style="display:inline">
                 <?php echo csrf_field(); ?>
@@ -430,7 +427,7 @@
                     default => '#6c757d'
                 };
             ?>
-            <div class="notif-card <?php echo e(!$item->is_read ? 'unread' : ''); ?>" id="notif-card-<?php echo e($item->id); ?>">
+            <div class="notif-card <?php echo e(!$item->is_read ? 'unread' : ''); ?>" id="notif-card-<?php echo e($item->id); ?>" onclick="window.open('/notifikasi/<?php echo e($item->id); ?>/baca', '_self')" style="cursor:pointer;">
                 <div class="notif-card-content">
                     <div class="notif-icon-wrap" style="background: <?php echo e($iconBg); ?>">
                         <i class="bi bi-<?php echo e($item->icon ?? 'bell'); ?>"></i>
@@ -451,16 +448,16 @@
                             </span>
                             <div class="notif-actions">
                                 <?php if($item->link): ?>
-                                    <a href="<?php echo e($item->link); ?>" class="action-icon" title="Buka link">
+                                    <a href="<?php echo e($item->link); ?>" class="action-icon" title="Buka link" onclick="event.stopPropagation()">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 <?php endif; ?>
                                 <?php if(!$item->is_read): ?>
-                                    <button type="button" class="action-icon" onclick="markSingleRead(<?php echo e($item->id); ?>)" title="Tandai dibaca">
+                                    <button type="button" class="action-icon" onclick="event.stopPropagation(); markSingleRead(<?php echo e($item->id); ?>)" title="Tandai dibaca">
                                         <i class="bi bi-check-circle"></i>
                                     </button>
                                 <?php endif; ?>
-                                <button type="button" class="action-icon delete" onclick="deleteSingle(<?php echo e($item->id); ?>)" title="Hapus">
+                                <button type="button" class="action-icon delete" onclick="event.stopPropagation(); deleteSingle(<?php echo e($item->id); ?>)" title="Hapus">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -487,33 +484,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-    document.getElementById('markAllForm')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const form = this;
-        fetch(form.action, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelectorAll('.notif-card.unread').forEach(card => {
-                    card.classList.remove('unread');
-                    const badge = card.querySelector('.unread-badge');
-                    if (badge) badge.remove();
-                });
-                document.querySelectorAll('[title="Tandai dibaca"]').forEach(btn => btn.remove());
-                form.remove();
-                updatePageCount();
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
 
     document.getElementById('deleteAllForm')?.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -543,13 +513,38 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function markAllRead() {
+    fetch('<?php echo e(route("notifikasi.bacaSemua")); ?>', {
+        credentials: 'include',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.querySelectorAll('.notif-card.unread').forEach(card => {
+                card.classList.remove('unread');
+                const badge = card.querySelector('.unread-badge');
+                if (badge) badge.remove();
+                const actions = card.querySelector('.notif-actions');
+                const readBtn = actions?.querySelector('[title="Tandai dibaca"]');
+                if (readBtn) readBtn.remove();
+            });
+            document.getElementById('markAllReadBtn')?.remove();
+            updatePageCount();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
 function markSingleRead(id) {
     fetch(`/notifikasi/${id}/baca`, {
-        method: 'POST',
+        credentials: 'include',
         headers: {
-            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
         }
     })
     .then(response => response.json())
