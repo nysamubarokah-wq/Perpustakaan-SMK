@@ -69,7 +69,7 @@ class NotifikasiController extends Controller
             'pengingat_jatuh_tempo' => '/profil/riwayat',
             'buku_terlambat' => '/profil/riwayat',
             'vip_hampir_habis' => '/vip',
-            'permintaan_baru' => '/admin/pinjam',
+            'permintaan_baru' => '/admin/konfirmasi-pinjam',
             'pengembalian_pending' => '/admin/pengembalian',
             'stok_habis' => '/admin/buku',
             'import_berhasil' => '/',
