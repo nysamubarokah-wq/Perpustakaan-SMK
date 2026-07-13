@@ -45,8 +45,7 @@ class NotifikasiController extends Controller
         return view('notifikasi.index', compact('notifikasi', 'belumDibaca'));
     }
 
-    public function markRead(Request $request, int $id): JsonResponse
-    {
+    public function markRead(Request $request, int $id) {
         $notifikasi = Notification::where('id', $id)
             ->where('user_id', auth()->id())
             ->first();
@@ -69,7 +68,7 @@ class NotifikasiController extends Controller
             'pengingat_jatuh_tempo' => '/profil/riwayat',
             'buku_terlambat' => '/profil/riwayat',
             'vip_hampir_habis' => '/vip',
-            'permintaan_baru' => '/admin/konfirmasi-pinjam',
+            'permintaan_baru' => route('admin.pinjam.index'),
             'pengembalian_pending' => '/admin/pengembalian',
             'stok_habis' => '/admin/buku',
             'import_berhasil' => '/',

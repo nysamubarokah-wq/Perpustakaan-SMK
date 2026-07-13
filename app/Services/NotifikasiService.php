@@ -136,18 +136,18 @@ class NotifikasiService
         );
     }
 
-    public static function permintaanPinjamBaru(int $adminUserId, string $namaSiswa, string $judulBuku, int $peminjamanId): ?Notification
-    {
-        return Notification::createNotification(
-            userId: $adminUserId,
-            judul: 'Permintaan Peminjaman Baru',
-            pesan: "{$namaSiswa} meminta pinjam buku '{$judulBuku}'.",
-            type: Notification::TYPE_PERMINTAAN_BARU,
-            icon: 'book',
-            warna: '#27ae60',
-            link: '/admin/pinjam'
-        );
-    }
+   public static function permintaanPinjamBaru(...)
+{
+    return Notification::createNotification(
+        userId: $adminUserId,
+        judul: 'Permintaan Peminjaman Baru',
+        pesan: "{$namaSiswa} meminta pinjam buku '{$judulBuku}'.",
+        type: Notification::TYPE_PERMINTAAN_BARU,
+        icon: 'book',
+        warna: '#27ae60',
+        link: route('admin.pinjam.index')
+    );
+}
 
     public static function permintaanPengembalianBaru(int $adminUserId, string $namaSiswa, string $judulBuku): ?Notification
     {
