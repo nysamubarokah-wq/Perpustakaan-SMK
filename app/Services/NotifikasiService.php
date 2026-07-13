@@ -135,8 +135,12 @@ class NotifikasiService
            link: '/vip'
         );
     }
-
-   public static function permintaanPinjamBaru(...)
+public static function permintaanPinjamBaru(
+    int $adminUserId,
+    string $namaSiswa,
+    string $judulBuku,
+    int $peminjamanId
+): ?Notification
 {
     return Notification::createNotification(
         userId: $adminUserId,
