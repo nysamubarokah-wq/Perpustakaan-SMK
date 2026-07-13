@@ -103,7 +103,7 @@ class AnggotaController extends Controller
             'email'          => $request->email,
             'nis'            => $request->nis,
             'no_telepon'    => $request->no_telepon,
-            'alamat'         => $request->alamat,
+            'alamat'         => $request->alamat ?? '-',
             'tanggal_daftar' => now()->toDateString(),
             'kelas'          => $request->kelas,
             'jurusan'        => $request->jurusan,

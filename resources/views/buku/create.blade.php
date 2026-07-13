@@ -118,9 +118,6 @@ function toggleNew(field) {
                     @error('lokasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
             </div>
-            <div style="background:#f0df4f;border:1px solid #bbf7d0;border-radius:10px;padding:15px;margin-bottom:20px">
-                <p style="font-size:13px;color:#166534;margin:0"><i class="bi bi-info-circle"></i> <strong>Info:</strong> Setiap eksemplar akan otomatis mendapatkan kode unik (BK000001, BK000002, dst) dan QR Code sendiri.</p>
-            </div>
             <button type="submit"
                     style="padding:10px 20px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
                 <i class="bi bi-save"></i> Simpan
