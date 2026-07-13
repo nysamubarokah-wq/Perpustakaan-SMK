@@ -32,17 +32,17 @@ function toggleNew(field) {
             @csrf
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label fw-600">Judul</label>
-                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul') }}">
+                    <label class="form-label fw-600">Judul <span style="color:red">*</span></label>
+                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul') }}" required>
                     @error('judul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Pengarang</label>
-                    <input type="text" name="pengarang" class="form-control @error('pengarang') is-invalid @enderror" value="{{ old('pengarang') }}">
+                    <label class="form-label fw-600">Pengarang <span style="color:red">*</span></label>
+                    <input type="text" name="pengarang" class="form-control @error('pengarang') is-invalid @enderror" value="{{ old('pengarang') }}" required>
                     @error('pengarang') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Penerbit</label>
+                    <label class="form-label fw-600">Penerbit <span style="color:red">*</span></label>
                     <div class="input-group">
                         <select name="penerbit_id" class="form-control @error('penerbit_id') is-invalid @enderror">
                             <option value="">-- Pilih --</option>
@@ -56,13 +56,13 @@ function toggleNew(field) {
                     @error('penerbit_baru') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Tahun Terbit</label>
-                    <input type="number" name="tahun_terbit" class="form-control @error('tahun_terbit') is-invalid @enderror" value="{{ old('tahun_terbit') }}">
+                    <label class="form-label fw-600">Tahun Terbit <span style="color:red">*</span></label>
+                    <input type="number" name="tahun_terbit" class="form-control @error('tahun_terbit') is-invalid @enderror" value="{{ old('tahun_terbit') }}" required>
                     @error('tahun_terbit') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Jumlah Eksemplar</label>
-                    <input type="number" name="jumlah_eksemplar" class="form-control @error('jumlah_eksemplar') is-invalid @enderror" value="{{ old('jumlah_eksemplar', 1) }}" min="1">
+                    <label class="form-label fw-600">Jumlah Eksemplar <span style="color:red">*</span></label>
+                    <input type="number" name="jumlah_eksemplar" class="form-control @error('jumlah_eksemplar') is-invalid @enderror" value="{{ old('jumlah_eksemplar', 1) }}" min="1" required>
                     <small class="text-muted">Jumlah buku fisik yang dimiliki</small>
                     @error('jumlah_eksemplar') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
@@ -73,8 +73,8 @@ function toggleNew(field) {
                     @error('kode_buku') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">ISBN</label>
-                    <input type="text" name="isbn" class="form-control @error('isbn') is-invalid @enderror" value="{{ old('isbn') }}">
+                    <label class="form-label fw-600">ISBN <span style="color:red">*</span></label>
+                    <input type="text" name="isbn" class="form-control @error('isbn') is-invalid @enderror" value="{{ old('isbn') }}" required>
                     @error('isbn') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">

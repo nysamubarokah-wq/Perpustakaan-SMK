@@ -40,25 +40,25 @@ class LoginRequest extends FormRequest
         $nis  = trim($this->input('nis_login'));
         $nama = trim($this->input('nama_login'));
 
+        $anggota = Anggota::where('nis', $nis)->first();
+
+        if (!$anggota) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'nis_login' => 'NIS tidak ditemukan. Hubungi admin perpustakaan.',
+            ]);
+        }
+
+        if (strtolower(trim($anggota->nama)) !== strtolower($nama)) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'nama_login' => 'Nama tidak cocok dengan NIS tersebut.',
+            ]);
+        }
+
         $user = User::where('nis', $nis)->first();
 
         if (!$user) {
-            $anggota = Anggota::where('nis', $nis)->first();
-
-            if (!$anggota) {
-                RateLimiter::hit($this->throttleKey());
-                throw ValidationException::withMessages([
-                    'nis_login' => 'NIS tidak ditemukan. Hubungi admin perpustakaan.',
-                ]);
-            }
-
-            if (strtolower(trim($anggota->nama)) !== strtolower($nama)) {
-                RateLimiter::hit($this->throttleKey());
-                throw ValidationException::withMessages([
-                    'nama_login' => 'Nama tidak cocok dengan NIS tersebut.',
-                ]);
-            }
-
             $user = User::create([
                 'name'     => $anggota->nama,
                 'nis'      => $anggota->nis,
@@ -66,15 +66,7 @@ class LoginRequest extends FormRequest
                 'password' => bcrypt('login-nis-' . $anggota->nis),
                 'role'     => $anggota->role ?? 'siswa',
             ]);
-
             $anggota->update(['user_id' => $user->id]);
-        } else {
-            if (strtolower(trim($user->name)) !== strtolower($nama)) {
-                RateLimiter::hit($this->throttleKey());
-                throw ValidationException::withMessages([
-                    'nama_login' => 'Nama tidak cocok dengan NIS tersebut.',
-                ]);
-            }
         }
 
         auth()->login($user, $this->boolean('remember'));

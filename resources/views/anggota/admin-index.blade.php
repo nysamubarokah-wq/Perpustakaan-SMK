@@ -145,7 +145,7 @@
                                 </form>
                             @endif
 
-                            <a href="{{ route('anggota.edit', $item->id) }}"
+                            <a href="{{ route('anggota.edit', $item->id) }}?from=admin"
                                title="Edit"
                                style="padding:6px 10px;background:#dbeafe;color:#2563eb;border:none;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center">
                                 <i class="bi bi-pencil"></i>

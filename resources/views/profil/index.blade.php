@@ -116,15 +116,17 @@
 
         .profil-avatar {
 
-            width: 90px;
+            width: 90px !important;
 
-            height: 90px;
+            height: 90px !important;
 
-            border-radius: 50%;
+            border-radius: 50% !important;
 
-            border: 4px solid rgba(255,255,255,0.8);
+            border: 4px solid rgba(255,255,255,0.8) !important;
 
-            object-fit: cover;
+            object-fit: cover !important;
+
+            flex-shrink: 0;
 
         }
 
@@ -501,7 +503,7 @@
     .riwayat-card { border-radius: 12px; }
 
     .profil-header { padding: 20px 15px; }
-    .profil-avatar { width: 70px; height: 70px; }
+    .profil-avatar { width: 70px !important; height: 70px !important; border-radius: 50% !important; }
     .profil-header-info h2 { font-size: 16px; }
     .profil-header-info h2 span { font-size: 16px !important; }
     .profil-header-info p { font-size: 12px; }
@@ -733,7 +735,7 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     @endif
 
     <div style="position:relative;z-index:2;display:flex;align-items:center;gap:25px;width:100%">
-        <div style="position:relative;display:inline-block">
+        <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">
             @if($user->foto)
                 <img src="{{ asset($user->foto) }}" class="profil-avatar" alt="Avatar">
             @else
@@ -1004,21 +1006,26 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
 <script>
 function uploadFotoFunc(input) {
     if (!input.files || !input.files[0]) return;
-
-    const formData = new FormData();
-    formData.append('foto', input.files[0]);
+    var file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+        alert('Pilih file gambar!');
+        return;
+    }
+    var formData = new FormData();
+    formData.append('foto', file);
     formData.append('_token', '{{ csrf_token() }}');
-
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;';
+    overlay.innerHTML = '<div style="width:50px;height:50px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></div><span style="color:white;font-weight:600;">Mengupload...</span>';
+    document.body.appendChild(overlay);
     fetch('{{ route("profil.foto") }}', {
         method: 'POST',
         body: formData
     })
-    .then(res => {
-        if (res.ok || res.redirected) {
-            window.location.reload();
-        }
-    })
-    .catch(() => alert('Gagal upload foto, coba lagi.'));
+    .then(function(res) { return res.ok || res.redirected ? res : Promise.reject(res); })
+    .then(function() { window.location.reload(); })
+    .catch(function() { alert('Gagal upload foto!'); })
+    .finally(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); });
 }
 
 function toggleToko() {
@@ -1045,7 +1052,6 @@ window.addEventListener('load', function() {
     document.documentElement.style.visibility = 'visible';
 });
 </script>
-
 
 </body>
 </html>

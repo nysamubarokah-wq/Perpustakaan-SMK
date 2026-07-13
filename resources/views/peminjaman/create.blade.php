@@ -13,8 +13,8 @@
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label fw-600">Anggota</label>
-                    <select name="anggota_id" class="form-control @error('anggota_id') is-invalid @enderror">
+                    <label class="form-label fw-600">Anggota <span style="color:red">*</span></label>
+                    <select name="anggota_id" class="form-control @error('anggota_id') is-invalid @enderror" required>
                         <option value="">-- Pilih Anggota --</option>
                         @foreach($anggota as $item)
                         <option value="{{ $item->id }}" {{ old('anggota_id') == $item->id ? 'selected' : '' }}>
@@ -26,8 +26,8 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label fw-600">Buku</label>
-                    <select name="buku_id" class="form-control @error('buku_id') is-invalid @enderror">
+                    <label class="form-label fw-600">Buku <span style="color:red">*</span></label>
+                    <select name="buku_id" class="form-control @error('buku_id') is-invalid @enderror" required>
                         <option value="">-- Pilih Buku --</option>
                         @foreach($buku as $item)
                         <option value="{{ $item->id }}" {{ old('buku_id') == $item->id ? 'selected' : '' }}>
@@ -39,18 +39,18 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Tanggal Pinjam</label>
+                    <label class="form-label fw-600">Tanggal Pinjam <span style="color:red">*</span></label>
                     <input type="date" name="tanggal_pinjam"
                         class="form-control @error('tanggal_pinjam') is-invalid @enderror"
-                        value="{{ old('tanggal_pinjam') }}">
+                        value="{{ old('tanggal_pinjam') }}" required>
                     @error('tanggal_pinjam') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Tanggal Kembali</label>
+                    <label class="form-label fw-600">Tanggal Kembali <span style="color:red">*</span></label>
                     <input type="date" name="tanggal_kembali"
                         class="form-control @error('tanggal_kembali') is-invalid @enderror"
-                        value="{{ old('tanggal_kembali') }}">
+                        value="{{ old('tanggal_kembali') }}" required>
                     @error('tanggal_kembali') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
 

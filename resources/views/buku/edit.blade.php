@@ -36,17 +36,17 @@ function toggleNew(field) {
             <input type="hidden" name="per_page" value="{{ request('per_page') }}">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Judul</label>
-                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul', $buku->judul) }}">
+                    <label class="form-label fw-600">Judul <span style="color:red">*</span></label>
+                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul', $buku->judul) }}" required>
                     @error('judul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Pengarang</label>
-                    <input type="text" name="pengarang" class="form-control @error('pengarang') is-invalid @enderror" value="{{ old('pengarang', $buku->pengarang) }}">
+                    <label class="form-label fw-600">Pengarang <span style="color:red">*</span></label>
+                    <input type="text" name="pengarang" class="form-control @error('pengarang') is-invalid @enderror" value="{{ old('pengarang', $buku->pengarang) }}" required>
                     @error('pengarang') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Penerbit</label>
+                    <label class="form-label fw-600">Penerbit <span style="color:red">*</span></label>
                     <div class="input-group">
                         <select name="penerbit_id" class="form-control @error('penerbit_id') is-invalid @enderror">
                             <option value="">-- Pilih --</option>
@@ -59,8 +59,8 @@ function toggleNew(field) {
                     <input type="text" name="penerbit_baru" id="penerbitBaru" class="form-control mt-2" placeholder="Ketik nama penerbit baru..." style="display:none">
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="form-label">Tahun Terbit</label>
-                    <input type="number" name="tahun_terbit" class="form-control @error('tahun_terbit') is-invalid @enderror" value="{{ old('tahun_terbit', $buku->tahun_terbit) }}">
+                    <label class="form-label fw-600">Tahun Terbit <span style="color:red">*</span></label>
+                    <input type="number" name="tahun_terbit" class="form-control @error('tahun_terbit') is-invalid @enderror" value="{{ old('tahun_terbit', $buku->tahun_terbit) }}" required>
                     @error('tahun_terbit') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-3 mb-3">
@@ -77,8 +77,8 @@ function toggleNew(field) {
                     @error('kode_buku') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label">ISBN</label>
-                    <input type="text" name="isbn" class="form-control @error('isbn') is-invalid @enderror" value="{{ old('isbn', $buku->isbn) }}">
+                    <label class="form-label fw-600">ISBN <span style="color:red">*</span></label>
+                    <input type="text" name="isbn" class="form-control @error('isbn') is-invalid @enderror" value="{{ old('isbn', $buku->isbn) }}" required>
                     @error('isbn') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">

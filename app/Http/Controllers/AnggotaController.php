@@ -102,7 +102,7 @@ class AnggotaController extends Controller
             'nama'           => $request->nama,
             'email'          => $request->email,
             'nis'            => $request->nis,
-            'no_telepon'    => $request->no_telepon,
+            'no_telepon'    => $request->no_telepon ?? '-',
             'alamat'         => $request->alamat ?? '-',
             'tanggal_daftar' => now()->toDateString(),
             'kelas'          => $request->kelas,
@@ -122,9 +122,34 @@ class AnggotaController extends Controller
 
     public function update(Request $request, Anggota $anggota)
     {
+        $newNis = $request->nis;
+        $oldNis = $anggota->nis;
+        $currentUserId = optional($anggota->user)->id;
+
         $request->validate([
             'nama'           => 'required|string|max:255',
-            'nis'            => 'nullable|string|max:50|unique:anggota,nis,' . $anggota->id . '|unique:users,nis,' . optional($anggota->user)->id,
+            'nis'            => [
+                'nullable',
+                'string',
+                'max:50',
+                function ($attribute, $value, $fail) use ($newNis, $currentUserId, $oldNis, $anggota) {
+                    if ($newNis === $oldNis) return;
+                    $existingInAnggota = \App\Models\Anggota::where('nis', $newNis)
+                        ->where('id', '!=', $anggota->id)
+                        ->first();
+                    if ($existingInAnggota) {
+                        $fail('NIS sudah digunakan oleh anggota lain.');
+                        return;
+                    }
+                    $otherUser = \App\Models\User::where('nis', $newNis)
+                        ->where('id', '!=', $currentUserId)
+                        ->whereNotNull('nis')
+                        ->first();
+                    if ($otherUser) {
+                        $fail('NIS sudah digunakan oleh user lain.');
+                    }
+                },
+            ],
             'email'          => 'required|email|unique:anggota,email,' . $anggota->id . '|unique:users,email,' . optional($anggota->user)->id,
             'no_telepon'     => 'nullable|string|max:20',
             'alamat'         => 'nullable|string',
@@ -134,7 +159,10 @@ class AnggotaController extends Controller
             'status'         => 'nullable|string|in:aktif,nonaktif',
         ]);
 
-        $anggota->update($request->only('nama', 'email', 'nis', 'no_telepon', 'alamat', 'kelas', 'jurusan', 'jenis_kelamin', 'status'));
+        $updateData = $request->only('nama', 'email', 'nis', 'kelas', 'jurusan', 'jenis_kelamin', 'status');
+        $updateData['no_telepon'] = $request->no_telepon ?? '-';
+        $updateData['alamat'] = $request->alamat ?? '-';
+        $anggota->update($updateData);
 
         // Sync to User
         $user = $anggota->user;
@@ -145,6 +173,10 @@ class AnggotaController extends Controller
                 'nis'   => $request->nis,
                 'no_hp' => $request->no_telepon,
             ]);
+        }
+
+        if ($request->get('from') === 'admin') {
+            return redirect()->route('anggota.admin')->with('success', 'Anggota berhasil diupdate!');
         }
 
         $params = $request->only(['search', 'sort', 'direction', 'per_page']);
@@ -172,6 +204,10 @@ class AnggotaController extends Controller
 
         if ($user) {
             $user->delete();
+        }
+
+        if ($request->get('from') === 'admin') {
+            return redirect()->route('anggota.admin')->with('success', 'Anggota berhasil dihapus!');
         }
 
         $params = $request->only(['search', 'sort', 'direction', 'per_page', 'page']);

@@ -12,8 +12,8 @@
             @method('PUT')
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Nama Background</label>
-                    <input type="text" name="nama" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama', $background->nama) }}">
+                    <label class="form-label fw-600">Nama Background <span style="color:red">*</span></label>
+                    <input type="text" name="nama" class="form-control @error('nama') is-invalid @enderror" value="{{ old('nama', $background->nama) }}" required>
                     @error('nama') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-3 mb-3">

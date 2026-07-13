@@ -46,13 +46,13 @@ toggleKoin('{{ old('is_vip', $ebook->is_vip) }}');
             @method('PUT')
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Judul E-book</label>
-                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul', $ebook->judul) }}">
+                    <label class="form-label fw-600">Judul E-book <span style="color:red">*</span></label>
+                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul', $ebook->judul) }}" required>
                     @error('judul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Penulis</label>
-                    <input type="text" name="penulis" class="form-control @error('penulis') is-invalid @enderror" value="{{ old('penulis', $ebook->penulis) }}">
+                    <label class="form-label fw-600">Penulis <span style="color:red">*</span></label>
+                    <input type="text" name="penulis" class="form-control @error('penulis') is-invalid @enderror" value="{{ old('penulis', $ebook->penulis) }}" required>
                     @error('penulis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
@@ -73,7 +73,7 @@ toggleKoin('{{ old('is_vip', $ebook->is_vip) }}');
                     @error('sinopsis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">File PDF <small class="text-muted">(kosongkan jika tidak ingin mengganti)</small></label>
+                    <label class="form-label">File PDF <small class="text-muted">(kosongkan jika tidak ingin mengganti, maks. 100MB)</small></label>
                     @if($ebook->file_pdf)
                         <div style="padding:8px 12px;background:#f0fdf4;border-radius:8px;margin-bottom:8px;font-size:13px;color:#1a6e35">
                             <i class="bi bi-file-earmark-pdf"></i> File saat ini tersimpan

@@ -4,10 +4,12 @@
 
 @php
 $backParams = request()->only(['search', 'sort', 'direction', 'per_page']);
+$fromAdmin = request()->get('from') === 'admin';
+$backUrl = $fromAdmin ? route('anggota.admin') : route('anggota.index', $backParams);
 @endphp
 
 @section('content')
-<x-admin-page-header title="Edit Anggota" icon="bi bi-person-gear" :backUrl="route('anggota.index', $backParams)" />
+<x-admin-page-header title="Edit Anggota" icon="bi bi-person-gear" :backUrl="$backUrl" />
 
 @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -25,13 +27,14 @@ $backParams = request()->only(['search', 'sort', 'direction', 'per_page']);
 
 <div class="card-admin">
     <div class="card-admin-body" style="padding:25px">
-        <form action="{{ route('anggota.update', $anggota->id) }}" method="POST">
+        <form action="{{ route('anggota.update', $anggota->id) }}?from={{ request('from') }}" method="POST">
             @csrf
             @method('PUT')
             <input type="hidden" name="search" value="{{ request('search') }}">
             <input type="hidden" name="sort" value="{{ request('sort') }}">
             <input type="hidden" name="direction" value="{{ request('direction') }}">
             <input type="hidden" name="per_page" value="{{ request('per_page') }}">
+            <input type="hidden" name="from" value="{{ request('from') }}">
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Nama Lengkap <span style="color:red">*</span></label>
@@ -39,8 +42,8 @@ $backParams = request()->only(['search', 'sort', 'direction', 'per_page']);
                     @error('nama') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">NIS</label>
-                    <input type="text" name="nis" class="form-control @error('nis') is-invalid @enderror" value="{{ old('nis', $anggota->nis) }}" placeholder="Nomor Induk Siswa">
+                    <label class="form-label fw-600">NIS <span style="color:red">*</span></label>
+                    <input type="text" name="nis" class="form-control @error('nis') is-invalid @enderror" value="{{ old('nis', $anggota->nis) }}" placeholder="Nomor Induk Siswa" required>
                     @error('nis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">

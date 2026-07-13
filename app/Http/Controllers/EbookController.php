@@ -64,7 +64,7 @@ public function adminUpdate(Request $request, $id)
         'judul'      => 'required|string|max:255',
         'penulis'    => 'required|string|max:255',
         'sinopsis'   => 'nullable|string',
-        'file_pdf'   => 'nullable|mimes:pdf|max:20480',
+        'file_pdf'   => 'nullable|mimes:pdf|max:102400',
         'cover'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         'harga_koin' => 'required|integer|min:0',
         'is_vip'     => 'nullable|boolean',

@@ -45,13 +45,13 @@ toggleKoin('{{ old('is_vip', 0) }}');
             @csrf
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Judul E-book</label>
-                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul') }}">
+                    <label class="form-label fw-600">Judul E-book <span style="color:red">*</span></label>
+                    <input type="text" name="judul" class="form-control @error('judul') is-invalid @enderror" value="{{ old('judul') }}" required>
                     @error('judul') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Penulis</label>
-                    <input type="text" name="penulis" class="form-control @error('penulis') is-invalid @enderror" value="{{ old('penulis') }}">
+                    <label class="form-label fw-600">Penulis <span style="color:red">*</span></label>
+                    <input type="text" name="penulis" class="form-control @error('penulis') is-invalid @enderror" value="{{ old('penulis') }}" required>
                     @error('penulis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
@@ -72,8 +72,8 @@ toggleKoin('{{ old('is_vip', 0) }}');
                     @error('sinopsis') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">File PDF <small class="text-muted">(maks. 20MB)</small></label>
-                    <input type="file" name="file_pdf" class="form-control @error('file_pdf') is-invalid @enderror" accept=".pdf">
+                    <label class="form-label fw-600">File PDF <span style="color:red">*</span> <small class="text-muted">(maks. 100MB)</small></label>
+                    <input type="file" name="file_pdf" class="form-control @error('file_pdf') is-invalid @enderror" accept=".pdf" required>
                     @error('file_pdf') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6 mb-3">

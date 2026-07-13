@@ -75,8 +75,8 @@ class BukuController extends Controller
             'tahun_terbit'   => 'required|digits:4',
             'isbn'           => 'required|unique:buku',
             'jumlah_eksemplar' => 'required|integer|min:1',
-            'sampul'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'rekom_bg'       => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
+            'sampul'         => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
+            'rekom_bg'       => 'nullable|image|mimes:jpg,jpeg,png|max:10240',
             'kode_buku'      => 'nullable|unique:buku,kode_buku',
         ]);
 
