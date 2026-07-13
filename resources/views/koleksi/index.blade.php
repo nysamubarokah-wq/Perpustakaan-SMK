@@ -620,7 +620,7 @@
                     <div class="rekom-info">
                         <div class="rekom-judul">{{ $item->judul }}</div>
                         <div class="rekom-meta-line">
-                            @if($item->genreName)<span class="rekom-genre-badge"><i class="bi bi-tag"></i> {{ $item->genreName }}</span>@endif
+                            @if($item->genre)<span class="rekom-genre-badge"><i class="bi bi-tag"></i> {{ $item->genre }}</span>@endif
 
                         </div>
                         <div class="rekom-pengarang"><i class="bi bi-person"></i> {{ $item->pengarang }}</div>
@@ -714,7 +714,7 @@
                                     <div class="streaming-card-title">{{ $item->judul }}</div>
                                     <div class="streaming-card-meta"><i class="bi bi-person"></i> {{ Str::limit($item->pengarang, 20) }}</div>
                                     @if($item->penerbit)<div class="streaming-card-meta"><i class="bi bi-building"></i> {{ Str::limit($item->penerbit, 20) }}</div>@endif
-                                    @if($item->genreName)<div class="streaming-card-genre">{{ $item->genreName }}</div>@endif
+                                    @if($item->genre)<div class="streaming-card-genre">{{ $item->genre }}</div>@endif
                                     <div class="streaming-card-stok">Stok: {{ $item->stok }}</div>
                                 </div>
                             </div>
@@ -776,7 +776,7 @@
                                     <div class="streaming-card-title">{{ $item->judul }}</div>
                                     <div class="streaming-card-meta"><i class="bi bi-person"></i> {{ Str::limit($item->pengarang, 20) }}</div>
                                     @if($item->penerbit)<div class="streaming-card-meta"><i class="bi bi-building"></i> {{ Str::limit($item->penerbit, 20) }}</div>@endif
-                                    @if($item->genreName)<div class="streaming-card-genre">{{ $item->genreName }}</div>@endif
+                                    @if($item->genre)<div class="streaming-card-genre">{{ $item->genre }}</div>@endif
                                     <div class="streaming-card-stok">Stok: {{ $item->stok }}</div>
                                 </div>
                             </div>
@@ -1020,7 +1020,7 @@ document.addEventListener('click', function(e) {
 // ===== SEARCH FUNCTIONALITY =====
 var allBooks = [
     @foreach($allBuku as $item)
-    { id: {{ $item->id }}, judul: @json($item->judul), pengarang: @json($item->pengarang), penerbit: @json($item->penerbit), penerbit_id: @json($item->penerbit_id), genre: @json($item->genreName), genre_id: @json($item->genre_id), stok: {{ $item->stok }}, sampul: @json($item->sampul ? asset($item->sampul) : null), peminjaman_count: {{ $item->peminjaman_count ?? 0 }} },
+    { id: {{ $item->id }}, judul: @json($item->judul), pengarang: @json($item->pengarang), penerbit: @json($item->penerbit), penerbit_id: @json($item->penerbit_id), genre: @json($item->genre), genre_id: @json($item->genre_id), stok: {{ $item->stok }}, sampul: @json($item->sampul ? asset($item->sampul) : null), peminjaman_count: {{ $item->peminjaman_count ?? 0 }} },
     @endforeach
 ];
 // Deduplicate by id

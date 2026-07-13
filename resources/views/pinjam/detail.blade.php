@@ -1051,8 +1051,8 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
         <div class="right-section">
             <!-- Genre + Stok sejajar -->
           <div class="badges-row">
-    @if($buku->genreName)
-        <span class="genre-tag"><i class="bi bi-tag"></i> {{ $buku->genreName }}</span>
+    @if($buku->genre)
+        <span class="genre-tag"><i class="bi bi-tag"></i> {{ $buku->genre }}</span>
     @endif
     <span class="stok-badge {{ $buku->stok > 0 ? 'stok-ada' : 'stok-habis' }}">
         {{ $buku->stok > 0 ? 'Tersedia ('.$buku->stok.')' : 'Tidak Tersedia' }}
@@ -1191,7 +1191,7 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
                                 <div class="streaming-rec-overlay-title">{{ $rec->judul }}</div>
                                 <div class="streaming-rec-overlay-meta"><i class="bi bi-person"></i> {{ Str::limit($rec->pengarang, 18) }}</div>
                                 @if($rec->penerbit)<div class="streaming-rec-overlay-meta"><i class="bi bi-building"></i> {{ Str::limit($rec->penerbit, 18) }}</div>@endif
-                                @if($rec->genreName)<div class="streaming-rec-overlay-genre">{{ $rec->genreName }}</div>@endif
+                                @if($rec->genre)<div class="streaming-rec-overlay-genre">{{ $rec->genre }}</div>@endif
                                 <div class="streaming-rec-overlay-stok">Stok: {{ $rec->stok }}</div>
                             </div>
                         </div>

@@ -70,7 +70,7 @@ class BarcodeController extends Controller
                 'kode_buku' => $buku->kode_buku,
                 'stok'      => $stokTersedia,
                 'sampul'    => $buku->sampul ? asset($buku->sampul) : null,
-                'genre'     => $buku->genreName,
+                'genre'     => $buku->genre,
                 'lokasi'    => $buku->lokasi,
             ],
             'peminjaman_aktif' => $peminjamanAktifList,

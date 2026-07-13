@@ -116,11 +116,6 @@ class Buku extends Model
         return $this->belongsTo(Genre::class, 'genre_id');
     }
 
-    public function getGenreNameAttribute()
-    {
-        return $this->genre?->nama;
-    }
-
     public function penerbit()
     {
         return $this->belongsTo(\App\Models\Penerbit::class, 'penerbit_id');
