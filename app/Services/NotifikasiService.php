@@ -22,7 +22,7 @@ class NotifikasiService
             type: Notification::TYPE_PINJAM_DISETUJI,
             icon: 'book',
             warna: '#27ae60',
-            link: url('/profil/riwayat')
+        link: '/profil/riwayat'
         );
     }
 
@@ -35,7 +35,7 @@ class NotifikasiService
             type: Notification::TYPE_PINJAM_DITOLAK,
             icon: 'x-circle',
             warna: '#e74c3c',
-            link: route('koleksi.index')
+            link: '/koleksi'
         );
     }
 
@@ -51,7 +51,7 @@ class NotifikasiService
             type: Notification::TYPE_PENGEMBALIAN_BERHASIL,
             icon: 'arrow-repeat',
             warna: '#3498db',
-            link: route('profil.riwayat')
+           link: '/profil/riwayat'
         );
     }
 
@@ -75,7 +75,7 @@ class NotifikasiService
             type: Notification::TYPE_PENGINGAT_JATUH_TEMPO,
             icon: 'clock',
             warna: '#f39c12',
-            link: route('profil.riwayat')
+            link: '/profil/riwayat'
         );
     }
 
@@ -98,7 +98,7 @@ class NotifikasiService
             type: Notification::TYPE_BUKU_TERLAMBAT,
             icon: 'exclamation-triangle',
             warna: '#e74c3c',
-            link: route('profil.riwayat')
+            link: '/profil/riwayat'
         );
     }
 
@@ -111,7 +111,7 @@ class NotifikasiService
             type: Notification::TYPE_COIN_BERTAMBAH,
             icon: 'coin',
             warna: '#f1c40f',
-            link: url('/profil')
+         link: '/profil'
         );
     }
 
@@ -132,7 +132,7 @@ class NotifikasiService
             type: Notification::TYPE_VIP_HABIS,
             icon: 'star',
             warna: '#f1c40f',
-            link: route('vip.index')
+           link: '/vip'
         );
     }
 
@@ -145,7 +145,7 @@ class NotifikasiService
             type: Notification::TYPE_PERMINTAAN_BARU,
             icon: 'book',
             warna: '#27ae60',
-            link: route('admin.pinjam.index')
+            link: '/admin/pinjam'
         );
     }
 
@@ -158,7 +158,7 @@ class NotifikasiService
             type: Notification::TYPE_PENGEMBALIAN_PENDING,
             icon: 'arrow-counterclockwise',
             warna: '#3498db',
-            link: route('admin.pengembalian.index')
+           link: '/admin/pengembalian'
         );
     }
 
@@ -171,7 +171,7 @@ class NotifikasiService
             type: Notification::TYPE_STOK_HABIS,
             icon: 'exclamation-triangle',
             warna: '#e74c3c',
-            link: route('buku.index')
+           link: '/admin/buku'
         );
     }
 
