@@ -38,8 +38,8 @@
                 <p style="color:#666;font-size:14px;margin-bottom:3px"><i class="bi bi-building"></i> {{ $buku->penerbit }} ({{ $buku->tahun_terbit }})</p>
                 <p style="color:#666;font-size:14px;margin-bottom:3px"><i class="bi bi-upc-scan"></i> ISBN: {{ $buku->isbn ?? '-' }}</p>
                 <p style="color:#666;font-size:14px;margin-bottom:3px"><i class="bi bi-geo-alt"></i> Rak: {{ $buku->lokasi ?? '-' }}</p>
-                @if($buku->genre)
-                    <span style="padding:4px 12px;background:#e8f5e9;color:#1a6e35;border-radius:20px;font-size:12px;font-weight:600">{{ $buku->genre }}</span>
+                @if($buku->genreName)
+                    <span style="padding:4px 12px;background:#e8f5e9;color:#1a6e35;border-radius:20px;font-size:12px;font-weight:600">{{ $buku->genreName }}</span>
                 @endif
                 <div style="margin-top:10px;display:flex;gap:15px;flex-wrap:wrap">
                     <div style="background:#d4edda;padding:8px 15px;border-radius:10px">

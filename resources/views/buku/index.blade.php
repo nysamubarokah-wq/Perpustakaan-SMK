@@ -217,8 +217,8 @@ $sortIcon = function($col) use ($sortBy, $sortDir) {
                     <td style="font-size:11px;font-family:monospace;color:#555;white-space:nowrap">{{ $item->isbn ?? '-' }}</td>
                     <td>{{ $item->pengarang }}</td>
                     <td>
-                        @if($item->genre)
-                            <span style="padding:3px 10px;background:#e8f5e9;color:#1a6e35;border-radius:20px;font-size:11px;font-weight:600">{{ $item->genre }}</span>
+                        @if($item->genreName)
+                            <span style="padding:3px 10px;background:#e8f5e9;color:#1a6e35;border-radius:20px;font-size:11px;font-weight:600">{{ $item->genreName }}</span>
                         @else
                             <span style="color:#aaa">-</span>
                         @endif

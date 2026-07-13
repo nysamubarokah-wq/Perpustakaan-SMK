@@ -19,7 +19,7 @@ class KoleksiController extends Controller
         $penerbit = $request->get('penerbit', '');
         $sort     = $request->get('sort', '');
 
-        $query = Buku::query()
+        $query = Buku::with(['genre', 'penerbit'])
             ->withCount('peminjaman');
 
         if ($genre) {
@@ -53,7 +53,8 @@ class KoleksiController extends Controller
         $penerbitList = Penerbit::whereHas('buku')->orderBy('nama')->get();
         $genreList = Genre::whereHas('buku')->orderBy('nama')->get();
 
-        $populerQuery = Buku::withCount('peminjaman')
+        $populerQuery = Buku::with(['genre', 'penerbit'])
+            ->withCount('peminjaman')
             ->orderByDesc('peminjaman_count');
         if ($genre) {
             $populerQuery->where('genre_id', $genre);
@@ -63,7 +64,7 @@ class KoleksiController extends Controller
         }
         $bukuPopuler = $populerQuery->take(10)->get();
 
-        $terbaruQuery = Buku::latest();
+        $terbaruQuery = Buku::with(['genre', 'penerbit'])->latest();
         if ($genre) {
             $terbaruQuery->where('genre_id', $genre);
         }
@@ -72,11 +73,11 @@ class KoleksiController extends Controller
         }
         $bukuTerbaru = $terbaruQuery->take(10)->get();
 
-        $bukuAcak = Buku::inRandomOrder()
+        $bukuAcak = Buku::with(['genre', 'penerbit'])->inRandomOrder()
             ->take(8)
             ->get();
 
-        $allBuku = Buku::withCount('peminjaman')->get();
+        $allBuku = Buku::with(['genre', 'penerbit'])->withCount('peminjaman')->get();
 
         $cacheKey = 'rekomendasi_hari_ini_' . now()->format('Y-m-d');
         $rekomendasiIds = Cache::remember($cacheKey, now()->addDay(), function () {
@@ -99,6 +100,7 @@ class KoleksiController extends Controller
         });
 
         $rekomendasi = Buku::whereIn('id', $rekomendasiIds)
+            ->with(['genre', 'penerbit'])
             ->withCount('peminjaman')
             ->get()
             ->sortBy(fn ($buku) => array_search($buku->id, $rekomendasiIds))
@@ -115,7 +117,8 @@ class KoleksiController extends Controller
         $penerbit = $request->get('penerbit', '');
         $genre    = $request->get('genre', '');
 
-        $query = Buku::withCount('peminjaman')
+        $query = Buku::with(['genre', 'penerbit'])
+            ->withCount('peminjaman')
             ->having('peminjaman_count', '>', 0)
             ->orderByDesc('peminjaman_count')
             ->take(10);
@@ -147,7 +150,8 @@ class KoleksiController extends Controller
         $penerbit = $request->get('penerbit', '');
         $genre    = $request->get('genre', '');
 
-        $query = Buku::withCount('peminjaman')->latest();
+        $query = Buku::with(['genre', 'penerbit'])
+            ->withCount('peminjaman')->latest();
 
         if ($penerbit) {
             $query->where('penerbit_id', $penerbit);

@@ -430,7 +430,7 @@
                     <div class="book-card-body">
                         <h5>{{ $item->judul }}</h5>
                         <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                        @if($item->genre)<span class="book-card-genre">{{ $item->genre }}</span>@endif
+                        @if($item->genreName)<span class="book-card-genre">{{ $item->genreName }}</span>@endif
                         <div style="margin-top:auto;padding-top:4px">
                             <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
                                 {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
