@@ -76,7 +76,7 @@ class AnggotaController extends Controller
     {
         $request->validate([
             'nama'           => 'required|string|max:255',
-            'nis'            => 'nullable|string|max:50|unique:anggota,nis|unique:users,nis',
+            'nis'            => 'required|string|max:50|unique:anggota,nis|unique:users,nis',
             'email'          => 'required|email|unique:anggota,email|unique:users,email',
             'no_telepon'     => 'nullable|string|max:20',
             'alamat'         => 'nullable|string',
