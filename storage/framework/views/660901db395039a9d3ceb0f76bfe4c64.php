@@ -235,11 +235,8 @@ $sortIcon = function($col) use ($sortBy, $sortDir) {
                     <td style="font-size:11px;font-family:monospace;color:#555;white-space:nowrap"><?php echo e($item->isbn ?? '-'); ?></td>
                     <td><?php echo e($item->pengarang); ?></td>
                     <td>
-                        <?php if($item->genre): ?>
-                            <span style="padding:3px 10px;background:#e8f5e9;color:#1a6e35;border-radius:20px;font-size:11px;font-weight:600"><?php echo e($item->genre); ?></span>
-                        <?php else: ?>
-                            <span style="color:#aaa">-</span>
-                        <?php endif; ?>
+                        <?php echo e($item->genre?->nama ?? '-'); ?>
+
                     </td>
                     <td style="white-space:nowrap">
                         <?php if($item->lokasi): ?>

@@ -25,9 +25,9 @@ class BarcodeController extends Controller
 
         $input = trim($request->kode);
 
-        $buku = Buku::where('kode_buku', $input)->first();
+        $buku = Buku::with('genre')->where('kode_buku', $input)->first();
         if (!$buku) {
-            $buku = Buku::where('isbn', $input)->first();
+            $buku = Buku::with('genre')->where('isbn', $input)->first();
         }
 
         if (!$buku) {
@@ -70,7 +70,7 @@ class BarcodeController extends Controller
                 'kode_buku' => $buku->kode_buku,
                 'stok'      => $stokTersedia,
                 'sampul'    => $buku->sampul ? asset($buku->sampul) : null,
-                'genre'     => $buku->genre,
+                'genre'     => $buku->genre?->nama,
                 'lokasi'    => $buku->lokasi,
             ],
             'peminjaman_aktif' => $peminjamanAktifList,
@@ -295,9 +295,9 @@ class BarcodeController extends Controller
 
         $input = trim($request->kode);
 
-        $buku = Buku::where('kode_buku', $input)->first();
+        $buku = Buku::with('genre')->where('kode_buku', $input)->first();
         if (!$buku) {
-            $buku = Buku::where('isbn', $input)->first();
+            $buku = Buku::with('genre')->where('isbn', $input)->first();
         }
 
         if (!$buku) {

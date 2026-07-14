@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>Koleksi Buku - Perpustakaan SMK Maarif</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
@@ -463,8 +463,8 @@
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-            <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
+            <a href="<?php echo e(route('koleksi.index')); ?>" class="d-flex align-items-center gap-2 text-decoration-none">
+                <img src="<?php echo e(asset('images/logo.jpg')); ?>" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
             <div class="d-flex align-items-center gap-2">
@@ -475,30 +475,30 @@
                         </a>
                         <div class="layanan-dropdown" id="layananDropdown">
                             <p style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Penjaga Perpustakaan</p>
-                            @php
+                            <?php
                                 $adminAktif = \App\Models\User::where('role', 'admin')->where('is_on_duty', true)->first();
                                 if (!$adminAktif) { $adminAktif = \App\Models\User::where('role', 'admin')->first(); }
                                 $anggotaAdmin = \App\Models\Anggota::where('email', $adminAktif?->email)->first();
                                 $noHpAdmin = $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '';
                                 $waLink = $noHpAdmin ? 'https://wa.me/62' . ltrim(preg_replace('/[^0-9]/', '', $noHpAdmin), '0') : '#';
-                            @endphp
+                            ?>
                             <div class="penjaga-card">
-                                @if($adminAktif?->foto)
-                                    <img src="{{ asset($adminAktif->foto) }}" alt="Penjaga" style="width:65px;height:65px;border-radius:50%;object-fit:cover;border:3px solid #1a6e35">
-                                @else
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($adminAktif?->name ?? 'Admin') }}&background=1a6e35&color=fff" alt="Penjaga">
-                                @endif
+                                <?php if($adminAktif?->foto): ?>
+                                    <img src="<?php echo e(asset($adminAktif->foto)); ?>" alt="Penjaga" style="width:65px;height:65px;border-radius:50%;object-fit:cover;border:3px solid #1a6e35">
+                                <?php else: ?>
+                                    <img src="https://ui-avatars.com/api/?name=<?php echo e(urlencode($adminAktif?->name ?? 'Admin')); ?>&background=1a6e35&color=fff" alt="Penjaga">
+                                <?php endif; ?>
                                 <div>
-                                    <h6>{{ $adminAktif?->name ?? 'Nama Penjaga' }}</h6>
-                                    <p><i class="bi bi-telephone"></i> {{ $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '-' }}</p>
-                                    <p><i class="bi bi-clock"></i> {{ now()->locale('id')->isoFormat('dddd') }}, {{ now()->format('H:i') }} WIB</p>
+                                    <h6><?php echo e($adminAktif?->name ?? 'Nama Penjaga'); ?></h6>
+                                    <p><i class="bi bi-telephone"></i> <?php echo e($anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '-'); ?></p>
+                                    <p><i class="bi bi-clock"></i> <?php echo e(now()->locale('id')->isoFormat('dddd')); ?>, <?php echo e(now()->format('H:i')); ?> WIB</p>
                                 </div>
                             </div>
-                            @if($noHpAdmin)
-                            <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.2s" onmouseover="this.style.background='#1ebe57'" onmouseout="this.style.background='#25D366'">
+                            <?php if($noHpAdmin): ?>
+                            <a href="<?php echo e($waLink); ?>" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.2s" onmouseover="this.style.background='#1ebe57'" onmouseout="this.style.background='#25D366'">
                                 <i class="bi bi-whatsapp" style="font-size:16px"></i> Chat Admin
                             </a>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -508,7 +508,7 @@
                         <div class="floating-dropdown genre-dropdown-wrapper" id="genreDropdown">
                             <div class="genre-dropdown-header">
                                 <h6><i class="bi bi-collection-fill"></i> Pilih Genre</h6>
-                                <span class="badge">{{ $genreList->count() }} genre</span>
+                                <span class="badge"><?php echo e($genreList->count()); ?> genre</span>
                             </div>
                             <div class="genre-search-box">
                                 <i class="bi bi-search"></i>
@@ -516,73 +516,75 @@
                             </div>
                             <div class="genre-dropdown-body">
                                 <div class="genre-grid" id="genreGrid">
-                                    <a href="{{ route('koleksi.index') }}" class="genre-grid-item {{ !$genre ? 'active' : '' }}" data-genre="">
+                                    <a href="<?php echo e(route('koleksi.index')); ?>" class="genre-grid-item <?php echo e(!$genre ? 'active' : ''); ?>" data-genre="">
                                         <i class="bi bi-grid-fill"></i>
                                         <span>Semua</span>
                                     </a>
-                                    @foreach($genreList as $g)
-                                    <a href="{{ route('koleksi.index', ['genre' => $g->id]) }}" class="genre-grid-item {{ $genre == $g->id ? 'active' : '' }}" data-genre="{{ strtolower($g->nama) }}">
+                                    <?php $__currentLoopData = $genreList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $g): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <a href="<?php echo e(route('koleksi.index', ['genre' => $g->id])); ?>" class="genre-grid-item <?php echo e($genre == $g->id ? 'active' : ''); ?>" data-genre="<?php echo e(strtolower($g->nama)); ?>">
                                         <i class="bi bi-tag-fill"></i>
-                                        <span>{{ $g->nama }}</span>
+                                        <span><?php echo e($g->nama); ?></span>
                                     </a>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </div>
                             </div>
                         </div>
                     </li>
                     <li class="nav-item">
-                       <a class="nav-link" href="{{ route('favorit.index', ['from' => 'koleksi']) }}"><i class="bi bi-heart-fill"></i> <span class="nav-text">Favorit</span></a>
+                       <a class="nav-link" href="<?php echo e(route('favorit.index', ['from' => 'koleksi'])); ?>"><i class="bi bi-heart-fill"></i> <span class="nav-text">Favorit</span></a>
                     </li>
                     <li class="nav-item">
                        <a class="nav-link" href="#" onclick="openScanModal(event)"><i class="bi bi-qr-code-scan"></i> <span class="nav-text">Scan</span></a>
                     </li>
                 </ul>
                 <button id="darkModeToggle" class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-moon-fill"></i></button>
-                @php
+                <?php
                     $userUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
-                @endphp
-                <a href="{{ route('notifikasi.index') }}" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
+                ?>
+                <a href="<?php echo e(route('notifikasi.index')); ?>" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
                     <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
-                    @if($userUnreadCount > 0)
+                    <?php if($userUnreadCount > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
-                            {{ $userUnreadCount > 99 ? '99+' : $userUnreadCount }}
+                            <?php echo e($userUnreadCount > 99 ? '99+' : $userUnreadCount); ?>
+
                         </span>
-                    @endif
+                    <?php endif; ?>
                 </a>
                 <div class="nav-item">
                     <a href="#" onclick="toggleProfil(event)">
-                      @if(auth()->user()->foto)
-                        <img src="{{ asset(auth()->user()->foto) }}" class="profil-avatar" alt="Profil">
-                      @else
-                        <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff" class="profil-avatar" alt="Profil">
-                      @endif
+                      <?php if(auth()->user()->foto): ?>
+                        <img src="<?php echo e(asset(auth()->user()->foto)); ?>" class="profil-avatar" alt="Profil">
+                      <?php else: ?>
+                        <img src="https://ui-avatars.com/api/?name=<?php echo e(auth()->user()->name); ?>&background=1a6e35&color=fff" class="profil-avatar" alt="Profil">
+                      <?php endif; ?>
                     </a>
                     <div class="floating-dropdown" id="profilDropdown" style="right:0;left:auto;min-width:250px">
                         <div style="text-align:center;margin-bottom:15px">
-                           @if(auth()->user()->foto)
-                            <img src="{{ asset(auth()->user()->foto) }}" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
-                           @else
-                            <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff&size=200" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
-                           @endif
-                            <h6 style="font-weight:700;color:#222;margin:0">{{ auth()->user()->name }}</h6>
+                           <?php if(auth()->user()->foto): ?>
+                            <img src="<?php echo e(asset(auth()->user()->foto)); ?>" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
+                           <?php else: ?>
+                            <img src="https://ui-avatars.com/api/?name=<?php echo e(auth()->user()->name); ?>&background=1a6e35&color=fff&size=200" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
+                           <?php endif; ?>
+                            <h6 style="font-weight:700;color:#222;margin:0"><?php echo e(auth()->user()->name); ?></h6>
                         </div>
                         <div style="background:#f9f9f9;border-radius:10px;padding:12px;margin-bottom:12px">
-                            <p style="font-size:12px;color:#555;margin-bottom:6px"><i class="bi bi-person-badge" style="color:#1a6e35"></i> NIS: {{ auth()->user()->nis }}</p>
-                            <p style="font-size:12px;color:#555;margin:0"><i class="bi bi-envelope" style="color:#1a6e35"></i> {{ auth()->user()->email }}</p>
+                            <p style="font-size:12px;color:#555;margin-bottom:6px"><i class="bi bi-person-badge" style="color:#1a6e35"></i> NIS: <?php echo e(auth()->user()->nis); ?></p>
+                            <p style="font-size:12px;color:#555;margin:0"><i class="bi bi-envelope" style="color:#1a6e35"></i> <?php echo e(auth()->user()->email); ?></p>
                         </div>
-                        @php
+                        <?php
                             $vipAktif = auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at);
                             $sisaHari = $vipAktif ? (int) now()->diffInDays(auth()->user()->vip_expired_at) + 1 : 0;
-                        @endphp
+                        ?>
                         <button onclick="document.getElementById('profilDropdown').classList.remove('show');document.getElementById('modalVip').style.display='flex'"
-                            style="width:100%;padding:10px;background:{{ $vipAktif ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#374151,#1f2937)' }};color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">
-                            {{ $vipAktif ? 'VIP Aktif · '.$sisaHari.' hari lagi' : 'Upgrade VIP' }}
+                            style="width:100%;padding:10px;background:<?php echo e($vipAktif ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#374151,#1f2937)'); ?>;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">
+                            <?php echo e($vipAktif ? 'VIP Aktif · '.$sisaHari.' hari lagi' : 'Upgrade VIP'); ?>
+
                         </button>
-                       <a href="{{ route('profil.index') }}" style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
+                       <a href="<?php echo e(route('profil.index')); ?>" style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
                        <i class="bi bi-person"></i> Lihat Profil
                        </a>
-                         <form method="POST" action="{{ route('logout') }}" style="margin-top:8px" onsubmit="return confirm('Yakin ingin logout?');">
-                             @csrf
+                         <form method="POST" action="<?php echo e(route('logout')); ?>" style="margin-top:8px" onsubmit="return confirm('Yakin ingin logout?');">
+                             <?php echo csrf_field(); ?>
                              <button type="submit" style="width:100%;padding:10px;background:#f8f9fa;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
                                  <i class="bi bi-box-arrow-right"></i> Logout
                              </button>
@@ -595,67 +597,67 @@
 </nav>
 
 <!-- REKOMENDASI / HERO -->
-@if($rekomendasi && $rekomendasi->count() > 0)
+<?php if($rekomendasi && $rekomendasi->count() > 0): ?>
 <div class="rekom-hero" style="margin-top:70px">
     <div class="rekom-carousel" id="rekomCarousel">
         <div class="rekom-track" id="rekomTrack">
-            @foreach($rekomendasi as $idx => $item)
+            <?php $__currentLoopData = $rekomendasi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="rekom-slide">
-                @if($item->rekom_bg)
-                    <div class="rekom-bg" style="background-image:url('{{ asset($item->rekom_bg) }}')"></div>
-                @elseif($item->sampul)
-                    <div class="rekom-bg" style="background-image:url('{{ asset($item->sampul) }}')"></div>
-                @else
+                <?php if($item->rekom_bg): ?>
+                    <div class="rekom-bg" style="background-image:url('<?php echo e(asset($item->rekom_bg)); ?>')"></div>
+                <?php elseif($item->sampul): ?>
+                    <div class="rekom-bg" style="background-image:url('<?php echo e(asset($item->sampul)); ?>')"></div>
+                <?php else: ?>
                     <div class="rekom-bg" style="background:linear-gradient(135deg,#1a6e35,#27ae60)"></div>
-                @endif
+                <?php endif; ?>
                 <div class="rekom-overlay"></div>
                 <div class="rekom-content">
-                    <div class="rekom-cover cover-{{ ($idx % 6) + 1 }}">
-                        @if($item->sampul)
-                            <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
-                        @else
+                    <div class="rekom-cover cover-<?php echo e(($idx % 6) + 1); ?>">
+                        <?php if($item->sampul): ?>
+                            <img src="<?php echo e(asset($item->sampul)); ?>" alt="<?php echo e($item->judul); ?>">
+                        <?php else: ?>
                             <div class="rekom-cover-placeholder"><i class="bi bi-book"></i></div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                     <div class="rekom-info">
-                        <div class="rekom-judul">{{ $item->judul }}</div>
+                        <div class="rekom-judul"><?php echo e($item->judul); ?></div>
                         <div class="rekom-meta-line">
-                            @if($item->genre)<span class="rekom-genre-badge"><i class="bi bi-tag"></i> {{ $item->genre?->nama }}</span>@endif
+                            <?php if($item->genre): ?><span class="rekom-genre-badge"><i class="bi bi-tag"></i> <?php echo e($item->genre?->nama); ?></span><?php endif; ?>
 
                         </div>
-                        <div class="rekom-pengarang"><i class="bi bi-person"></i> {{ $item->pengarang }}</div>
+                        <div class="rekom-pengarang"><i class="bi bi-person"></i> <?php echo e($item->pengarang); ?></div>
                         <div class="rekom-btns">
-                            <a href="{{ route('buku.detail', $item->id) }}" class="rekom-btn-detail"><i class="bi bi-eye"></i> Lihat Detail</a>
+                            <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="rekom-btn-detail"><i class="bi bi-eye"></i> Lihat Detail</a>
                         </div>
                     </div>
                 </div>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
-        @if($rekomendasi->count() > 1)
+        <?php if($rekomendasi->count() > 1): ?>
         <button class="rekom-arrow rekom-arrow-left" onclick="rekomSlide(-1)"><i class="bi bi-chevron-left"></i></button>
         <button class="rekom-arrow rekom-arrow-right" onclick="rekomSlide(1)"><i class="bi bi-chevron-right"></i></button>
         <div class="rekom-dots" id="rekomDots">
-            @foreach($rekomendasi as $idx => $item)
-            <button class="rekom-dot {{ $idx === 0 ? 'active' : '' }}" onclick="rekomGoTo({{ $idx }})"></button>
-            @endforeach
+            <?php $__currentLoopData = $rekomendasi; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $idx => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <button class="rekom-dot <?php echo e($idx === 0 ? 'active' : ''); ?>" onclick="rekomGoTo(<?php echo e($idx); ?>)"></button>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
-@else
+<?php else: ?>
 <div class="hero">
     <div class="hero-content">
         <h1><i class="bi bi-collection"></i> Koleksi Buku</h1>
         <p>Temukan buku favoritmu di perpustakaan SMK Maarif Walisongo Kajoran</p>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
 <!-- SEARCH BOX -->
 <div class="container">
     <div class="search-box">
-        <input type="text" id="searchInput" class="search-input" placeholder="Cari judul buku atau pengarang..." value="{{ $search ?? '' }}">
+        <input type="text" id="searchInput" class="search-input" placeholder="Cari judul buku atau pengarang..." value="<?php echo e($search ?? ''); ?>">
     </div>
 </div>
 
@@ -663,217 +665,218 @@
 <div id="mainSections">
 
     <!-- PENERBIT -->
-    @if($penerbitList->count() > 0)
+    <?php if($penerbitList->count() > 0): ?>
     <div class="container koleksi-section">
         <div class="section-header">
             <h3 class="section-title"><i class="bi bi-building"></i> Penerbit</h3>
         </div>
         <div class="penerbit-scroll" id="penerbitScroll">
-            <a href="{{ route('koleksi.index', $genre ? ['genre' => $genre] : []) }}" class="penerbit-chip {{ !$penerbit ? 'active' : '' }}">Semua</a>
-            @foreach($penerbitList as $p)
-            <a href="{{ route('koleksi.index', array_filter(['penerbit' => $p->id, 'genre' => $genre])) }}" class="penerbit-chip {{ $penerbit == $p->id ? 'active' : '' }}">{{ $p->nama }}</a>
-            @endforeach
+            <a href="<?php echo e(route('koleksi.index', $genre ? ['genre' => $genre] : [])); ?>" class="penerbit-chip <?php echo e(!$penerbit ? 'active' : ''); ?>">Semua</a>
+            <?php $__currentLoopData = $penerbitList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <a href="<?php echo e(route('koleksi.index', array_filter(['penerbit' => $p->id, 'genre' => $genre]))); ?>" class="penerbit-chip <?php echo e($penerbit == $p->id ? 'active' : ''); ?>"><?php echo e($p->nama); ?></a>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
-    @endif
+    <?php endif; ?>
 
     <!-- BUKU POPULER (only show when no filter) -->
-    @if(!$search && !$genre && !$penerbit)
+    <?php if(!$search && !$genre && !$penerbit): ?>
     <div class="container koleksi-section" id="sectionPopuler">
         <div class="section-header">
             <h3 class="section-title"><i class="bi bi-fire"></i> Buku Populer</h3>
-            <a href="{{ route('koleksi.populer', array_filter(['genre' => $genre, 'penerbit' => $penerbit])) }}" class="section-link">Lihat Semua <i class="bi bi-chevron-right"></i></a>
+            <a href="<?php echo e(route('koleksi.populer', array_filter(['genre' => $genre, 'penerbit' => $penerbit]))); ?>" class="section-link">Lihat Semua <i class="bi bi-chevron-right"></i></a>
         </div>
-        @if($bukuPopuler->count() > 0)
+        <?php if($bukuPopuler->count() > 0): ?>
         <div class="book-slider-wrapper" id="sliderPopulerWrapper">
             <button class="slider-nav-btn slider-nav-prev" onclick="slideSlider('sliderPopuler', -1)" aria-label="Sebelumnya">
                 <i class="bi bi-chevron-left"></i>
             </button>
             <div class="book-slider-track" id="sliderPopuler">
-                @foreach($bukuPopuler as $index => $item)
-                <div class="book-card-wrapper" data-penerbit="{{ $item->penerbit }}">
-                    <a href="{{ route('buku.detail', $item->id) }}" class="streaming-card" style="text-decoration:none">
-                        <div class="streaming-card-cover cover-{{ ($index % 6) + 1 }}">
-                            @if(($item->peminjaman_count ?? 0) >= 10)
+                <?php $__currentLoopData = $bukuPopuler; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="book-card-wrapper" data-penerbit="<?php echo e($item->penerbit); ?>">
+                    <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="streaming-card" style="text-decoration:none">
+                        <div class="streaming-card-cover cover-<?php echo e(($index % 6) + 1); ?>">
+                            <?php if(($item->peminjaman_count ?? 0) >= 10): ?>
                             <div class="badge-trending">Trending</div>
-                            @endif
-                            @if($item->sampul)
-                                <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
-                            @else
+                            <?php endif; ?>
+                            <?php if($item->sampul): ?>
+                                <img src="<?php echo e(asset($item->sampul)); ?>" alt="<?php echo e($item->judul); ?>">
+                            <?php else: ?>
                                 <div class="streaming-card-placeholder"><i class="bi bi-book"></i></div>
-                            @endif
-                            <button type="button" onclick="toggleFavorit({{ $item->id }}, this); event.preventDefault(); event.stopPropagation();" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
-                                @if(in_array($item->id, $favoritIds ?? []))
+                            <?php endif; ?>
+                            <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this); event.preventDefault(); event.stopPropagation();" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
+                                <?php if(in_array($item->id, $favoritIds ?? [])): ?>
                                     <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
-                                @else
+                                <?php else: ?>
                                     <i class="bi bi-heart" style="color:#999"></i>
-                                @endif
+                                <?php endif; ?>
                             </button>
                             <div class="streaming-card-overlay">
                                 <div class="streaming-card-overlay-info">
-                                    <div class="streaming-card-title">{{ $item->judul }}</div>
-                                    <div class="streaming-card-meta"><i class="bi bi-person"></i> {{ Str::limit($item->pengarang, 20) }}</div>
-                                    @if($item->penerbit)<div class="streaming-card-meta"><i class="bi bi-building"></i> {{ Str::limit($item->penerbit, 20) }}</div>@endif
-                                    @if($item->genre)<div class="streaming-card-genre">{{ $item->genre?->nama }}</div>@endif
-                                    <div class="streaming-card-stok">Stok: {{ $item->stok }}</div>
+                                    <div class="streaming-card-title"><?php echo e($item->judul); ?></div>
+                                    <div class="streaming-card-meta"><i class="bi bi-person"></i> <?php echo e(Str::limit($item->pengarang, 20)); ?></div>
+                                    <?php if($item->penerbit): ?><div class="streaming-card-meta"><i class="bi bi-building"></i> <?php echo e(Str::limit($item->penerbit, 20)); ?></div><?php endif; ?>
+                                    <?php if($item->genre): ?><div class="streaming-card-genre"><?php echo e($item->genre?->nama); ?></div><?php endif; ?>
+                                    <div class="streaming-card-stok">Stok: <?php echo e($item->stok); ?></div>
                                 </div>
                             </div>
                         </div>
                         <div class="streaming-card-body">
-                            <h5>{{ $item->judul }}</h5>
+                            <h5><?php echo e($item->judul); ?></h5>
                         </div>
                     </a>
                 </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
             <button class="slider-nav-btn slider-nav-next" onclick="slideSlider('sliderPopuler', 1)" aria-label="Berikutnya">
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
-        @else
+        <?php else: ?>
         <div class="empty-state" style="padding:30px 0">
             <i class="bi bi-inbox" style="font-size:40px"></i>
             <p>Buku populer tidak ditemukan</p>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
-    @endif
+    <?php endif; ?>
 
     <!-- BUKU TERBARU (only show when no filter) -->
-    @if(!$search && !$genre && !$penerbit)
+    <?php if(!$search && !$genre && !$penerbit): ?>
     <div class="container koleksi-section" id="sectionTerbaru">
         <div class="section-header">
             <h3 class="section-title"><i class="bi bi-clock-history"></i> Buku Terbaru</h3>
-            <a href="{{ route('koleksi.terbaru', array_filter(['genre' => $genre, 'penerbit' => $penerbit])) }}" class="section-link">Lihat Semua <i class="bi bi-chevron-right"></i></a>
+            <a href="<?php echo e(route('koleksi.terbaru', array_filter(['genre' => $genre, 'penerbit' => $penerbit]))); ?>" class="section-link">Lihat Semua <i class="bi bi-chevron-right"></i></a>
         </div>
-        @if($bukuTerbaru->count() > 0)
+        <?php if($bukuTerbaru->count() > 0): ?>
         <div class="book-slider-wrapper" id="sliderTerbaruWrapper">
             <button class="slider-nav-btn slider-nav-prev" onclick="slideSlider('sliderTerbaru', -1)" aria-label="Sebelumnya">
                 <i class="bi bi-chevron-left"></i>
             </button>
             <div class="book-slider-track" id="sliderTerbaru">
-                @foreach($bukuTerbaru as $index => $item)
-                <div class="book-card-wrapper" data-penerbit="{{ $item->penerbit }}">
-                    <a href="{{ route('buku.detail', $item->id) }}" class="streaming-card" style="text-decoration:none">
-                        <div class="streaming-card-cover cover-{{ (($index + 3) % 6) + 1 }}">
-                            @if($item->created_at && $item->created_at->diffInDays(now()) <= 30)
+                <?php $__currentLoopData = $bukuTerbaru; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="book-card-wrapper" data-penerbit="<?php echo e($item->penerbit); ?>">
+                    <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="streaming-card" style="text-decoration:none">
+                        <div class="streaming-card-cover cover-<?php echo e((($index + 3) % 6) + 1); ?>">
+                            <?php if($item->created_at && $item->created_at->diffInDays(now()) <= 30): ?>
                             <div class="badge-vip">Baru</div>
-                            @endif
-                            @if($item->sampul)
-                                <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
-                            @else
+                            <?php endif; ?>
+                            <?php if($item->sampul): ?>
+                                <img src="<?php echo e(asset($item->sampul)); ?>" alt="<?php echo e($item->judul); ?>">
+                            <?php else: ?>
                                 <div class="streaming-card-placeholder"><i class="bi bi-book"></i></div>
-                            @endif
-                            <button type="button" onclick="toggleFavorit({{ $item->id }}, this); event.preventDefault(); event.stopPropagation();" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
-                                @if(in_array($item->id, $favoritIds ?? []))
+                            <?php endif; ?>
+                            <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this); event.preventDefault(); event.stopPropagation();" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
+                                <?php if(in_array($item->id, $favoritIds ?? [])): ?>
                                     <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
-                                @else
+                                <?php else: ?>
                                     <i class="bi bi-heart" style="color:#999"></i>
-                                @endif
+                                <?php endif; ?>
                             </button>
                             <div class="streaming-card-overlay">
                                 <div class="streaming-card-overlay-info">
-                                    <div class="streaming-card-title">{{ $item->judul }}</div>
-                                    <div class="streaming-card-meta"><i class="bi bi-person"></i> {{ Str::limit($item->pengarang, 20) }}</div>
-                                    @if($item->penerbit)<div class="streaming-card-meta"><i class="bi bi-building"></i> {{ Str::limit($item->penerbit, 20) }}</div>@endif
-                                    @if($item->genre)<div class="streaming-card-genre">{{ $item->genre?->nama }}</div>@endif
-                                    <div class="streaming-card-stok">Stok: {{ $item->stok }}</div>
+                                    <div class="streaming-card-title"><?php echo e($item->judul); ?></div>
+                                    <div class="streaming-card-meta"><i class="bi bi-person"></i> <?php echo e(Str::limit($item->pengarang, 20)); ?></div>
+                                    <?php if($item->penerbit): ?><div class="streaming-card-meta"><i class="bi bi-building"></i> <?php echo e(Str::limit($item->penerbit, 20)); ?></div><?php endif; ?>
+                                    <?php if($item->genre): ?><div class="streaming-card-genre"><?php echo e($item->genre?->nama); ?></div><?php endif; ?>
+                                    <div class="streaming-card-stok">Stok: <?php echo e($item->stok); ?></div>
                                 </div>
                             </div>
                         </div>
                         <div class="streaming-card-body">
-                            <h5>{{ $item->judul }}</h5>
+                            <h5><?php echo e($item->judul); ?></h5>
                         </div>
                     </a>
                 </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
             <button class="slider-nav-btn slider-nav-next" onclick="slideSlider('sliderTerbaru', 1)" aria-label="Berikutnya">
                 <i class="bi bi-chevron-right"></i>
             </button>
         </div>
-        @else
+        <?php else: ?>
         <div class="empty-state" style="padding:30px 0">
             <i class="bi bi-inbox" style="font-size:40px"></i>
             <p>Buku terbaru tidak ditemukan</p>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
-    @endif
+    <?php endif; ?>
 
     <!-- SEMUA BUKU (tampil saat no filter, atau hasil filter) -->
     <div class="container koleksi-section" id="sectionSemuaBuku">
         <div class="section-header">
-            @if($search || $genre || $penerbit)
+            <?php if($search || $genre || $penerbit): ?>
             <h3 class="section-title"><i class="bi bi-grid-3x3-gap"></i> Hasil Filter</h3>
-            @else
+            <?php else: ?>
             <h3 class="section-title"><i class="bi bi-grid-3x3-gap"></i> Semua Buku</h3>
-            @endif
-            <span style="font-size:13px;color:#888">{{ $buku->count() }} buku</span>
-            @if($search || $genre || $penerbit)
-            <a href="{{ route('koleksi.index') }}" style="padding:5px 12px;background:#f0f0f0;color:#555;border:none;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;margin-left:auto">
+            <?php endif; ?>
+            <span style="font-size:13px;color:#888"><?php echo e($buku->count()); ?> buku</span>
+            <?php if($search || $genre || $penerbit): ?>
+            <a href="<?php echo e(route('koleksi.index')); ?>" style="padding:5px 12px;background:#f0f0f0;color:#555;border:none;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;margin-left:auto">
                 <i class="bi bi-x"></i> Reset Filter
             </a>
-            @endif
+            <?php endif; ?>
         </div>
 
-        @if($buku->count() > 0)
+        <?php if($buku->count() > 0): ?>
         <div class="row g-3">
-            @foreach($buku as $index => $item)
+            <?php $__currentLoopData = $buku; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-6 col-md-4 col-lg-3">
-                <div class="book-card" style="height:100%" data-penerbit="{{ $item->penerbit }}">
-                    <div class="book-card-cover cover-{{ ($index % 6) + 1 }}">
-                        @if(($item->peminjaman_count ?? 0) >= 10)
+                <div class="book-card" style="height:100%" data-penerbit="<?php echo e($item->penerbit); ?>">
+                    <div class="book-card-cover cover-<?php echo e(($index % 6) + 1); ?>">
+                        <?php if(($item->peminjaman_count ?? 0) >= 10): ?>
                         <div class="badge-trending">Trending</div>
-                        @endif
-                        @if($item->sampul)
-                            <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
-                        @else
+                        <?php endif; ?>
+                        <?php if($item->sampul): ?>
+                            <img src="<?php echo e(asset($item->sampul)); ?>" alt="<?php echo e($item->judul); ?>">
+                        <?php else: ?>
                             <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
-                        @endif
-                        <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
-                            @if(in_array($item->id, $favoritIds ?? []))
+                        <?php endif; ?>
+                        <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this)" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
+                            <?php if(in_array($item->id, $favoritIds ?? [])): ?>
                                 <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
-                            @else
+                            <?php else: ?>
                                 <i class="bi bi-heart" style="color:#999"></i>
-                            @endif
+                            <?php endif; ?>
                         </button>
                     </div>
                     <div class="book-card-body">
-                        <h5>{{ $item->judul }}</h5>
-                        <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                        @if($item->genreName)<span class="book-card-genre">{{ $item->genreName }}</span>@endif
+                        <h5><?php echo e($item->judul); ?></h5>
+                        <p class="book-card-meta"><i class="bi bi-person"></i> <?php echo e($item->pengarang); ?></p>
+                        <?php if($item->genreName): ?><span class="book-card-genre"><?php echo e($item->genreName); ?></span><?php endif; ?>
                         <div style="margin-top:auto;padding-top:4px">
-                            <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
-                                {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
+                            <span class="status-badge <?php echo e($item->stok > 0 ? 'status-ada' : 'status-habis'); ?>">
+                                <?php echo e($item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam'); ?>
+
                             </span>
                         </div>
-                        @if($item->stok > 0)
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:6px">
+                        <?php if($item->stok > 0): ?>
+                        <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="btn-detail" style="margin-top:6px">
                             <i class="bi bi-eye"></i> Detail
                         </a>
-                        @else
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail btn-detail-disabled" style="margin-top:6px">
+                        <?php else: ?>
+                        <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="btn-detail btn-detail-disabled" style="margin-top:6px">
                             <i class="bi bi-eye"></i> Detail
                         </a>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
 
-        @else
+        <?php else: ?>
         <div class="empty-state">
             <i class="bi bi-inbox"></i>
             <p>Belum ada buku dalam koleksi</p>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
 <!-- SEARCH RESULTS (shown only when searching, hidden if filter active) -->
-<div id="searchResults" class="container koleksi-section" @if($search) style="display:block" @elseif($genre || $penerbit) style="display:none" @endif>
+<div id="searchResults" class="container koleksi-section" <?php if($search): ?> style="display:block" <?php elseif($genre || $penerbit): ?> style="display:none" <?php endif; ?>>
     <div class="section-header">
         <h3 class="section-title"><i class="bi bi-search"></i> Hasil Pencarian</h3>
         <span id="searchCount" style="font-size:13px;color:#888"></span>
@@ -1019,18 +1022,18 @@ document.addEventListener('click', function(e) {
 
 // ===== SEARCH FUNCTIONALITY =====
 var allBooks = [
-    @foreach($allBuku as $item)
-    { id: {{ $item->id }}, judul: @json($item->judul), pengarang: @json($item->pengarang), penerbit: @json($item->penerbit), penerbit_id: @json($item->penerbit_id), genre: @json($item->genre?->nama), genre_id: @json($item->genre_id), stok: {{ $item->stok }}, sampul: @json($item->sampul ? asset($item->sampul) : null), peminjaman_count: {{ $item->peminjaman_count ?? 0 }} },
-    @endforeach
+    <?php $__currentLoopData = $allBuku; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    { id: <?php echo e($item->id); ?>, judul: <?php echo json_encode($item->judul, 15, 512) ?>, pengarang: <?php echo json_encode($item->pengarang, 15, 512) ?>, penerbit: <?php echo json_encode($item->penerbit, 15, 512) ?>, penerbit_id: <?php echo json_encode($item->penerbit_id, 15, 512) ?>, genre: <?php echo json_encode($item->genre?->nama, 15, 512) ?>, genre_id: <?php echo json_encode($item->genre_id, 15, 512) ?>, stok: <?php echo e($item->stok); ?>, sampul: <?php echo json_encode($item->sampul ? asset($item->sampul) : null, 15, 512) ?>, peminjaman_count: <?php echo e($item->peminjaman_count ?? 0); ?> },
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 ];
 // Deduplicate by id
 var seenIds = {};
 allBooks = allBooks.filter(function(b) { if (seenIds[b.id]) return false; seenIds[b.id] = true; return true; });
 
 var coverColors = ['cover-1','cover-2','cover-3','cover-4','cover-5','cover-6'];
-var favoritIds = @json($favoritIds ?? []);
-var filterGenre = @json($genre);
-var filterPenerbit = @json($penerbit);
+var favoritIds = <?php echo json_encode($favoritIds ?? [], 15, 512) ?>;
+var filterGenre = <?php echo json_encode($genre, 15, 512) ?>;
+var filterPenerbit = <?php echo json_encode($penerbit, 15, 512) ?>;
 
 var searchInput = document.getElementById('searchInput');
 var mainSections = document.getElementById('mainSections');
@@ -1111,7 +1114,7 @@ function performSearch() {
 }
 
 // ===== PENERBIT FILTER =====
-var activePenerbit = '{{ $penerbit }}';
+var activePenerbit = '<?php echo e($penerbit); ?>';
 // ===== FAVORIT =====
 function toggleFavorit(bukuId, btn) {
     fetch('/buku/' + bukuId + '/favorit', {
@@ -1224,7 +1227,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-@php
+<?php
     $anggotaLogin = \App\Models\Anggota::where('email', auth()->user()->email)->first();
     $bukuTerlambat = 0;
     if ($anggotaLogin) {
@@ -1233,24 +1236,24 @@ document.addEventListener('DOMContentLoaded', function() {
             ->where('tanggal_kembali', '<', now()->toDateString())
             ->count();
     }
-@endphp
+?>
 
-@if($bukuTerlambat > 0)
+<?php if($bukuTerlambat > 0): ?>
 <div id="notifTerlambat" style="position:fixed;bottom:20px;right:20px;background:#e74c3c;color:white;padding:15px 20px;border-radius:15px;box-shadow:0 10px 30px rgba(231,76,60,0.4);z-index:9999;max-width:300px;animation:slideIn 0.5s ease">
     <div style="display:flex;align-items:flex-start;gap:10px">
         <div style="font-size:24px">&#9888;&#65039;</div>
         <div>
             <div style="font-weight:700;font-size:14px;margin-bottom:3px">Buku Terlambat!</div>
-            <div style="font-size:12px;opacity:0.9">Kamu punya <strong>{{ $bukuTerlambat }} buku</strong> yang melewati tanggal kembali. Segera kembalikan!</div>
-            <a href="{{ route('profil.index') }}" style="display:inline-block;margin-top:8px;background:white;color:#e74c3c;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Lihat Sekarang</a>
+            <div style="font-size:12px;opacity:0.9">Kamu punya <strong><?php echo e($bukuTerlambat); ?> buku</strong> yang melewati tanggal kembali. Segera kembalikan!</div>
+            <a href="<?php echo e(route('profil.index')); ?>" style="display:inline-block;margin-top:8px;background:white;color:#e74c3c;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Lihat Sekarang</a>
         </div>
         <button onclick="document.getElementById('notifTerlambat').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0">&#10005;</button>
     </div>
 </div>
 <style>@keyframes slideIn { from { transform: translateX(150px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }</style>
-@endif
+<?php endif; ?>
 
-@php
+<?php
     $bukuH1 = 0; $bukuH2 = 0;
     if ($anggotaLogin) {
         $besok = now()->addDay()->toDateString();
@@ -1258,39 +1261,39 @@ document.addEventListener('DOMContentLoaded', function() {
         $bukuH1 = \App\Models\Peminjaman::where('anggota_id', $anggotaLogin->id)->where('status', 'dipinjam')->whereDate('tanggal_kembali', $besok)->count();
         $bukuH2 = \App\Models\Peminjaman::where('anggota_id', $anggotaLogin->id)->where('status', 'dipinjam')->whereDate('tanggal_kembali', $lusaDari)->count();
     }
-@endphp
+?>
 
-@if($bukuH1 > 0)
-<div id="notifH1" style="position:fixed;bottom:{{ $bukuTerlambat > 0 ? '110px' : '20px' }};right:20px;background:#e67e22;color:white;padding:15px 20px;border-radius:15px;box-shadow:0 10px 30px rgba(230,126,34,0.4);z-index:9998;max-width:300px;animation:slideIn 0.5s ease">
+<?php if($bukuH1 > 0): ?>
+<div id="notifH1" style="position:fixed;bottom:<?php echo e($bukuTerlambat > 0 ? '110px' : '20px'); ?>;right:20px;background:#e67e22;color:white;padding:15px 20px;border-radius:15px;box-shadow:0 10px 30px rgba(230,126,34,0.4);z-index:9998;max-width:300px;animation:slideIn 0.5s ease">
     <div style="display:flex;align-items:flex-start;gap:10px">
         <div style="font-size:24px">&#128276;</div>
         <div>
             <div style="font-weight:700;font-size:14px;margin-bottom:3px">Segera Kembalikan Buku!</div>
-            <div style="font-size:12px;opacity:0.9">Kamu punya <strong>{{ $bukuH1 }} buku</strong> yang harus dikembalikan <strong>besok</strong>!</div>
-            <a href="{{ route('profil.index') }}" style="display:inline-block;margin-top:8px;background:white;color:#e67e22;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Lihat Sekarang</a>
+            <div style="font-size:12px;opacity:0.9">Kamu punya <strong><?php echo e($bukuH1); ?> buku</strong> yang harus dikembalikan <strong>besok</strong>!</div>
+            <a href="<?php echo e(route('profil.index')); ?>" style="display:inline-block;margin-top:8px;background:white;color:#e67e22;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Lihat Sekarang</a>
         </div>
         <button onclick="document.getElementById('notifH1').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0">&#10005;</button>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
-@if($bukuH2 > 0)
-<div id="notifH2" style="position:fixed;bottom:{{ $bukuTerlambat > 0 && $bukuH1 > 0 ? '200px' : ($bukuTerlambat > 0 || $bukuH1 > 0 ? '110px' : '20px') }};right:20px;background:#f39c12;color:white;padding:15px 20px;border-radius:15px;box-shadow:0 10px 30px rgba(243,156,18,0.4);z-index:9997;max-width:300px;animation:slideIn 0.6s ease">
+<?php if($bukuH2 > 0): ?>
+<div id="notifH2" style="position:fixed;bottom:<?php echo e($bukuTerlambat > 0 && $bukuH1 > 0 ? '200px' : ($bukuTerlambat > 0 || $bukuH1 > 0 ? '110px' : '20px')); ?>;right:20px;background:#f39c12;color:white;padding:15px 20px;border-radius:15px;box-shadow:0 10px 30px rgba(243,156,18,0.4);z-index:9997;max-width:300px;animation:slideIn 0.6s ease">
     <div style="display:flex;align-items:flex-start;gap:10px">
         <div style="font-size:24px">&#128197;</div>
         <div>
             <div style="font-weight:700;font-size:14px;margin-bottom:3px">Buku Akan Jatuh Tempo</div>
-            <div style="font-size:12px;opacity:0.9">Kamu punya <strong>{{ $bukuH2 }} buku</strong> yang akan jatuh tempo dalam <strong>2 hari</strong>.</div>
-            <a href="{{ route('profil.index') }}" style="display:inline-block;margin-top:8px;background:white;color:#f39c12;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Lihat Sekarang</a>
+            <div style="font-size:12px;opacity:0.9">Kamu punya <strong><?php echo e($bukuH2); ?> buku</strong> yang akan jatuh tempo dalam <strong>2 hari</strong>.</div>
+            <a href="<?php echo e(route('profil.index')); ?>" style="display:inline-block;margin-top:8px;background:white;color:#f39c12;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none">Lihat Sekarang</a>
         </div>
         <button onclick="document.getElementById('notifH2').style.display='none'" style="background:none;border:none;color:white;cursor:pointer;font-size:16px;padding:0">&#10005;</button>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
-{{-- MODAL PERATURAN --}}
-@auth
-@if(!auth()->user()->agreed_rules)
+
+<?php if(auth()->guard()->check()): ?>
+<?php if(!auth()->user()->agreed_rules): ?>
 <div id="modalPeraturan" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px">
     <div style="background:white;border-radius:20px;max-width:480px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
         <div style="background:linear-gradient(135deg,#1a6e35,#27ae60);padding:25px;text-align:center">
@@ -1301,12 +1304,12 @@ document.addEventListener('DOMContentLoaded', function() {
         <div style="padding:20px 25px;overflow-y:auto;flex:1">
             <p style="font-size:13px;color:#666;margin-bottom:15px">Dengan menggunakan layanan perpustakaan digital ini, kamu wajib mematuhi peraturan berikut:</p>
             <div style="display:flex;flex-direction:column;gap:12px">
-                @foreach(['Kartu anggota perpustakaan wajib dibawa setiap kali berkunjung.','Buku yang dipinjam wajib dikembalikan tepat waktu sesuai batas peminjaman.','Keterlambatan pengembalian buku dikenakan denda Rp 1.000 per hari.','Buku yang rusak atau hilang wajib diganti sesuai harga buku.','Dilarang membawa makanan dan minuman ke dalam area perpustakaan.','Jaga ketenangan dan ketertiban selama berada di perpustakaan.','Gunakan fasilitas perpustakaan dengan bertanggung jawab.','E-book hanya boleh dibaca melalui platform ini, tidak untuk disebarluaskan.'] as $i => $p)
+                <?php $__currentLoopData = ['Kartu anggota perpustakaan wajib dibawa setiap kali berkunjung.','Buku yang dipinjam wajib dikembalikan tepat waktu sesuai batas peminjaman.','Keterlambatan pengembalian buku dikenakan denda Rp 1.000 per hari.','Buku yang rusak atau hilang wajib diganti sesuai harga buku.','Dilarang membawa makanan dan minuman ke dalam area perpustakaan.','Jaga ketenangan dan ketertiban selama berada di perpustakaan.','Gunakan fasilitas perpustakaan dengan bertanggung jawab.','E-book hanya boleh dibaca melalui platform ini, tidak untuk disebarluaskan.']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div style="display:flex;gap:12px;align-items:flex-start">
-                    <div style="min-width:28px;height:28px;background:#1a6e35;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">{{ $i + 1 }}</div>
-                    <div style="font-size:13px;color:#444;line-height:1.6;padding-top:4px">{{ $p }}</div>
+                    <div style="min-width:28px;height:28px;background:#1a6e35;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0"><?php echo e($i + 1); ?></div>
+                    <div style="font-size:13px;color:#444;line-height:1.6;padding-top:4px"><?php echo e($p); ?></div>
                 </div>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
         </div>
         <div style="padding:20px 25px;border-top:1px solid #f0f0f0;background:#fafafa">
@@ -1316,28 +1319,28 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 <script>
-var loginToken = '{{ auth()->user()->rules_session_token }}';
-var rulesKey = 'rules_{{ auth()->id() }}_' + loginToken;
+var loginToken = '<?php echo e(auth()->user()->rules_session_token); ?>';
+var rulesKey = 'rules_<?php echo e(auth()->id()); ?>_' + loginToken;
 if (localStorage.getItem(rulesKey)) {
     var mp = document.getElementById('modalPeraturan');
     if (mp) mp.style.display = 'none';
 } else {
     Object.keys(localStorage).forEach(function(k) {
-        if (k.startsWith('rules_{{ auth()->id() }}_') && k !== rulesKey) localStorage.removeItem(k);
+        if (k.startsWith('rules_<?php echo e(auth()->id()); ?>_') && k !== rulesKey) localStorage.removeItem(k);
     });
     localStorage.setItem(rulesKey, '1');
 }
 function setujuPeraturan() {
-    fetch('{{ route("setuju.peraturan") }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' } })
+    fetch('<?php echo e(route("setuju.peraturan")); ?>', { method: 'POST', headers: { 'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>', 'Content-Type': 'application/json' } })
     .then(function(res) { return res.json(); })
     .then(function() { document.getElementById('modalPeraturan').style.display = 'none'; })
     .catch(function() { document.getElementById('modalPeraturan').style.display = 'none'; });
 }
 </script>
-@endif
-@endauth
+<?php endif; ?>
+<?php endif; ?>
 
-{{-- MODAL VIP --}}
+
 <div id="modalVip" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;align-items:center;justify-content:center">
     <div style="background:white;border-radius:24px;padding:30px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative">
         <button onclick="document.getElementById('modalVip').style.display='none'" style="position:absolute;top:15px;right:15px;background:none;border:none;font-size:20px;color:#aaa;cursor:pointer">&#10005;</button>
@@ -1346,13 +1349,13 @@ function setujuPeraturan() {
             <h5 style="font-weight:800;color:#222;margin:0">Member VIP</h5>
             <p style="font-size:13px;color:#888;margin-top:4px">Akses semua e-book & fitur eksklusif</p>
         </div>
-        @if($vipAktif)
+        <?php if($vipAktif): ?>
         <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border-radius:14px;padding:15px;text-align:center;margin-bottom:20px">
             <div style="font-size:13px;color:#856404;font-weight:600">VIP Aktif</div>
-            <div style="font-size:12px;color:#888;margin-top:4px">Berakhir: {{ auth()->user()->vip_expired_at->format('d M Y') }}</div>
-            <div style="font-size:20px;font-weight:800;color:#f59e0b;margin-top:6px">{{ $sisaHari }} Hari Lagi</div>
+            <div style="font-size:12px;color:#888;margin-top:4px">Berakhir: <?php echo e(auth()->user()->vip_expired_at->format('d M Y')); ?></div>
+            <div style="font-size:20px;font-weight:800;color:#f59e0b;margin-top:6px"><?php echo e($sisaHari); ?> Hari Lagi</div>
         </div>
-        @endif
+        <?php endif; ?>
         <div style="background:#f8f9fa;border-radius:12px;padding:15px;margin-bottom:20px">
             <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:10px">Keuntungan VIP:</div>
             <div style="font-size:12px;color:#555;line-height:2">
@@ -1362,23 +1365,24 @@ function setujuPeraturan() {
                 <div>Badge VIP eksklusif</div>
             </div>
         </div>
-        @if(auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at))
+        <?php if(auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at)): ?>
         <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:12px">Status VIP:</div>
         <button type="button" disabled style="width:100%;padding:13px;border-radius:12px;border:none;background:#e5e7eb;color:#6b7280;font-weight:700;font-size:14px;cursor:not-allowed">VIP Masih Aktif</button>
-        @else
+        <?php else: ?>
         <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:12px">Upgrade VIP 7 hari — 100 Koin:</div>
-        <form action="{{ route('vip.beli') }}" method="POST">
-            @csrf
-            <button type="submit" {{ (auth()->user()->coin ?? 0) < 100 ? 'disabled' : '' }} onclick="return confirm('Upgrade VIP 7 hari dengan 100 koin?')"
-                style="width:100%;padding:13px;border-radius:12px;border:none;background:{{ (auth()->user()->coin ?? 0) >= 100 ? 'linear-gradient(135deg,#1a6e35,#27ae60)' : '#e5e7eb' }};color:{{ (auth()->user()->coin ?? 0) >= 100 ? 'white' : '#9ca3af' }};font-weight:700;font-size:14px;cursor:{{ (auth()->user()->coin ?? 0) >= 100 ? 'pointer' : 'not-allowed' }}">
-                {{ (auth()->user()->coin ?? 0) >= 100 ? 'Upgrade dengan 100 Koin' : 'Koin Tidak Cukup ('.(auth()->user()->coin ?? 0).'/100)' }}
+        <form action="<?php echo e(route('vip.beli')); ?>" method="POST">
+            <?php echo csrf_field(); ?>
+            <button type="submit" <?php echo e((auth()->user()->coin ?? 0) < 100 ? 'disabled' : ''); ?> onclick="return confirm('Upgrade VIP 7 hari dengan 100 koin?')"
+                style="width:100%;padding:13px;border-radius:12px;border:none;background:<?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'linear-gradient(135deg,#1a6e35,#27ae60)' : '#e5e7eb'); ?>;color:<?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'white' : '#9ca3af'); ?>;font-weight:700;font-size:14px;cursor:<?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'pointer' : 'not-allowed'); ?>">
+                <?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'Upgrade dengan 100 Koin' : 'Koin Tidak Cukup ('.(auth()->user()->coin ?? 0).'/100)'); ?>
+
             </button>
         </form>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
-{{-- SCAN MODALS --}}
+
 <div class="scan-modal" id="scanModal">
     <div class="scan-modal-box">
         <h4><i class="bi bi-qr-code-scan"></i> Scan Barcode Buku</h4>
@@ -1419,7 +1423,7 @@ function setujuPeraturan() {
 <script>
 var scanScanner = null;
 var scanCsrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-var scanIsVip = {{ auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at) ? 'true' : 'false' }};
+var scanIsVip = <?php echo e(auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at) ? 'true' : 'false'); ?>;
 
 function openScanModal(e) {
     if(e) e.preventDefault();
@@ -1553,7 +1557,7 @@ function scanShowPinjam(data) {
     var minKembali = new Date(Date.now() + 86400000).toISOString().split('T')[0];
     document.getElementById('scanPinjamContent').innerHTML =
         '<div class="scan-modal-info">' +
-            '<p><i class="bi bi-person"></i> Peminjam: <strong>{{ auth()->user()->name }}</strong></p>' +
+            '<p><i class="bi bi-person"></i> Peminjam: <strong><?php echo e(auth()->user()->name); ?></strong></p>' +
             '<p><i class="bi bi-book"></i> Buku: <strong>' + data.buku.judul + '</strong></p>' +
             '<p><i class="bi bi-star-fill"></i> Status: <strong>' + (scanIsVip ? 'VIP - maks. 6 buku, 14 hari' : 'Reguler - maks. 3 buku, 7 hari') + '</strong></p>' +
         '</div>' +
@@ -1580,7 +1584,7 @@ function scanSubmitPinjam(bukuId) {
     if (kembali <= pinjam) { msg.textContent = 'Tanggal Kembali harus lebih besar dari Tanggal Pinjam.'; msg.style.display = 'block'; return; }
     if (Math.ceil((kembali - pinjam) / 86400000) > maxDurasi) { msg.textContent = 'Durasi peminjaman maksimal ' + maxDurasi + ' hari.'; msg.style.display = 'block'; return; }
     msg.style.display = 'none';
-    fetch('{{ route("barcode.pinjam") }}', {
+    fetch('<?php echo e(route("barcode.pinjam")); ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': scanCsrf },
         body: JSON.stringify({ buku_id: bukuId, tanggal_pinjam: tglPinjam, tanggal_kembali: tglKembali, jumlah: jumlah })
@@ -1613,7 +1617,7 @@ function scanShowKembali(data) {
 
     document.getElementById('scanKembaliContent').innerHTML =
         '<div class="scan-modal-info">' +
-            '<p><i class="bi bi-person"></i> Peminjam: <strong>{{ auth()->user()->name }}</strong></p>' +
+            '<p><i class="bi bi-person"></i> Peminjam: <strong><?php echo e(auth()->user()->name); ?></strong></p>' +
             '<p><i class="bi bi-book"></i> Buku: <strong>' + data.buku.judul + '</strong></p>' +
             '<p style="margin-bottom:8px"><i class="bi bi-info-circle"></i> Centang buku yang ingin dikembalikan:</p>' +
         '</div>' +
@@ -1655,7 +1659,7 @@ function scanSubmitKembali() {
     }
     var ids = [];
     checks.forEach(function(c) { ids.push(parseInt(c.value)); });
-    fetch('{{ route("barcode.kembali") }}', {
+    fetch('<?php echo e(route("barcode.kembali")); ?>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': scanCsrf },
         body: JSON.stringify({ peminjaman_ids: ids })
@@ -1687,6 +1691,26 @@ document.addEventListener('click', function(e) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
-<x-crop-modal />
+<?php if (isset($component)) { $__componentOriginalc341f611a63b85a7efee481957438a0f = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalc341f611a63b85a7efee481957438a0f = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.crop-modal','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('crop-modal'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalc341f611a63b85a7efee481957438a0f)): ?>
+<?php $attributes = $__attributesOriginalc341f611a63b85a7efee481957438a0f; ?>
+<?php unset($__attributesOriginalc341f611a63b85a7efee481957438a0f); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc341f611a63b85a7efee481957438a0f)): ?>
+<?php $component = $__componentOriginalc341f611a63b85a7efee481957438a0f; ?>
+<?php unset($__componentOriginalc341f611a63b85a7efee481957438a0f); ?>
+<?php endif; ?>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\PerpustakaanDigital\resources\views/koleksi/index.blade.php ENDPATH**/ ?>

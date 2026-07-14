@@ -271,7 +271,7 @@
                     <h5>{{ $item->judul }}</h5>
                     <p class="buku-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
                     @if($item->genre)
-                    <span class="book-card-genre" style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:600;background:#f0f0f0;color:#666;margin-top:3px;align-self:flex-start">{{ $item->genre }}</span>
+                    <span class="book-card-genre" style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:600;background:#f0f0f0;color:#666;margin-top:3px;align-self:flex-start">{{ $item->genre?->nama }}</span>
                     @endif
                     <div style="margin-top:auto;padding-top:4px">
                         <span class="stok-badge {{ $item->stok > 0 ? 'stok-ada' : 'stok-habis' }}">

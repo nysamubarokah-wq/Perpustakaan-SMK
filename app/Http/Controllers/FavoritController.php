@@ -9,7 +9,7 @@ class FavoritController extends Controller
 {
     public function index()
     {
-        $favorit = Favorit::with('buku')
+        $favorit = Favorit::with('buku.genre')
             ->where('user_id', auth()->id())
             ->latest()
             ->get();

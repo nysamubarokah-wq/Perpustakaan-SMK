@@ -19,6 +19,8 @@ class PinjamController extends Controller
 {
     public function detail(Buku $buku)
     {
+        $buku->load('genre');
+
         $isFavorit = auth()->check()
             ? Favorit::where('user_id', auth()->id())->where('buku_id', $buku->id)->exists()
             : false;
@@ -43,8 +45,9 @@ class PinjamController extends Controller
             ? Peminjaman::where('anggota_id', $anggotaLogin->id)->where('buku_id', $buku->id)->exists()
             : false;
 
-        $rekomendasi = $buku->genre
-            ? Buku::where('genre', $buku->genre)
+        $rekomendasi = $buku->genre_id
+            ? Buku::with('genre')
+                ->where('genre_id', $buku->genre_id)
                 ->where('id', '!=', $buku->id)
                 ->inRandomOrder()
                 ->get()

@@ -33,16 +33,20 @@ class BukuController extends Controller
 
         $buku = Buku::query()
             ->withCount(['eksemplar', 'eksemplarTersedia'])
+            ->with('genre')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sq) use ($search) {
                     $sq->where('judul', 'like', "%$search%")
                         ->orWhere('pengarang', 'like', "%$search%")
                         ->orWhere('isbn', 'like', "%$search%")
-                        ->orWhere('genre', 'like', "%$search%")
-                        ->orWhere('kode_buku', 'like', "%$search%");
+                        ->orWhere('kode_buku', 'like', "%$search%")
+                        ->orWhereHas('genre', fn($g) => $g->where('nama', 'like', "%$search%"));
                 });
             })
-            ->orderBy($sortBy, $sortDir)
+            ->when($sortBy === 'genre', function ($q) use ($sortDir) {
+                $q->whereHas('genre')
+                  ->orderBy(Genre::select('nama')->whereColumn('genres.id', 'buku.genre_id'), $sortDir);
+            }, fn($q) => $q->orderBy($sortBy, $sortDir))
             ->paginate($perPage);
 
         $buku->appends($request->query());
@@ -61,7 +65,7 @@ class BukuController extends Controller
 
     public function show(Buku $buku)
     {
-        $buku->load('eksemplar');
+        $buku->load('eksemplar', 'genre');
         return view('buku.show', compact('buku'));
     }
 
@@ -89,10 +93,8 @@ class BukuController extends Controller
         if (!empty($data['genre_baru'])) {
             $genre = Genre::findOrCreate($data['genre_baru']);
             $data['genre_id'] = $genre->id;
-            $data['genre'] = $genre->nama;
-        } elseif (!empty($data['genre_id'])) {
-            $genre = Genre::find($data['genre_id']);
-            $data['genre'] = $genre ? $genre->nama : '';
+        } else {
+            $data['genre_id'] = $data['genre_id'] ?: null;
         }
 
         if (!empty($data['penerbit_baru'])) {
@@ -162,11 +164,8 @@ class BukuController extends Controller
         if (!empty($request->genre_baru)) {
             $genre = Genre::findOrCreate($request->genre_baru);
             $data['genre_id'] = $genre->id;
-            $data['genre'] = $genre->nama;
-        } elseif (!empty($request->genre_id)) {
-            $genre = Genre::find($request->genre_id);
-            $data['genre_id'] = $genre->id ?? null;
-            $data['genre'] = $genre ? $genre->nama : '';
+        } else {
+            $data['genre_id'] = $request->genre_id ?: null;
         }
 
         if (!empty($request->penerbit_baru)) {
@@ -327,7 +326,6 @@ class BukuController extends Controller
                 'tahun_terbit' => trim($row[3]),
                 'isbn'         => $isbn,
                 'stok'         => $jumlahEksemplar,
-                'genre'        => $genreNama,
                 'genre_id'     => $genre?->id,
                 'lokasi'       => trim($row[7] ?? ''),
                 'deskripsi'    => trim($row[8] ?? ''),

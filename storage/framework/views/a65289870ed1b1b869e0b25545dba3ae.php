@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Buku Terbaru - Perpustakaan SMK Maarif</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <title>Buku Populer - Perpustakaan SMK Maarif</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.css" rel="stylesheet">
@@ -69,7 +69,7 @@
         .profil-avatar { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #1a6e35; cursor: pointer; object-fit: cover; }
         .nav-item { position: relative; }
         .hero { height: 30vh; min-height: 200px; background: url('/images/sekolah.jpg') center/cover no-repeat; position: relative; display: flex; align-items: center; justify-content: center; margin-top: 70px; }
-        .hero::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.3); }
+        .hero::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
         .hero-content { position: relative; text-align: center; color: white; padding: 60px 20px 20px; }
         .hero-content h1 { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
         .hero-content p { font-size: 15px; opacity: 0.85; }
@@ -88,7 +88,7 @@
         .book-card-body h5 { font-size: 12px; font-weight: 700; color: #1a1a2e; margin-bottom: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2em; line-height: 1.25; }
         .book-card-meta { font-size: 11px; color: #888; margin-bottom: 0; display: flex; align-items: center; gap: 4px; }
         .book-card-genre { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 600; background: #f0f0f0; color: #666; margin-top: 3px; align-self: flex-start; }
-        .badge-baru { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #1a6e35, #27ae60); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; }
+        .badge-trending { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #ff5722, #ff9800); color: white; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; z-index: 5; }
         .btn-favorit { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; border: none; background: rgba(255,255,255,0.92); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 5; transition: all 0.2s; }
         .btn-favorit:hover { transform: scale(1.12); }
         .btn-favorit i { font-size: 14px !important; }
@@ -115,6 +115,35 @@
         .pagination .page-link { color: #1a6e35; border-color: #dee2e6; }
         .pagination .page-item.active .page-link { background: linear-gradient(135deg, #1a6e35, #27ae60); border-color: #1a6e35; color: white; }
         .pagination .page-link:hover { background: #f0faf4; border-color: #1a6e35; }
+
+        /* SEARCH BOX */
+        .search-box { background: white; border-radius: 16px; padding: 20px 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); margin-top: -30px; position: relative; z-index: 10; }
+        .search-input { border: 2px solid #eee; border-radius: 12px; padding: 14px 20px 14px 48px; font-size: 15px; width: 100%; outline: none; transition: border 0.3s, box-shadow 0.3s; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 16px center; }
+        .search-input:focus { border-color: #27ae60; box-shadow: 0 0 0 3px rgba(39,174,96,0.15); }
+
+        /* SCAN MODAL */
+        .scan-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;align-items:center;justify-content:center}
+        .scan-modal.show{display:flex}
+        .scan-modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto}
+        .scan-modal-box h4{font-weight:700;color:#1a6e35;margin-bottom:4px}
+        .scan-modal-box .scan-subtitle{font-size:13px;color:#888;margin-bottom:20px}
+        .scan-modal-info{background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:20px}
+        .scan-modal-info p{font-size:13px;margin-bottom:6px;display:flex;gap:8px}
+        .scan-modal-info p:last-child{margin-bottom:0}
+        .scan-modal-info i{color:#1a6e35;width:16px}
+        .scan-cover{width:60px;height:85px;object-fit:cover;border-radius:6px;border:1px solid #eee}
+        .scan-btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:#fff;border:none;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer}
+        .scan-btn-primary:hover{opacity:.9}
+        .scan-btn-secondary{width:100%;padding:10px;background:#f0f0f0;color:#333;border:none;border-radius:10px;font-weight:500;margin-top:10px;cursor:pointer}
+        .scan-manual-input{display:flex;gap:8px}
+        .scan-manual-input input{flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px}
+        .scan-manual-input button{padding:10px 16px;background:#1a6e35;color:#fff;border:none;border-radius:8px;font-weight:600}
+        .scan-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;padding:14px 20px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:20000;display:none;min-width:280px;text-align:center}
+        .scan-toast.show{display:block}
+        .scan-toast.success{border-left:4px solid #27ae60}
+        .scan-toast.error{border-left:4px solid #e74c3c}
+        .scan-label{color:#555}
+        .scan-date-input{background:#fff;color:#222}
 
         @keyframes fadeDownCenter { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
@@ -148,41 +177,6 @@
             .page-section { padding: 12px 0 24px; }
         }
 
-        /* SEARCH BOX */
-        .search-box { background: white; border-radius: 16px; padding: 20px 25px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); margin-top: -30px; position: relative; z-index: 10; }
-        .search-input { border: 2px solid #eee; border-radius: 12px; padding: 14px 20px 14px 48px; font-size: 15px; width: 100%; outline: none; transition: border 0.3s, box-shadow 0.3s; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 16px center; }
-        .search-input:focus { border-color: #27ae60; box-shadow: 0 0 0 3px rgba(39,174,96,0.15); }
-
-        /* SCAN MODAL */
-        .scan-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;align-items:center;justify-content:center}
-        .scan-modal.show{display:flex}
-        .scan-modal-box{background:#fff;border-radius:16px;padding:24px;width:90%;max-width:420px;max-height:90vh;overflow-y:auto}
-        .scan-modal-box h4{font-weight:700;color:#1a6e35;margin-bottom:4px}
-        .scan-modal-box .scan-subtitle{font-size:13px;color:#888;margin-bottom:20px}
-        .scan-modal-info{background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:20px}
-        .scan-modal-info p{font-size:13px;margin-bottom:6px;display:flex;gap:8px}
-        .scan-modal-info p:last-child{margin-bottom:0}
-        .scan-modal-info i{color:#1a6e35;width:16px}
-        .scan-cover{width:60px;height:85px;object-fit:cover;border-radius:6px;border:1px solid #eee}
-        .scan-btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:#fff;border:none;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer}
-        .scan-btn-primary:hover{opacity:.9}
-        .scan-btn-secondary{width:100%;padding:10px;background:#f0f0f0;color:#333;border:none;border-radius:10px;font-weight:500;margin-top:10px;cursor:pointer}
-        .scan-manual-input{display:flex;gap:8px}
-        .scan-manual-input input{flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px}
-        .scan-manual-input button{padding:10px 16px;background:#1a6e35;color:#fff;border:none;border-radius:8px;font-weight:600}
-        .scan-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#fff;border-radius:12px;padding:14px 20px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:20000;display:none;min-width:280px;text-align:center}
-        .scan-toast.show{display:block}
-        .scan-toast.success{border-left:4px solid #27ae60}
-        .scan-toast.error{border-left:4px solid #e74c3c}
-        .scan-label{color:#555}
-        .scan-date-input{background:#fff;color:#222}
-
-        /* SEARCH RESULTS */
-        #searchResults { display: none; }
-        #searchResults.active { display: block; }
-        #mainSections.hidden { display: none; }
-
-        /* DARK MODE */
         body.dark-mode { background: #121212; color: #e0e0e0; }
         body.dark-mode .navbar, body.dark-mode .book-card, body.dark-mode .floating-dropdown, body.dark-mode .layanan-dropdown { background: #1e1e1e; }
         body.dark-mode .nav-link, body.dark-mode .book-card-body h5 { color: #ffffff !important; }
@@ -212,24 +206,23 @@
         body.dark-mode #modalVip div[style*="color:#856404"] { color: #fbbf24 !important; }
         body.dark-mode #modalVip div[style*="color:#888"] { color: #d1d5db !important; }
         body.dark-mode span[style*="color:#222"], body.dark-mode h6[style*="color:#222"], body.dark-mode p[style*="color:#555"], body.dark-mode p[style*="color:#666"] { color: #ffffff !important; }
-        body.dark-mode .search-box { background: #1e1e1e; }
+        body.dark-mode .search-box { background: #1e1e1e; box-shadow: 0 5px 25px rgba(255,255,255,0.05); }
         body.dark-mode .search-input { background: #2a2a2a; color: white; border-color: #444; }
-        body.dark-mode .scan-modal-box{background:#1e1e1e;color:#e0e0e0}
-        body.dark-mode .scan-modal-box h4{color:#4ade80}
-        body.dark-mode .scan-subtitle{color:#aaa}
-        body.dark-mode .scan-modal-info{background:#2a2a2a}
-        body.dark-mode .scan-modal-info p{color:#e0e0e0}
-        body.dark-mode .scan-modal-info i{color:#4ade80}
-        body.dark-mode .scan-cover{border-color:#444}
-        body.dark-mode .scan-btn-secondary{background:#2a2a2a;color:#e0e0e0}
-        body.dark-mode .scan-manual-input input{background:#2a2a2a;border-color:#444;color:#fff}
-        body.dark-mode .scan-manual-input input::placeholder{color:#888}
-        body.dark-mode .scan-toast{background:#1e1e1e;color:#e0e0e0}
-        body.dark-mode .scan-toast.success{border-left-color:#4ade80}
-        body.dark-mode .scan-toast.error{border-left-color:#e74c3c}
-        body.dark-mode .scan-label{color:#ccc}
-        body.dark-mode .scan-date-input{background:#2a2a2a;border-color:#444;color:#fff}
-        body.dark-mode .badge-baru { background: linear-gradient(135deg, #1a6e35, #27ae60); }
+        body.dark-mode .scan-modal-box { background: #1e1e1e; color: #e0e0e0; }
+        body.dark-mode .scan-modal-box h4 { color: #4ade80; }
+        body.dark-mode .scan-subtitle { color: #aaa; }
+        body.dark-mode .scan-modal-info { background: #2a2a2a; }
+        body.dark-mode .scan-modal-info p { color: #e0e0e0; }
+        body.dark-mode .scan-modal-info i { color: #4ade80; }
+        body.dark-mode .scan-cover { border-color: #444; }
+        body.dark-mode .scan-btn-secondary { background: #2a2a2a; color: #e0e0e0; }
+        body.dark-mode .scan-manual-input input { background: #2a2a2a; border-color: #444; color: #fff; }
+        body.dark-mode .scan-manual-input input::placeholder { color: #888; }
+        body.dark-mode .scan-toast { background: #1e1e1e; color: #e0e0e0; }
+        body.dark-mode .scan-toast.success { border-left-color: #4ade80; }
+        body.dark-mode .scan-toast.error { border-left-color: #e74c3c; }
+        body.dark-mode .scan-label { color: #ccc; }
+        body.dark-mode .scan-date-input { background: #2a2a2a; border-color: #444; color: #fff; }
     </style>
 </head>
 <body>
@@ -238,11 +231,11 @@
 <nav class="navbar">
     <div class="container-fluid px-4">
         <div class="d-flex align-items-center justify-content-between w-100">
-            <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
+            <a href="<?php echo e(route('koleksi.index')); ?>" class="d-flex align-items-center gap-2 text-decoration-none">
+                <img src="<?php echo e(asset('images/logo.jpg')); ?>" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
             </a>
-            <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-1 text-decoration-none d-md-none" style="padding:6px 12px;background:rgba(0,0,0,0.5);border-radius:20px;color:white;font-size:12px;font-weight:600">
+            <a href="<?php echo e(route('koleksi.index')); ?>" class="d-flex align-items-center gap-1 text-decoration-none d-md-none" style="padding:6px 12px;background:rgba(0,0,0,0.5);border-radius:20px;color:white;font-size:12px;font-weight:600">
                 <i class="bi bi-arrow-left"></i> Koleksi
             </a>
             <div class="d-flex align-items-center gap-2">
@@ -253,30 +246,30 @@
                         </a>
                         <div class="layanan-dropdown" id="layananDropdown">
                             <p style="font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Penjaga Perpustakaan</p>
-                            @php
+                            <?php
                                 $adminAktif = \App\Models\User::where('role', 'admin')->where('is_on_duty', true)->first();
                                 if (!$adminAktif) { $adminAktif = \App\Models\User::where('role', 'admin')->first(); }
                                 $anggotaAdmin = \App\Models\Anggota::where('email', $adminAktif?->email)->first();
                                 $noHpAdmin = $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '';
                                 $waLink = $noHpAdmin ? 'https://wa.me/62' . ltrim(preg_replace('/[^0-9]/', '', $noHpAdmin), '0') : '#';
-                            @endphp
+                            ?>
                             <div class="penjaga-card">
-                                @if($adminAktif?->foto)
-                                    <img src="{{ asset($adminAktif->foto) }}" alt="Penjaga" style="width:65px;height:65px;border-radius:50%;object-fit:cover;border:3px solid #1a6e35">
-                                @else
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($adminAktif?->name ?? 'Admin') }}&background=1a6e35&color=fff" alt="Penjaga">
-                                @endif
+                                <?php if($adminAktif?->foto): ?>
+                                    <img src="<?php echo e(asset($adminAktif->foto)); ?>" alt="Penjaga" style="width:65px;height:65px;border-radius:50%;object-fit:cover;border:3px solid #1a6e35">
+                                <?php else: ?>
+                                    <img src="https://ui-avatars.com/api/?name=<?php echo e(urlencode($adminAktif?->name ?? 'Admin')); ?>&background=1a6e35&color=fff" alt="Penjaga">
+                                <?php endif; ?>
                                 <div>
-                                    <h6>{{ $adminAktif?->name ?? 'Nama Penjaga' }}</h6>
-                                    <p><i class="bi bi-telephone"></i> {{ $anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '-' }}</p>
-                                    <p><i class="bi bi-clock"></i> {{ now()->locale('id')->isoFormat('dddd') }}, {{ now()->format('H:i') }} WIB</p>
+                                    <h6><?php echo e($adminAktif?->name ?? 'Nama Penjaga'); ?></h6>
+                                    <p><i class="bi bi-telephone"></i> <?php echo e($anggotaAdmin?->no_telepon ?? $adminAktif?->no_hp ?? '-'); ?></p>
+                                    <p><i class="bi bi-clock"></i> <?php echo e(now()->locale('id')->isoFormat('dddd')); ?>, <?php echo e(now()->format('H:i')); ?> WIB</p>
                                 </div>
                             </div>
-                            @if($noHpAdmin)
-                            <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.2s" onmouseover="this.style.background='#1ebe57'" onmouseout="this.style.background='#25D366'">
+                            <?php if($noHpAdmin): ?>
+                            <a href="<?php echo e($waLink); ?>" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;padding:8px 16px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.2s" onmouseover="this.style.background='#1ebe57'" onmouseout="this.style.background='#25D366'">
                                 <i class="bi bi-whatsapp" style="font-size:16px"></i> Chat Admin
                             </a>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -286,7 +279,7 @@
                         <div class="floating-dropdown genre-dropdown-wrapper" id="genreDropdown">
                             <div class="genre-dropdown-header">
                                 <h6><i class="bi bi-collection-fill"></i> Pilih Genre</h6>
-                                <span class="badge">{{ $genreList->count() }} genre</span>
+                                <span class="badge"><?php echo e($genreList->count()); ?> genre</span>
                             </div>
                             <div class="genre-search-box">
                                 <i class="bi bi-search"></i>
@@ -294,73 +287,75 @@
                             </div>
                             <div class="genre-dropdown-body">
                                 <div class="genre-grid" id="genreGrid">
-                                    <a href="{{ route('koleksi.terbaru', $penerbit ? ['penerbit' => $penerbit] : []) }}" class="genre-grid-item {{ !$genre ? 'active' : '' }}" data-genre="">
+                                    <a href="<?php echo e(route('koleksi.populer', $penerbit ? ['penerbit' => $penerbit] : [])); ?>" class="genre-grid-item <?php echo e(!$genre ? 'active' : ''); ?>" data-genre="">
                                         <i class="bi bi-grid-fill"></i>
                                         <span>Semua</span>
                                     </a>
-                                    @foreach($genreList as $g)
-                                    <a href="{{ route('koleksi.terbaru', array_filter(['genre' => $g->id, 'penerbit' => $penerbit])) }}" class="genre-grid-item {{ $genre == $g->id ? 'active' : '' }}" data-genre="{{ strtolower($g->nama) }}">
+                                    <?php $__currentLoopData = $genreList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $g): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <a href="<?php echo e(route('koleksi.populer', array_filter(['genre' => $g->id, 'penerbit' => $penerbit]))); ?>" class="genre-grid-item <?php echo e($genre == $g->id ? 'active' : ''); ?>" data-genre="<?php echo e(strtolower($g->nama)); ?>">
                                         <i class="bi bi-tag-fill"></i>
-                                        <span>{{ $g->nama }}</span>
+                                        <span><?php echo e($g->nama); ?></span>
                                     </a>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </div>
                             </div>
                         </div>
                     </li>
                     <li class="nav-item">
-                       <a class="nav-link" href="{{ route('favorit.index', ['from' => 'koleksi']) }}"><i class="bi bi-heart-fill"></i> <span class="nav-text">Favorit</span></a>
+                       <a class="nav-link" href="<?php echo e(route('favorit.index', ['from' => 'koleksi'])); ?>"><i class="bi bi-heart-fill"></i> <span class="nav-text">Favorit</span></a>
                     </li>
                     <li class="nav-item">
                        <a class="nav-link" href="#" onclick="openScanModal(event)"><i class="bi bi-qr-code-scan"></i> <span class="nav-text">Scan</span></a>
                     </li>
                 </ul>
                 <button id="darkModeToggle" class="btn btn-sm btn-outline-secondary rounded-circle"><i class="bi bi-moon-fill"></i></button>
-                @php
+                <?php
                     $userUnreadCount = \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
-                @endphp
-                <a href="{{ route('notifikasi.index') }}" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
+                ?>
+                <a href="<?php echo e(route('notifikasi.index')); ?>" class="btn btn-sm position-relative" title="Notifikasi" style="padding: 6px 10px; background: rgba(26, 110, 53, 0.1); border: none; border-radius: 8px;">
                     <i class="bi bi-bell" style="color: #1a6e35; font-size: 18px;"></i>
-                    @if($userUnreadCount > 0)
+                    <?php if($userUnreadCount > 0): ?>
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 9px;">
-                            {{ $userUnreadCount > 99 ? '99+' : $userUnreadCount }}
+                            <?php echo e($userUnreadCount > 99 ? '99+' : $userUnreadCount); ?>
+
                         </span>
-                    @endif
+                    <?php endif; ?>
                 </a>
                 <div class="nav-item">
                     <a href="#" onclick="toggleProfil(event)">
-                      @if(auth()->user()->foto)
-                        <img src="{{ asset(auth()->user()->foto) }}" class="profil-avatar" alt="Profil">
-                      @else
-                        <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff" class="profil-avatar" alt="Profil">
-                      @endif
+                      <?php if(auth()->user()->foto): ?>
+                        <img src="<?php echo e(asset(auth()->user()->foto)); ?>" class="profil-avatar" alt="Profil">
+                      <?php else: ?>
+                        <img src="https://ui-avatars.com/api/?name=<?php echo e(auth()->user()->name); ?>&background=1a6e35&color=fff" class="profil-avatar" alt="Profil">
+                      <?php endif; ?>
                     </a>
                     <div class="floating-dropdown" id="profilDropdown" style="right:0;left:auto;min-width:250px">
                         <div style="text-align:center;margin-bottom:15px">
-                           @if(auth()->user()->foto)
-                            <img src="{{ asset(auth()->user()->foto) }}" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
-                           @else
-                            <img src="https://ui-avatars.com/api/?name={{ auth()->user()->name }}&background=1a6e35&color=fff&size=200" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
-                           @endif
-                            <h6 style="font-weight:700;color:#222;margin:0">{{ auth()->user()->name }}</h6>
+                           <?php if(auth()->user()->foto): ?>
+                            <img src="<?php echo e(asset(auth()->user()->foto)); ?>" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
+                           <?php else: ?>
+                            <img src="https://ui-avatars.com/api/?name=<?php echo e(auth()->user()->name); ?>&background=1a6e35&color=fff&size=200" style="width:70px;height:70px;border-radius:50%;border:3px solid #1a6e35;margin-bottom:10px">
+                           <?php endif; ?>
+                            <h6 style="font-weight:700;color:#222;margin:0"><?php echo e(auth()->user()->name); ?></h6>
                         </div>
                         <div style="background:#f9f9f9;border-radius:10px;padding:12px;margin-bottom:12px">
-                            <p style="font-size:12px;color:#555;margin-bottom:6px"><i class="bi bi-person-badge" style="color:#1a6e35"></i> NIS: {{ auth()->user()->nis }}</p>
-                            <p style="font-size:12px;color:#555;margin:0"><i class="bi bi-envelope" style="color:#1a6e35"></i> {{ auth()->user()->email }}</p>
+                            <p style="font-size:12px;color:#555;margin-bottom:6px"><i class="bi bi-person-badge" style="color:#1a6e35"></i> NIS: <?php echo e(auth()->user()->nis); ?></p>
+                            <p style="font-size:12px;color:#555;margin:0"><i class="bi bi-envelope" style="color:#1a6e35"></i> <?php echo e(auth()->user()->email); ?></p>
                         </div>
-                        @php
+                        <?php
                             $vipAktif = auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at);
                             $sisaHari = $vipAktif ? (int) now()->diffInDays(auth()->user()->vip_expired_at) + 1 : 0;
-                        @endphp
+                        ?>
                         <button onclick="document.getElementById('profilDropdown').classList.remove('show');document.getElementById('modalVip').style.display='flex'"
-                            style="width:100%;padding:10px;background:{{ $vipAktif ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#374151,#1f2937)' }};color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">
-                            {{ $vipAktif ? 'VIP Aktif · '.$sisaHari.' hari lagi' : 'Upgrade VIP' }}
+                            style="width:100%;padding:10px;background:<?php echo e($vipAktif ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#374151,#1f2937)'); ?>;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;text-align:left">
+                            <?php echo e($vipAktif ? 'VIP Aktif · '.$sisaHari.' hari lagi' : 'Upgrade VIP'); ?>
+
                         </button>
-                       <a href="{{ route('profil.index') }}" style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
+                       <a href="<?php echo e(route('profil.index')); ?>" style="display:block;width:100%;padding:10px;background:linear-gradient(135deg,#1a6e35,#27ae60);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;text-align:center;text-decoration:none">
                        <i class="bi bi-person"></i> Lihat Profil
                        </a>
-                         <form method="POST" action="{{ route('logout') }}" style="margin-top:8px" onsubmit="return confirm('Yakin ingin logout?');">
-                             @csrf
+                         <form method="POST" action="<?php echo e(route('logout')); ?>" style="margin-top:8px" onsubmit="return confirm('Yakin ingin logout?');">
+                             <?php echo csrf_field(); ?>
                              <button type="submit" style="width:100%;padding:10px;background:#f8f9fa;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">
                                  <i class="bi bi-box-arrow-right"></i> Logout
                              </button>
@@ -375,8 +370,8 @@
 <!-- HERO -->
 <div class="hero">
     <div class="hero-content">
-        <h1><i class="bi bi-clock-history"></i> Buku Terbaru</h1>
-        <p>Koleksi buku terbaru yang baru ditambahkan ke perpustakaan</p>
+        <h1><i class="bi bi-fire"></i> Buku Populer</h1>
+        <p>Buku yang paling sering dipinjam oleh anggota perpustakaan</p>
     </div>
 </div>
 
@@ -390,80 +385,83 @@
 <!-- MAIN SECTIONS (hidden when searching) -->
 <div id="mainSections">
 
-<a href="{{ route('koleksi.index') }}" class="d-none d-md-inline-flex" style="position:fixed;top:80px;right:20px;z-index:999;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:white;text-decoration:none;padding:8px 18px;background:rgba(0,0,0,0.5);border-radius:20px;backdrop-filter:blur(6px);transition:all 0.2s;box-shadow:0 4px 15px rgba(0,0,0,0.2)" onmouseover="this.style.background='rgba(26,110,53,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'"><i class="bi bi-arrow-left"></i> Koleksi</a>
+<a href="<?php echo e(route('koleksi.index')); ?>" class="d-none d-md-inline-flex" style="position:fixed;top:80px;right:20px;z-index:999;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:white;text-decoration:none;padding:8px 18px;background:rgba(0,0,0,0.5);border-radius:20px;backdrop-filter:blur(6px);transition:all 0.2s;box-shadow:0 4px 15px rgba(0,0,0,0.2)" onmouseover="this.style.background='rgba(26,110,53,0.85)'" onmouseout="this.style.background='rgba(0,0,0,0.5)'"><i class="bi bi-arrow-left"></i> Koleksi</a>
 
 <!-- PENERBIT FILTER -->
-@if($penerbitList->count() > 0)
+<?php if($penerbitList->count() > 0): ?>
 <div class="container" style="padding-top:24px">
     <div class="penerbit-scroll">
-        <a href="{{ route('koleksi.terbaru', $genre ? ['genre' => $genre] : []) }}" class="penerbit-chip {{ !$penerbit ? 'active' : '' }}">Semua</a>
-        @foreach($penerbitList as $p)
-            <a href="{{ route('koleksi.terbaru', array_filter(['penerbit' => $p->id, 'genre' => $genre])) }}" class="penerbit-chip {{ $penerbit == $p->id ? 'active' : '' }}">{{ $p->nama }}</a>
-        @endforeach
+        <a href="<?php echo e(route('koleksi.populer', $genre ? ['genre' => $genre] : [])); ?>" class="penerbit-chip <?php echo e(!$penerbit ? 'active' : ''); ?>">Semua</a>
+        <?php $__currentLoopData = $penerbitList; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <a href="<?php echo e(route('koleksi.populer', array_filter(['penerbit' => $p->id, 'genre' => $genre]))); ?>" class="penerbit-chip <?php echo e($penerbit == $p->id ? 'active' : ''); ?>"><?php echo e($p->nama); ?></a>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
 <!-- GRID -->
 <div class="page-section">
     <div class="container">
-        @if($buku->count() > 0)
+        <?php if($buku->count() > 0): ?>
+        <p style="font-size:13px;color:#888;margin-bottom:16px"><?php echo e($buku->count()); ?> buku paling sering dipinjam<?php echo e($genre ? ' di genre '.$genre : ''); ?></p>
         <div class="row g-4 book-grid">
-            @foreach($buku as $index => $item)
+            <?php $__currentLoopData = $buku; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="col-6 col-md-4 col-lg-3">
                 <div class="book-card">
-                    <div class="book-card-cover cover-{{ (($index + 3) % 6) + 1 }}">
-                        <div class="badge-baru">Baru</div>
-                        @if($item->sampul)
-                            <img src="{{ asset($item->sampul) }}" alt="{{ $item->judul }}">
-                        @else
+                    <div class="book-card-cover cover-<?php echo e(($index % 6) + 1); ?>">
+                        <?php if(($item->peminjaman_count ?? 0) >= 10): ?>
+                        <div class="badge-trending">Trending</div>
+                        <?php endif; ?>
+                        <?php if($item->sampul): ?>
+                            <img src="<?php echo e(asset($item->sampul)); ?>" alt="<?php echo e($item->judul); ?>">
+                        <?php else: ?>
                             <div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>
-                        @endif
-                        <button type="button" onclick="toggleFavorit({{ $item->id }}, this)" data-favorit="{{ in_array($item->id, $favoritIds ?? []) ? 'true' : 'false' }}" class="btn-favorit">
-                            @if(in_array($item->id, $favoritIds ?? []))
+                        <?php endif; ?>
+                        <button type="button" onclick="toggleFavorit(<?php echo e($item->id); ?>, this)" data-favorit="<?php echo e(in_array($item->id, $favoritIds ?? []) ? 'true' : 'false'); ?>" class="btn-favorit">
+                            <?php if(in_array($item->id, $favoritIds ?? [])): ?>
                                 <i class="bi bi-heart-fill" style="color:#e74c3c"></i>
-                            @else
+                            <?php else: ?>
                                 <i class="bi bi-heart" style="color:#999"></i>
-                            @endif
+                            <?php endif; ?>
                         </button>
                     </div>
                     <div class="book-card-body">
-                        <h5>{{ $item->judul }}</h5>
-                        <p class="book-card-meta"><i class="bi bi-person"></i> {{ $item->pengarang }}</p>
-                        @if($item->genre)<span class="book-card-genre">{{ $item->genre?->nama }}</span>@endif
+                        <h5><?php echo e($item->judul); ?></h5>
+                        <p class="book-card-meta"><i class="bi bi-person"></i> <?php echo e($item->pengarang); ?></p>
+                        <?php if($item->genre): ?><span class="book-card-genre"><?php echo e($item->genre?->nama); ?></span><?php endif; ?>
                         <div style="margin-top:auto;padding-top:4px">
-                            <span class="status-badge {{ $item->stok > 0 ? 'status-ada' : 'status-habis' }}">
-                                {{ $item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam' }}
+                            <span class="status-badge <?php echo e($item->stok > 0 ? 'status-ada' : 'status-habis'); ?>">
+                                <?php echo e($item->stok > 0 ? 'Tersedia ('.$item->stok.')' : 'Dipinjam'); ?>
+
                             </span>
+                            <span style="display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:600;background:#fff3cd;color:#d97706;margin-left:4px"><?php echo e($item->peminjaman_count); ?>x</span>
                         </div>
-                        @if($item->stok > 0)
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail" style="margin-top:6px"><i class="bi bi-eye"></i> Detail</a>
-                        @else
-                        <a href="{{ route('buku.detail', $item->id) }}" class="btn-detail btn-detail-disabled" style="margin-top:6px"><i class="bi bi-eye"></i> Detail</a>
-                        @endif
+                        <?php if($item->stok > 0): ?>
+                        <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="btn-detail" style="margin-top:6px"><i class="bi bi-eye"></i> Detail</a>
+                        <?php else: ?>
+                        <a href="<?php echo e(route('buku.detail', $item->id)); ?>" class="btn-detail btn-detail-disabled" style="margin-top:6px"><i class="bi bi-eye"></i> Detail</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-            @endforeach
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
-        @else
+        <?php else: ?>
         <div class="empty-state">
             <i class="bi bi-inbox"></i>
-            <p>Buku terbaru tidak ditemukan{{ $genre ? ' untuk genre '.$genre : '' }}{{ $penerbit ? ' dari penerbit '.$penerbit : '' }}</p>
-            @if($genre || $penerbit)
-            <a href="{{ route('koleksi.terbaru') }}" class="btn btn-outline-success mt-3" style="border-radius:10px">Lihat Semua Buku Terbaru</a>
-            @else
-            <a href="{{ route('koleksi.index') }}" class="btn btn-outline-success mt-3" style="border-radius:10px">Lihat Semua Buku</a>
-            @endif
+            <p>Buku populer tidak ditemukan<?php echo e($genre ? ' untuk genre '.$genre : ''); ?><?php echo e($penerbit ? ' dari penerbit '.$penerbit : ''); ?></p>
+            <?php if($genre || $penerbit): ?>
+            <a href="<?php echo e(route('koleksi.populer')); ?>" class="btn btn-outline-success mt-3" style="border-radius:10px">Lihat Semua Buku Populer</a>
+            <?php endif; ?>
         </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
 </div><!-- end mainSections -->
 
 <!-- SEARCH RESULTS (shown only when searching) -->
-<div id="searchResults" class="container" style="padding:32px 0 60px">
+<div id="searchResults" class="container" style="padding:32px 0 60px;display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
         <h3 style="font-size:20px;font-weight:800;color:#1a1a2e;display:flex;align-items:center;gap:10px"><i class="bi bi-search" style="color:#1a6e35;font-size:22px"></i> Hasil Pencarian</h3>
         <span id="searchCount" style="font-size:13px;color:#888"></span>
@@ -475,7 +473,7 @@
     </div>
 </div>
 
-{{-- MODAL VIP --}}
+
 <div id="modalVip" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;align-items:center;justify-content:center">
     <div style="background:white;border-radius:24px;padding:30px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative">
         <button onclick="document.getElementById('modalVip').style.display='none'" style="position:absolute;top:15px;right:15px;background:none;border:none;font-size:20px;color:#aaa;cursor:pointer">&#10005;</button>
@@ -484,13 +482,13 @@
             <h5 style="font-weight:800;color:#222;margin:0">Member VIP</h5>
             <p style="font-size:13px;color:#888;margin-top:4px">Akses semua e-book & fitur eksklusif</p>
         </div>
-        @if($vipAktif)
+        <?php if($vipAktif): ?>
         <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border-radius:14px;padding:15px;text-align:center;margin-bottom:20px">
             <div style="font-size:13px;color:#856404;font-weight:600">VIP Aktif</div>
-            <div style="font-size:12px;color:#888;margin-top:4px">Berakhir: {{ auth()->user()->vip_expired_at->format('d M Y') }}</div>
-            <div style="font-size:20px;font-weight:800;color:#f59e0b;margin-top:6px">{{ $sisaHari }} Hari Lagi</div>
+            <div style="font-size:12px;color:#888;margin-top:4px">Berakhir: <?php echo e(auth()->user()->vip_expired_at->format('d M Y')); ?></div>
+            <div style="font-size:20px;font-weight:800;color:#f59e0b;margin-top:6px"><?php echo e($sisaHari); ?> Hari Lagi</div>
         </div>
-        @endif
+        <?php endif; ?>
         <div style="background:#f8f9fa;border-radius:12px;padding:15px;margin-bottom:20px">
             <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:10px">Keuntungan VIP:</div>
             <div style="font-size:12px;color:#555;line-height:2">
@@ -500,23 +498,24 @@
                 <div>Badge VIP eksklusif</div>
             </div>
         </div>
-        @if(auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at))
+        <?php if(auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at)): ?>
         <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:12px">Status VIP:</div>
         <button type="button" disabled style="width:100%;padding:13px;border-radius:12px;border:none;background:#e5e7eb;color:#6b7280;font-weight:700;font-size:14px;cursor:not-allowed">VIP Masih Aktif</button>
-        @else
+        <?php else: ?>
         <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:12px">Upgrade VIP 7 hari — 100 Koin:</div>
-        <form action="{{ route('vip.beli') }}" method="POST">
-            @csrf
-            <button type="submit" {{ (auth()->user()->coin ?? 0) < 100 ? 'disabled' : '' }} onclick="return confirm('Upgrade VIP 7 hari dengan 100 koin?')"
-                style="width:100%;padding:13px;border-radius:12px;border:none;background:{{ (auth()->user()->coin ?? 0) >= 100 ? 'linear-gradient(135deg,#1a6e35,#27ae60)' : '#e5e7eb' }};color:{{ (auth()->user()->coin ?? 0) >= 100 ? 'white' : '#9ca3af' }};font-weight:700;font-size:14px;cursor:{{ (auth()->user()->coin ?? 0) >= 100 ? 'pointer' : 'not-allowed' }}">
-                {{ (auth()->user()->coin ?? 0) >= 100 ? 'Upgrade dengan 100 Koin' : 'Koin Tidak Cukup ('.(auth()->user()->coin ?? 0).'/100)' }}
+        <form action="<?php echo e(route('vip.beli')); ?>" method="POST">
+            <?php echo csrf_field(); ?>
+            <button type="submit" <?php echo e((auth()->user()->coin ?? 0) < 100 ? 'disabled' : ''); ?> onclick="return confirm('Upgrade VIP 7 hari dengan 100 koin?')"
+                style="width:100%;padding:13px;border-radius:12px;border:none;background:<?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'linear-gradient(135deg,#1a6e35,#27ae60)' : '#e5e7eb'); ?>;color:<?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'white' : '#9ca3af'); ?>;font-weight:700;font-size:14px;cursor:<?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'pointer' : 'not-allowed'); ?>">
+                <?php echo e((auth()->user()->coin ?? 0) >= 100 ? 'Upgrade dengan 100 Koin' : 'Koin Tidak Cukup ('.(auth()->user()->coin ?? 0).'/100)'); ?>
+
             </button>
         </form>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
-{{-- SCAN MODALS --}}
+
 <div class="scan-modal" id="scanModal">
     <div class="scan-modal-box">
         <h4><i class="bi bi-qr-code-scan"></i> Scan Barcode Buku</h4>
@@ -567,8 +566,6 @@ function positionDropdown(el) {
 }
 function toggleLayanan(e) { e.preventDefault(); var el = document.getElementById('layananDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('genreDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); }
 function toggleGenre(e) { e.preventDefault(); var el = document.getElementById('genreDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); if (el.classList.contains('show')) { setTimeout(function() { document.getElementById('genreSearchInput').focus(); }, 100); } }
-function toggleProfil(e) { e.preventDefault(); var el = document.getElementById('profilDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); }
-document.addEventListener('click', function(e) { if (!e.target.closest('.nav-item') && !e.target.closest('.profil-avatar')) { document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); } });
 
 // Genre search functionality
 document.getElementById('genreSearchInput').addEventListener('input', function(e) {
@@ -584,6 +581,8 @@ document.getElementById('genreSearchInput').addEventListener('input', function(e
     });
 });
 document.getElementById('genreSearchInput').addEventListener('click', function(e) { e.stopPropagation(); });
+function toggleProfil(e) { e.preventDefault(); var el = document.getElementById('profilDropdown'); positionDropdown(el); el.classList.toggle('show'); document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); }
+document.addEventListener('click', function(e) { if (!e.target.closest('.nav-item') && !e.target.closest('.profil-avatar')) { document.getElementById('layananDropdown').classList.remove('show'); document.getElementById('genreDropdown').classList.remove('show'); document.getElementById('profilDropdown').classList.remove('show'); } });
 
 // FAVORIT
 function toggleFavorit(bukuId, btn) {
@@ -599,9 +598,9 @@ if(localStorage.getItem('darkMode') === 'enabled'){ document.body.classList.add(
 darkToggle.addEventListener('click', function() { document.body.classList.toggle('dark-mode'); if(document.body.classList.contains('dark-mode')){ localStorage.setItem('darkMode','enabled'); darkToggle.innerHTML = '<i class="bi bi-sun-fill"></i>'; } else { localStorage.setItem('darkMode','disabled'); darkToggle.innerHTML = '<i class="bi bi-moon-fill"></i>'; } });
 
 // SEARCH
-var allBooks = @json($buku->values());
+var allBooks = <?php echo json_encode($buku->values(), 15, 512) ?>;
 var coverColors = ['cover-1','cover-2','cover-3','cover-4','cover-5','cover-6'];
-var favoritIds = @json($favoritIds ?? []);
+var favoritIds = <?php echo json_encode($favoritIds ?? [], 15, 512) ?>;
 var searchInput = document.getElementById('searchInput');
 var mainSections = document.getElementById('mainSections');
 var searchResults = document.getElementById('searchResults');
@@ -640,7 +639,7 @@ function performSearch() {
     results.forEach(function(item, index) {
         var isFav = favoritIds.indexOf(item.id) !== -1;
         var sampulHtml = item.sampul ? '<img src="' + item.sampul + '" alt="' + item.judul + '">' : '<div class="book-card-cover-placeholder"><i class="bi bi-book"></i></div>';
-        var badgeBaru = '<div class="badge-baru">Baru</div>';
+        var trendingBadge = item.peminjaman_count >= 10 ? '<div class="badge-trending">Trending</div>' : '';
         var genreHtml = item.genre ? '<span class="book-card-genre">' + item.genre + '</span>' : '';
         var statusClass = item.stok > 0 ? 'status-ada' : 'status-habis';
         var statusText = item.stok > 0 ? 'Tersedia (' + item.stok + ')' : 'Dipinjam';
@@ -651,14 +650,15 @@ function performSearch() {
 
         var html = '<div class="col-6 col-md-4 col-lg-3">' +
             '<div class="book-card">' +
-            '<div class="book-card-cover ' + coverColors[(index + 3) % 6] + '">' + badgeBaru + sampulHtml +
+            '<div class="book-card-cover ' + coverColors[index % 6] + '">' + trendingBadge + sampulHtml +
             '<button type="button" onclick="toggleFavorit(' + item.id + ', this)" data-favorit="' + (isFav ? 'true' : 'false') + '" class="btn-favorit">' + favIcon + '</button>' +
             '</div>' +
             '<div class="book-card-body">' +
             '<h5>' + item.judul + '</h5>' +
             '<p class="book-card-meta"><i class="bi bi-person"></i> ' + item.pengarang + '</p>' +
             genreHtml +
-            '<div style="margin-top:auto;padding-top:4px"><span class="status-badge ' + statusClass + '">' + statusText + '</span></div>' +
+            '<div style="margin-top:auto;padding-top:4px"><span class="status-badge ' + statusClass + '">' + statusText + '</span>' +
+            '<span style="display:inline-block;padding:3px 8px;border-radius:20px;font-size:9px;font-weight:600;background:#fff3cd;color:#d97706;margin-left:4px">' + item.peminjaman_count + 'x</span></div>' +
             btnHtml +
             '</div></div></div>';
         searchGrid.insertAdjacentHTML('beforeend', html);
@@ -668,7 +668,7 @@ function performSearch() {
 // SCAN MODAL
 var scanScanner = null;
 var scanCsrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-var scanIsVip = {{ auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at) ? 'true' : 'false' }};
+var scanIsVip = <?php echo e(auth()->user()->is_vip && auth()->user()->vip_expired_at && now()->lt(auth()->user()->vip_expired_at) ? 'true' : 'false'); ?>;
 var scanProcessing = false;
 
 function openScanModal(e) {
@@ -777,6 +777,26 @@ window.addEventListener('load', function() {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.1/dist/cropper.min.js"></script>
-<x-crop-modal />
+<?php if (isset($component)) { $__componentOriginalc341f611a63b85a7efee481957438a0f = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalc341f611a63b85a7efee481957438a0f = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.crop-modal','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('crop-modal'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalc341f611a63b85a7efee481957438a0f)): ?>
+<?php $attributes = $__attributesOriginalc341f611a63b85a7efee481957438a0f; ?>
+<?php unset($__attributesOriginalc341f611a63b85a7efee481957438a0f); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalc341f611a63b85a7efee481957438a0f)): ?>
+<?php $component = $__componentOriginalc341f611a63b85a7efee481957438a0f; ?>
+<?php unset($__componentOriginalc341f611a63b85a7efee481957438a0f); ?>
+<?php endif; ?>
 </body>
 </html>
+<?php /**PATH C:\laragon\www\PerpustakaanDigital\resources\views/koleksi/populer.blade.php ENDPATH**/ ?>
