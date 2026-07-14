@@ -1,5 +1,5 @@
-<?php $__env->startSection('title', 'Daftar Admin - Perpustakaan Digital'); ?>
-<?php $__env->startSection('page-title', 'Daftar Admin'); ?>
+<?php $__env->startSection('title', 'Kelola Admin'); ?>
+<?php $__env->startSection('page-title', 'Kelola Admin'); ?>
 
 <?php $__env->startSection('content'); ?>
 

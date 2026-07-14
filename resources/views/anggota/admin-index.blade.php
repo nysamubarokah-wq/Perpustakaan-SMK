@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Daftar Admin - Perpustakaan Digital')
-@section('page-title', 'Daftar Admin')
+@section('title', 'Kelola Admin')
+@section('page-title', 'Kelola Admin')
 
 @section('content')
 
