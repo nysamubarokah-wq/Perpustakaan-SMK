@@ -37,4 +37,4 @@ Thumbs.db
 !/public/ebooks/.gitignore
 
 /public/foto-profil/*
-!/public/foto-profil/.gitignore
+!/public/foto-profil/.gitignore/storage/framework/views/
