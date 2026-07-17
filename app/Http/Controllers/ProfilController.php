@@ -20,6 +20,58 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
 {
+    public function tagihanDenda()
+    {
+        $user = auth()->user()->fresh();
+        $anggota = Anggota::where('user_id', $user->id)->first();
+
+        if (! $anggota) {
+            $anggota = Anggota::where('email', $user->email)->first();
+            if ($anggota) {
+                $anggota->update(['user_id' => $user->id]);
+            }
+        }
+
+        $anggotaId = $anggota ? $anggota->id : 0;
+
+        $allWithDenda = Peminjaman::with(['buku', 'dendaRecord'])
+            ->where('anggota_id', $anggotaId)
+            ->where(function ($q) {
+                $q->where('total_denda', '>', 0)
+                  ->orWhere(function ($q2) {
+                      $q2->whereNotNull('denda')->where('denda', '>', 0);
+                  });
+            })
+            ->get();
+
+        $tagihanDenda = $allWithDenda->filter(function ($p) {
+            $dendaRecord = $p->dendaRecord;
+            if ($dendaRecord && $dendaRecord->status === 'belum_dibayar') {
+                return true;
+            }
+            if ($p->status_denda === 'belum_dibayar') {
+                return true;
+            }
+            return false;
+        })->values();
+
+        foreach ($tagihanDenda as $tagihan) {
+            $tglKembali = Carbon::parse($tagihan->tanggal_kembali)->startOfDay();
+            $tglKembalikan = $tagihan->tanggal_dikembalikan
+                ? Carbon::parse($tagihan->tanggal_dikembalikan)->startOfDay()
+                : Carbon::now('Asia/Jakarta')->startOfDay();
+            $tagihan->hari_terlambat = $tglKembalikan->gt($tglKembali)
+                ? (int) $tglKembali->diffInDays($tglKembalikan)
+                : 0;
+        }
+
+        $totalTagihan = $tagihanDenda->sum(function ($t) {
+            return (int) ($t->total_denda ?? $t->denda ?? 0);
+        });
+
+        return view('profil.tagihan-denda', compact('tagihanDenda', 'totalTagihan', 'user'));
+    }
+
     public function index()
     {
         $user = auth()->user()->fresh();
@@ -35,7 +87,7 @@ class ProfilController extends Controller
 
         $anggotaId = $anggota ? $anggota->id : 0;
 
-        $riwayat = Peminjaman::with(['buku', 'eksemplar', 'denda'])
+        $riwayat = Peminjaman::with(['buku', 'eksemplar', 'dendaRecord'])
             ->where('anggota_id', $anggotaId)
             ->latest()
             ->take(3)
@@ -62,10 +114,48 @@ class ProfilController extends Controller
             }
         }
 
+        $allWithDenda = Peminjaman::with(['buku', 'dendaRecord'])
+            ->where('anggota_id', $anggotaId)
+            ->where(function ($q) {
+                $q->where('total_denda', '>', 0)
+                  ->orWhere(function ($q2) {
+                      $q2->whereNotNull('denda')->where('denda', '>', 0);
+                  });
+            })
+            ->get();
+
+        $tagihanDenda = $allWithDenda->filter(function ($p) {
+            $dendaRecord = $p->dendaRecord;
+            if ($dendaRecord && $dendaRecord->status === 'belum_dibayar') {
+                return true;
+            }
+            if ($p->status_denda === 'belum_dibayar') {
+                return true;
+            }
+            return false;
+        })->values();
+
+        foreach ($tagihanDenda as $tagihan) {
+            $tglKembali = Carbon::parse($tagihan->tanggal_kembali)->startOfDay();
+            $tglKembalikan = $tagihan->tanggal_dikembalikan
+                ? Carbon::parse($tagihan->tanggal_dikembalikan)->startOfDay()
+                : Carbon::now('Asia/Jakarta')->startOfDay();
+            $tagihan->hari_terlambat = $tglKembalikan->gt($tglKembali)
+                ? (int) $tglKembali->diffInDays($tglKembalikan)
+                : 0;
+        }
+
+        $totalTagihan = $tagihanDenda->sum(function ($t) {
+            return (int) ($t->total_denda ?? $t->denda ?? 0);
+        });
+
         $totalFavorit = Favorit::where('user_id', $user->id)->count();
         $totalEbook = Ebook::count();
 
-        return view('profil.index', compact('riwayat', 'totalDendaBelumBayar', 'user', 'totalFavorit', 'totalEbook', 'totalRiwayatCount'));
+        return view('profil.index', compact(
+            'riwayat', 'totalDendaBelumBayar', 'user', 'totalFavorit', 'totalEbook',
+            'totalRiwayatCount', 'tagihanDenda', 'totalTagihan'
+        ));
     }
 
     public function kembalikan($id)
@@ -84,7 +174,11 @@ class ProfilController extends Controller
             $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
             $hitungDenda = DendaHelper::hitung($selisihHari);
 
-            $peminjaman->update(['denda' => $hitungDenda]);
+            $peminjaman->update([
+                'denda' => $hitungDenda,
+                'total_denda' => $hitungDenda,
+                'status_denda' => 'belum_dibayar',
+            ]);
 
             $sudahAda = Denda::where('peminjaman_id', $peminjaman->id)->exists();
             if (! $sudahAda) {
@@ -140,7 +234,11 @@ class ProfilController extends Controller
                     if ($hariIni->gt($tanggalKembali)) {
                         $selisihHari = (int) abs($hariIni->diffInDays($tanggalKembali));
                         $hitungDenda = DendaHelper::hitung($selisihHari);
-                        $peminjaman->update(['denda' => $hitungDenda]);
+                        $peminjaman->update([
+                            'denda' => $hitungDenda,
+                            'total_denda' => $hitungDenda,
+                            'status_denda' => 'belum_dibayar',
+                        ]);
 
                         $sudahAda = Denda::where('peminjaman_id', $peminjaman->id)->exists();
                         if (! $sudahAda) {
@@ -211,7 +309,7 @@ class ProfilController extends Controller
 
         $anggotaId = $anggota ? $anggota->id : 0;
 
-        $query = Peminjaman::with(['buku', 'eksemplar', 'denda'])
+        $query = Peminjaman::with(['buku', 'eksemplar', 'dendaRecord'])
             ->where('anggota_id', $anggotaId)
             ->latest('tanggal_pinjam');
 
@@ -266,7 +364,7 @@ class ProfilController extends Controller
 
         $anggotaId = $anggota ? $anggota->id : 0;
 
-        $peminjaman = Peminjaman::with(['buku', 'eksemplar', 'denda'])
+        $peminjaman = Peminjaman::with(['buku', 'eksemplar', 'dendaRecord'])
             ->where('id', $id)
             ->where('anggota_id', $anggotaId)
             ->firstOrFail();

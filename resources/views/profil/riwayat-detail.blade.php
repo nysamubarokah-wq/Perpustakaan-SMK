@@ -2,7 +2,7 @@
     $user = auth()->user();
     $buku = $peminjaman->buku;
     $eksemplar = $peminjaman->eksemplar;
-    $denda = $peminjaman->denda;
+    $denda = $peminjaman->dendaRecord;
 
     $badgeClass = 'status-dipinjam';
     $badgeText = 'Dipinjam';
@@ -370,7 +370,7 @@
                                 <span class="status-badge {{ $badgeClass }}">{{ $badgeText }}</span>
                             </div>
                         </div>
-                        @if($peminjaman->terlambat_hari > 0)
+                                        @if($peminjaman->terlambat_hari > 0)
                             <div class="info-box full">
                                 <div class="label">Lama Keterlambatan</div>
                                 <div class="value" style="color:#dc3545">
@@ -388,17 +388,21 @@
                 </div>
 
                 @if($totalDenda > 0)
-                    <div class="denda-box {{ $denda && $denda->status === 'lunas' ? 'paid' : '' }}">
+                    <div class="denda-box {{ ($denda && $denda->status === 'sudah_dibayar') || $peminjaman->status_denda === 'lunas' ? 'paid' : '' }}">
                         <div class="denda-label">Total Denda</div>
                         <div class="denda-amount">Rp {{ number_format($totalDenda, 0, ',', '.') }}</div>
                         @if($peminjaman->terlambat_hari > 0)
                             <div class="denda-days">{{ $peminjaman->terlambat_hari }} hari x Rp 1.000</div>
                         @endif
-                        @if($denda && $denda->status)
-                            <div style="margin-top:8px;font-size:12px;color:#888">
-                                Status: {{ ucfirst($denda->status) }}
-                            </div>
-                        @endif
+                        <div style="margin-top:8px;font-size:12px;color:#888">
+                            @if($peminjaman->status_denda === 'lunas')
+                                <span style="color:#27ae60"><i class="bi bi-check-circle-fill"></i> Lunas</span>
+                            @elseif($peminjaman->status_denda === 'belum_dibayar')
+                                <span style="color:#dc3545"><i class="bi bi-exclamation-circle-fill"></i> Belum Dibayar</span>
+                            @elseif($denda && $denda->status)
+                                Status: {{ ucfirst(str_replace('_', ' ', $denda->status)) }}
+                            @endif
+                        </div>
                     </div>
                 @endif
 

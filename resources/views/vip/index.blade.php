@@ -56,13 +56,16 @@
     </style>
 </head>
 <body>
+@php
+    $backUrl = (session('notifikasi_from_notif') || request()->query('from') === 'notif') ? '/notifikasi' : route('profil.index');
+@endphp
 
 <nav class="navbar">
     <a href="{{ route('koleksi.index') }}" class="d-flex align-items-center gap-2 text-decoration-none">
         <img src="{{ asset('images/logo.jpg') }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">
         <span style="font-size:13px;font-weight:700;color:#1a6e35;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
     </a>
-    <a href="{{ route('profil.index') }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+    <a href="{{ $backUrl }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
         <i class="bi bi-arrow-left"></i> Kembali
     </a>
 </nav>

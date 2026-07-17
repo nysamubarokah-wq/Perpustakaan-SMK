@@ -12,19 +12,23 @@ class NotifikasiController extends Controller
     public function index(Request $request)
     {
         $prevUrl = url()->previous();
-        $excludedPatterns = ['/notifikasi', '/login', '/register', '/password/reset', '/verify', '/email'];
-        $isExcluded = false;
+        $allowedBackPatterns = ['/koleksi', '/dashboard', '/buku'];
+        $isAllowed = false;
 
-        foreach ($excludedPatterns as $pattern) {
+        foreach ($allowedBackPatterns as $pattern) {
             if ($prevUrl && str_contains($prevUrl, $pattern)) {
-                $isExcluded = true;
+                $isAllowed = true;
                 break;
             }
         }
 
-        if ($prevUrl && !$isExcluded) {
+        if ($isAllowed) {
             session(['notifikasi_back_url' => $prevUrl]);
+        } else {
+            session()->forget('notifikasi_back_url');
         }
+
+        session()->forget('notifikasi_from_notif');
 
         $userId = auth()->id();
         $query = Notification::where('user_id', $userId)
@@ -75,7 +79,14 @@ class NotifikasiController extends Controller
             'import_gagal' => '/',
         ];
 
-        $redirectUrl = $notifikasi ? ($linkMap[$notifikasi->type] ?? '/profil') : '/profil';
+        $redirectUrl = $notifikasi->link
+            ?? ($linkMap[$notifikasi->type] ?? '/profil');
+
+        if ($request->query('from') === 'notif') {
+            $separator = parse_url($redirectUrl, PHP_URL_QUERY) ? '&' : '?';
+            $redirectUrl .= $separator . 'from=notif';
+            session(['notifikasi_from_notif' => true]);
+        }
 
         return redirect($redirectUrl);
     }

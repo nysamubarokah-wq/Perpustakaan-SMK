@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Notifikasi - Perpustakaan SMK Maarif</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -344,6 +347,7 @@
 </head>
 <body>
     @php
+        session()->forget('notifikasi_from_notif');
         $isAdmin = auth()->check() && auth()->user()->role === 'admin';
         $backUrl = session('notifikasi_back_url')
             ?? ($isAdmin ? route('admin.dashboard') : route('koleksi.index'));
@@ -427,7 +431,7 @@
                     default => '#6c757d'
                 };
             @endphp
-            <div class="notif-card {{ !$item->is_read ? 'unread' : '' }}" id="notif-card-{{ $item->id }}" onclick="window.open('/notifikasi/{{ $item->id }}/baca', '_self')" style="cursor:pointer;">
+            <div class="notif-card {{ !$item->is_read ? 'unread' : '' }}" id="notif-card-{{ $item->id }}" onclick="window.location.href='/notifikasi/{{ $item->id }}/baca?from=notif'" style="cursor:pointer;">
                 <div class="notif-card-content">
                     <div class="notif-icon-wrap" style="background: {{ $iconBg }}">
                         <i class="bi bi-{{ $item->icon ?? 'bell' }}"></i>
@@ -446,7 +450,7 @@
                             </span>
                             <div class="notif-actions">
                                 @if($item->link)
-                                    <a href="{{ $item->link }}" class="action-icon" title="Buka link" onclick="event.stopPropagation()">
+                                    <a href="{{ $item->link }}?from=notif" class="action-icon" title="Buka link" onclick="event.stopPropagation()">
                                         <i class="bi bi-box-arrow-up-right"></i>
                                     </a>
                                 @endif

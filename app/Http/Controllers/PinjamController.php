@@ -328,6 +328,8 @@ class PinjamController extends Controller
                 'status' => 'dikembalikan',
                 'tanggal_dikembalikan' => $hariIni->toDateString(),
                 'denda' => $hitungDenda,
+                'total_denda' => $hitungDenda,
+                'status_denda' => $hitungDenda > 0 ? 'belum_dibayar' : null,
             ]);
 
             if ($hitungDenda > 0) {
@@ -388,6 +390,8 @@ class PinjamController extends Controller
                 'status' => 'dikembalikan',
                 'tanggal_dikembalikan' => $hariIni->toDateString(),
                 'denda' => $hitungDenda,
+                'total_denda' => $hitungDenda,
+                'status_denda' => $hitungDenda > 0 ? 'belum_dibayar' : null,
             ]);
 
             if ($hitungDenda > 0) {

@@ -70,9 +70,13 @@ class DendaController extends Controller
     public function lunasi($id)
     {
         $denda = Denda::findOrFail($id);
+        $denda->peminjaman->update([
+            'status_denda' => 'lunas',
+            'tanggal_bayar' => now()->toDateString(),
+        ]);
         $denda->update([
             'status' => 'sudah_dibayar',
-            'tanggal_bayar' => now()->toDateString()
+            'tanggal_bayar' => now()->toDateString(),
         ]);
 
         return redirect()->back()->with('success', 'Denda berhasil dilunasi!');
@@ -80,15 +84,24 @@ class DendaController extends Controller
 
     public function lunasiSemua()
     {
-        $updated = Denda::where('status', 'belum_dibayar')
+        $dendas = Denda::where('status', 'belum_dibayar')
             ->whereHas('peminjaman', fn($q) => $q->where('status', 'dikembalikan'))
-            ->update([
-                'status' => 'sudah_dibayar',
-                'tanggal_bayar' => now()->toDateString()
-            ]);
+            ->with('peminjaman')
+            ->get();
 
-        if ($updated > 0) {
-            return redirect()->back()->with('success', "{$updated} denda berhasil dilunasi!");
+        foreach ($dendas as $denda) {
+            $denda->peminjaman->update([
+                'status_denda' => 'lunas',
+                'tanggal_bayar' => now()->toDateString(),
+            ]);
+            $denda->update([
+                'status' => 'sudah_dibayar',
+                'tanggal_bayar' => now()->toDateString(),
+            ]);
+        }
+
+        if ($dendas->count() > 0) {
+            return redirect()->back()->with('success', "{$dendas->count()} denda berhasil dilunasi!");
         }
         return redirect()->back()->with('error', 'Tidak ada denda yang bisa dilunasi.');
     }

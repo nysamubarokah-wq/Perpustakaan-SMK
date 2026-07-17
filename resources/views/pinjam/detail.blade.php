@@ -1406,6 +1406,9 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
             </button>
         </form>
         <script>
+            document.getElementById('redirectUrlInput').value = sessionStorage.getItem('koleksiFilterUrl') || '{{ route('koleksi.index') }}';
+        </script>
+        <script>
             function updateMaxJumlah() {
                 var input = document.getElementById('inputJumlah');
                 var max = {{ $stokTersedia }};
@@ -1417,9 +1420,7 @@ body.dark-mode #notifikasiDropdown div[style*="color:#999"] {
                 }
             }
         </script>
-        <script>
-            document.getElementById('redirectUrlInput').value = sessionStorage.getItem('koleksiFilterUrl') || '{{ route('koleksi.index') }}';
-        </script>
+
         <button onclick="hideModal()" class="btn-batal">Batal</button>
     </div>
 </div>
@@ -1459,7 +1460,10 @@ if(localStorage.getItem('darkMode') === 'enabled'){
 }
 
 function kembaliKeKoleksi() {
-    if (window.history.length > 1) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('from') === 'notif') {
+        window.location.href = '/notifikasi';
+    } else if (window.history.length > 1) {
         window.history.back();
     } else {
         window.location.href = '{{ route('koleksi.index') }}';

@@ -82,6 +82,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/profil', [App\Http\Controllers\ProfilController::class, 'index'])->name('profil.index');
     Route::get('/profil/riwayat', [App\Http\Controllers\ProfilController::class, 'riwayat'])->name('profil.riwayat');
+    Route::get('/profil/tagihan-denda', [App\Http\Controllers\ProfilController::class, 'tagihanDenda'])->name('profil.tagihan-denda');
     Route::get('/profil/riwayat/{id}', [App\Http\Controllers\ProfilController::class, 'detailRiwayat'])->name('profil.riwayat.detail');
     Route::put('/profil/peminjaman/{id}/kembalikan', [App\Http\Controllers\ProfilController::class, 'kembalikan'])->name('peminjaman.kembalikan');
     Route::post('/profil/peminjaman/kembalikan-banyak', [App\Http\Controllers\ProfilController::class, 'kembalikanBanyak'])->name('peminjaman.kembalikan.banyak');

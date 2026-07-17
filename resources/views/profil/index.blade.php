@@ -645,6 +645,15 @@ body.dark-mode a[href*="ebook"] div[style*="color:#222"] {
 body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     color: white !important;
 }
+body.dark-mode a[href*="tagihan"] > div {
+    background: #1e1e1e !important;
+}
+body.dark-mode a[href*="tagihan"] div[style*="color:#222"] {
+    color: white !important;
+}
+body.dark-mode a[href*="tagihan"] i.bi-chevron-right {
+    color: #888 !important;
+}
     </style>
 
 
@@ -659,6 +668,9 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
 <nav class="navbar">
 
     <div class="container-fluid px-4">
+    @php
+        $backUrl = (session('notifikasi_from_notif') || request()->query('from') === 'notif') ? '/notifikasi' : route('koleksi.index');
+    @endphp
 
         <div class="d-flex align-items-center justify-content-between w-100">
 
@@ -669,7 +681,7 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
                 <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
 
             </a>
-                <a href="{{ route('koleksi.index') }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+                <a href="{{ $backUrl }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
     <i class="bi bi-arrow-left"></i> Kembali
 </a>
 
@@ -897,6 +909,24 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
     </div>
 </a>
 
+    <!-- TAGIHAN DENDA -->
+    <a href="{{ route('profil.tagihan-denda') }}" style="text-decoration:none;display:block;margin-bottom:25px">
+        <div style="background:white;border-radius:20px;box-shadow:0 5px 25px rgba(0,0,0,0.08);padding:20px 25px;display:flex;align-items:center;gap:15px;transition:transform 0.2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#dc3545,#ff6b6b);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <i class="bi bi-wallet2" style="color:white;font-size:20px"></i>
+            </div>
+            <div style="flex:1">
+                <div style="font-weight:700;color:#222;font-size:15px">Tagihan Denda</div>
+                @if($totalTagihan > 0)
+                    <div style="font-size:12px;color:#dc3545;font-weight:600">Rp {{ number_format($totalTagihan, 0, ',', '.') }} belum dibayar</div>
+                @else
+                    <div style="font-size:12px;color:#888">Tidak ada tagihan</div>
+                @endif
+            </div>
+            <i class="bi bi-chevron-right" style="color:#ccc"></i>
+        </div>
+    </a>
+
     <!-- RIWAYAT PEMINJAMAN -->
 
 
@@ -999,7 +1029,7 @@ body.dark-mode a[href*="favorit"] div[style*="color:#222"] {
 
 </div>
 
-
+  
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

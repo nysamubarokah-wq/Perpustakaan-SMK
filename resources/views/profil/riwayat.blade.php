@@ -266,6 +266,9 @@
     </style>
 </head>
 <body>
+    @php
+        $backUrl = (session('notifikasi_from_notif') || request()->query('from') === 'notif') ? '/notifikasi' : route('profil.index');
+    @endphp
     <nav class="navbar">
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center justify-content-between w-100">
@@ -273,7 +276,7 @@
                     <img src="{{ asset('images/logo.jpg') }}" style="width:45px;height:45px;border-radius:50%;object-fit:cover" alt="Logo">
                     <span style="font-size:13px;font-weight:700;color:#1a6e35;text-transform:uppercase;line-height:1.3">SMK Maarif<br>Walisongo Kajoran</span>
                 </a>
-                <a href="{{ route('profil.index') }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
+                <a href="{{ $backUrl }}" style="color:#1a6e35;text-decoration:none;font-size:14px;font-weight:500">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
             </div>
@@ -283,7 +286,7 @@
     <div class="main-container">
         <div class="profil-card">
             <div class="profil-header">
-                <a href="{{ route('profil.index') }}" style="background:rgba(255,255,255,0.2);border:none;color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:background 0.2s;flex-shrink:0">
+                <a href="{{ $backUrl }}" style="background:rgba(255,255,255,0.2);border:none;color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:background 0.2s;flex-shrink:0">
                     <i class="bi bi-arrow-left"></i>
                 </a>
                 <h2><i class="bi bi-clock-history me-2"></i>Riwayat Peminjaman</h2>
@@ -370,8 +373,8 @@
                                 @if($item->terlambat_hari > 0)
                                     <div class="fine-info mt-1"><i class="bi bi-exclamation-triangle"></i> Terlambat {{ $item->terlambat_hari }} hari</div>
                                 @endif
-                                @if($item->denda)
-                                    <div class="fine-info"><i class="bi bi-currency-dollar"></i> Denda: Rp {{ number_format($item->denda->jumlah_denda ?? $item->denda, 0, ',', '.') }}</div>
+                                @if($item->dendaRecord)
+                                    <div class="fine-info"><i class="bi bi-currency-dollar"></i> Denda: Rp {{ number_format($item->dendaRecord->jumlah_denda ?? $item->denda, 0, ',', '.') }}</div>
                                 @endif
                             </div>
                             <div class="history-right">
